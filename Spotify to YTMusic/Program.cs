@@ -11,8 +11,16 @@ namespace Spotify_to_YTMusic
         {
             YoutubeVideoIDFinder.StoreHTML("https://www.youtube.com/results?search_query=jump+by+blackpink+%22topic%22");
             var videoID = YoutubeVideoIDFinder.GetVideoId();
-            Console.WriteLine(videoID);
-            Console.ReadKey();
+            if(videoID != "")
+            {
+                Console.WriteLine(videoID);
+            }
+            else
+            {
+                Console.WriteLine("no ID found");
+            }
+
+                Console.ReadKey();
         }
 
         
