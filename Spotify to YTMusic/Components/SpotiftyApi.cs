@@ -1,64 +1,107 @@
 ﻿using Newtonsoft.Json.Linq;
+using Spotify_to_YTMusic.Config;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+
 
 namespace Spotify_to_YTMusic.Components
 {
     internal class SpotiftyApi
     {
-        public string? AccessToken { get; set; }
-        private string url = "https://api.spotify.com/v1/";
-        public void GetAccessToken()
+        public string AccessToken { get; set; }
+        private static readonly HttpClient client = new HttpClient();
+        JsonReader jsonReader = new JsonReader();
+        
+        public async Task GetAccessTokenAsync()
         {
-            string url = "https://accounts.spotify.com/api/token";
-            var clientId = "";
-            var clientSecret = "";
+            await jsonReader.ReadJson();
+            var clientId = jsonReader.SpotiftyClientID;
+            var clientSecret = jsonReader.SpotiftyClientSecret;
 
-            var encodeClientId_ClientSecret = Convert.ToBase64String((Encoding.UTF8.GetBytes(string.Format("{0}:{1}", clientId, clientSecret))));
-            HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(url);
-            webRequest.Method = "POST";
-            webRequest.ContentType = "application/x-www-form-urlencoded";
-            webRequest.Accept = "application/json";
-            webRequest.Headers.Add("Authorization: Basic " + encodeClientId_ClientSecret);
+            var form = new Dictionary<string, string> 
+            {
+                {"grant_type", "client_credentials" }
+            };
 
-            var request = ("grant_type=client_credentials");
-            byte[] req_bytes = Encoding.ASCII.GetBytes(request);
-            webRequest.ContentLength = req_bytes.Length;
+            var request = new HttpRequestMessage(HttpMethod.Post, "https://accounts.spotify.com/api/token") 
+            {
+                Content = new FormUrlEncodedContent(form)
+            };
+            var byteArray = Encoding.ASCII.GetBytes($"{clientId}:{clientSecret}");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
 
-            Stream stream = webRequest.GetRequestStream();
-            stream.Write(req_bytes, 0, req_bytes.Length);
-            stream.Close();
+            var response = await client.SendAsync(request);
+            var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
-            HttpWebResponse response = (HttpWebResponse)webRequest.GetResponse();
-            string jsonString = "";
-            Stream responseStream = response.GetResponseStream();
-            StreamReader reader = new StreamReader(responseStream, Encoding.UTF8);
-            jsonString = reader.ReadToEnd();
-            reader.Close();
+            if (response.IsSuccessStatusCode)
+            {
+                JObject tokenData = JObject.Parse(json);
+                AccessToken = tokenData["access_token"].ToString();
+                Console.WriteLine($"Access Token: {AccessToken}");
+            }
+            else
+            {
+                Console.WriteLine("Error getting token: " + json);
+            }
 
-            JObject json = JObject.Parse(jsonString);
-            AccessToken = (string)json.GetValue("access_token");
-            
         }
 
-        public void GetPlaylist()
+        public async Task RetryGetPlaylistAsync(string PlaylistId)
         {
-            HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(url + "playlists/5a7q5av1kX3ewlMwGuaQE3/tracks?offset=100&limit=100");
-            webRequest.Method = "GET";
-            webRequest.Headers.Add("Authorization: Bearer " + AccessToken);
+            await GetAccessTokenAsync().ConfigureAwait(false);
+            await GetPlaylistAsync(PlaylistId).ConfigureAwait(false);
+        }
 
-            HttpWebResponse response = (HttpWebResponse)webRequest.GetResponse();
-            string jsonString = "";
-            Stream responseStream = response.GetResponseStream();
-            StreamReader reader = new StreamReader(responseStream, Encoding.UTF8);
-            jsonString = reader.ReadToEnd();
-            reader.Close();
-            JObject json = JObject.Parse(jsonString);
-            Console.Write(json);
+        public async Task GetPlaylistAsync(string PlaylistId)
+        {
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
+            int limit = 100;
+            int offset = 0;
+            int totalFetched = 0;
+            while (totalFetched < 200)
+            {
+                string url = $"https://api.spotify.com/v1/playlists/{PlaylistId}/tracks?limit{limit}&offsset={offset}";
+                HttpResponseMessage responseMessage = await client.GetAsync(url).ConfigureAwait(false);
+                string json = await responseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
+                if (!responseMessage.IsSuccessStatusCode)
+                {
+                    Console.WriteLine(responseMessage.StatusCode);
+                    if(responseMessage.StatusCode == HttpStatusCode.Unauthorized)
+                    {
+                        await RetryGetPlaylistAsync(PlaylistId).ConfigureAwait(false);
+                    }
+                    break;
+                }
+
+                JObject data = JObject.Parse(json);
+                var items = data["items"];
+                var total = data["total"];
+                if (items == null || items.Count() == 0)
+                {
+                    Console.WriteLine("Playlist empty");
+                    break;
+                }
+
+                foreach (var item in items) 
+                {
+                    string trackName = item["track"]["name"].ToString();
+                    string artist = item["track"]["artists"][0]["name"].ToString();
+                    Console.WriteLine($"{trackName} by {artist}");
+                }
+                Console.WriteLine(total);
+                totalFetched += items.Count();
+                offset += items.Count();
+                if(items.Count() < limit)
+                {
+                    break;
+                }
+
+            }
         }
     }
 }
