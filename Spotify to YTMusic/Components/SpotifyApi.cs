@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Spotify_to_YTMusic.Components
 {
-    internal class SpotiftyApi
+    internal class SpotifyApi
     {
         public string AccessToken { get; set; }
         private static readonly HttpClient client = new HttpClient();
@@ -19,9 +19,9 @@ namespace Spotify_to_YTMusic.Components
         
         public async Task GetAccessTokenAsync()
         {
-            await jsonReader.ReadJson();
-            var clientId = jsonReader.SpotiftyClientID;
-            var clientSecret = jsonReader.SpotiftyClientSecret;
+            await jsonReader.ReadJsonAsync();
+            var clientId = jsonReader.SpotifyClientID;
+            var clientSecret = jsonReader.SpotifyClientSecret;
 
             var form = new Dictionary<string, string> 
             {
@@ -56,6 +56,19 @@ namespace Spotify_to_YTMusic.Components
             await GetAccessTokenAsync().ConfigureAwait(false);
             await GetPlaylistAsync(PlaylistId).ConfigureAwait(false);
         }
+        
+        public async Task GetPlaylistSnapshotIdAsync(string PlaylistId)
+        {
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
+            string url = $"https://api.spotify.com/v1/playlists/{PlaylistId}";
+            HttpResponseMessage responseMessage = await client.GetAsync(url).ConfigureAwait(false);
+            string json = await responseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
+            JObject data = JObject.Parse(json);
+            var snapshot = data["snapshot_id"];
+            await jsonReader.WriteJsonAsync(snapshot.ToString()).ConfigureAwait(false);
+            Console.WriteLine(snapshot);
+        }
+
 
         public async Task GetPlaylistAsync(string PlaylistId)
         {
