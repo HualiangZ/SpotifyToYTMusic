@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,7 @@ namespace Spotify_to_YTMusic.Config
     {
         public string SpotifyClientID { get; set; }
         public string SpotifyClientSecret { get; set; }
+        public List<PlaylistsStruct> Playlists {  get; set; }
 
         public async Task ReadJsonAsync() 
         {
@@ -19,23 +21,41 @@ namespace Spotify_to_YTMusic.Config
             JsonStruck data = JsonConvert.DeserializeObject<JsonStruck>(json);
             this.SpotifyClientID = data.SpotifyClientID;
             this.SpotifyClientSecret = data.SpotifyClientSecret;
+            this.Playlists = data.Playlists;  
             reader.Close();
         }
 
-        public async Task WriteJsonAsync(string SpotifySnapshot)
+        public async Task WriteSpotifySnapshotToJsonAsync(string spotifySnapshot, string playlistId)
         {
             StreamReader reader = new StreamReader("config.json");
             string json = await reader.ReadToEndAsync().ConfigureAwait(false);
             JsonStruck data = JsonConvert.DeserializeObject<JsonStruck>(json);
             reader.Close();
 
-            data.SpotifySnapshot = SpotifySnapshot;
+            if(playlistId == "")
+            {
+                Console.WriteLine("no playlist ID entered");
+                return;
+            }
+            foreach (var item in data.Playlists) 
+            { 
+                if(item.PlaylistId == playlistId)
+                {
+                    Console.WriteLine("Playlist already exists");
+                    return;
+                }
+            }
+
+            data.Playlists.Add(new PlaylistsStruct()
+            {
+                PlaylistId = playlistId,
+                SnapshotId = spotifySnapshot,
+            });
+            
             StreamWriter writer = new StreamWriter("config.json");
             JsonSerializer serializer = new JsonSerializer();
             serializer.Serialize(writer, data);
             writer.Close();
-            
-
         }
 
     }
@@ -44,7 +64,13 @@ namespace Spotify_to_YTMusic.Config
     { 
         public string SpotifyClientID {  get; set; }
         public string SpotifyClientSecret { get; set;} 
-        public string SpotifySnapshot {  get; set; }
+        public List<PlaylistsStruct> Playlists {  get; set; }
+    }
+
+    internal sealed class PlaylistsStruct 
+    { 
+        public string PlaylistId {  get; set; }
+        public string SnapshotId { get; set; }
     }
 
 }

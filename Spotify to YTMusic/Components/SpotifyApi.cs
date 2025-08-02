@@ -57,18 +57,22 @@ namespace Spotify_to_YTMusic.Components
             await GetPlaylistAsync(PlaylistId).ConfigureAwait(false);
         }
         
-        public async Task GetPlaylistSnapshotIdAsync(string PlaylistId)
+        public async Task<string> GetPlaylistSnapshotIdAsync(string playlistId)
         {
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
-            string url = $"https://api.spotify.com/v1/playlists/{PlaylistId}";
+            string url = $"https://api.spotify.com/v1/playlists/{playlistId}";
             HttpResponseMessage responseMessage = await client.GetAsync(url).ConfigureAwait(false);
             string json = await responseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
             JObject data = JObject.Parse(json);
             var snapshot = data["snapshot_id"];
-            await jsonReader.WriteJsonAsync(snapshot.ToString()).ConfigureAwait(false);
-            Console.WriteLine(snapshot);
+            return snapshot.ToString();
         }
 
+        public async Task StoreSnapshotAsync(string playlistId)
+        {
+            var snapshot = await GetPlaylistSnapshotIdAsync(playlistId).ConfigureAwait(false);
+            await jsonReader.WriteSpotifySnapshotToJsonAsync(snapshot, playlistId).ConfigureAwait(false);
+        }
 
         public async Task GetPlaylistAsync(string PlaylistId)
         {

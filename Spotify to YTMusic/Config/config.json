@@ -1,5 +1,10 @@
 ﻿{
     "SpotifyClientID": "",
     "SpotifyClientSecret": "",
-    "SpotifySnapshot": ""
+    "Playlists": [
+        {
+            "PlaylistId": "",
+            "snapshotId": ""
+        }
+    ]
 }
