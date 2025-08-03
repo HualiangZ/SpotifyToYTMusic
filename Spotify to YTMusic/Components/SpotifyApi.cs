@@ -74,6 +74,38 @@ namespace Spotify_to_YTMusic.Components
             await jsonReader.WriteSpotifySnapshotToJsonAsync(snapshot, playlistId).ConfigureAwait(false);
         }
 
+        public async Task CheckSnapshotIdAsync(string playlistId)
+        {
+            string newSnapshotId = await GetPlaylistSnapshotIdAsync(playlistId).ConfigureAwait(false);
+            string storedSnapshotId = await jsonReader.GetPlaylistSnapshotIdAsync(playlistId).ConfigureAwait (false);
+            if(storedSnapshotId == null)
+            {
+                Console.WriteLine("No Spotify SnapshotID is stored");
+                return;
+            }
+
+            if(newSnapshotId == null)
+            {
+                Console.WriteLine("Playlist doesnt exist");
+                return;
+            }
+
+            if (storedSnapshotId == newSnapshotId)
+            {
+                Console.WriteLine("No changes in playlist");
+                return;
+            }
+
+            if(storedSnapshotId != newSnapshotId)
+            {
+                //might need changing down the line no sure yet
+                //await GetPlaylistAsync(playlistId).ConfigureAwait(false);
+                await StoreSnapshotAsync(playlistId).ConfigureAwait(false);
+            }
+
+        }
+
+        //change this to return a file with all the music name and artist.
         public async Task GetPlaylistAsync(string PlaylistId)
         {
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);

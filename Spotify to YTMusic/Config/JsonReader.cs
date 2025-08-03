@@ -37,28 +37,55 @@ namespace Spotify_to_YTMusic.Config
                 Console.WriteLine("no playlist ID entered");
                 return;
             }
-            foreach (var item in data.Playlists) 
-            { 
+
+            bool playlistIdFound = false;
+
+            foreach(var item in data.Playlists)
+            {
                 if(item.PlaylistId == playlistId)
                 {
-                    Console.WriteLine("Playlist already exists");
-                    return;
+                    item.SnapshotId = spotifySnapshot;
+                    playlistIdFound = true;
+                    break;
                 }
             }
 
-            data.Playlists.Add(new PlaylistsStruct()
+            if (!playlistIdFound)
             {
-                PlaylistId = playlistId,
-                SnapshotId = spotifySnapshot,
-            });
-            
+                data.Playlists.Add(new PlaylistsStruct()
+                {
+                    PlaylistId = playlistId,
+                    SnapshotId = spotifySnapshot,
+                });
+            }
+
             StreamWriter writer = new StreamWriter("config.json");
             JsonSerializer serializer = new JsonSerializer();
             serializer.Serialize(writer, data);
             writer.Close();
         }
 
+
+        public async Task<string> GetPlaylistSnapshotIdAsync(string playlistId)
+        {
+            StreamReader reader = new StreamReader("config.json");
+            string json = await reader.ReadToEndAsync().ConfigureAwait(false);
+            JsonStruck data = JsonConvert.DeserializeObject<JsonStruck>(json);
+            reader.Close();
+
+            foreach(var item in data.Playlists)
+            {
+                if(item.PlaylistId == playlistId)
+                {
+                    return item.SnapshotId;
+                }
+            }
+
+            return null;
+        }
+
     }
+
 
     internal sealed class JsonStruck
     { 
