@@ -25,7 +25,7 @@ namespace Spotify_to_YTMusic.Config
             reader.Close();
         }
 
-        public async Task WriteSpotifySnapshotToJsonAsync(string spotifySnapshot, string playlistId)
+        public async Task WriteSpotifySnapshotIdToJsonAsync(string spotifySnapshotId, string playlistId)
         {
             StreamReader reader = new StreamReader("config.json");
             string json = await reader.ReadToEndAsync().ConfigureAwait(false);
@@ -44,7 +44,7 @@ namespace Spotify_to_YTMusic.Config
             {
                 if(item.PlaylistId == playlistId)
                 {
-                    item.SnapshotId = spotifySnapshot;
+                    item.SnapshotId = spotifySnapshotId;
                     playlistIdFound = true;
                     break;
                 }
@@ -55,7 +55,7 @@ namespace Spotify_to_YTMusic.Config
                 data.Playlists.Add(new PlaylistsStruct()
                 {
                     PlaylistId = playlistId,
-                    SnapshotId = spotifySnapshot,
+                    SnapshotId = spotifySnapshotId,
                 });
             }
 

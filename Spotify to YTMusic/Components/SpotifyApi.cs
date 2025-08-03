@@ -68,13 +68,13 @@ namespace Spotify_to_YTMusic.Components
             return snapshot.ToString();
         }
 
-        public async Task StoreSnapshotAsync(string playlistId)
+        public async Task StoreSnapshotIdAsync(string playlistId)
         {
             var snapshot = await GetPlaylistSnapshotIdAsync(playlistId).ConfigureAwait(false);
-            await jsonReader.WriteSpotifySnapshotToJsonAsync(snapshot, playlistId).ConfigureAwait(false);
+            await jsonReader.WriteSpotifySnapshotIdToJsonAsync(snapshot, playlistId).ConfigureAwait(false);
         }
 
-        public async Task CheckSnapshotIdAsync(string playlistId)
+        public async Task CheckSnapshotIdChangeAsync(string playlistId)
         {
             string newSnapshotId = await GetPlaylistSnapshotIdAsync(playlistId).ConfigureAwait(false);
             string storedSnapshotId = await jsonReader.GetPlaylistSnapshotIdAsync(playlistId).ConfigureAwait (false);
@@ -100,7 +100,7 @@ namespace Spotify_to_YTMusic.Components
             {
                 //might need changing down the line no sure yet
                 //await GetPlaylistAsync(playlistId).ConfigureAwait(false);
-                await StoreSnapshotAsync(playlistId).ConfigureAwait(false);
+                await StoreSnapshotIdAsync(playlistId).ConfigureAwait(false);
             }
 
         }

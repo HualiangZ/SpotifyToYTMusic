@@ -29,7 +29,7 @@ namespace Spotify_to_YTMusic
             await api.GetAccessTokenAsync().ConfigureAwait(false);
             //await api.GetPlaylistAsync("5a7q5av1kX3ewlMwGuaQE3").ConfigureAwait(false);
             //await api.GetPlaylistSnapshotIdAsync("5a7q5av1kX3ewlMwGuaQE3").ConfigureAwait(false);
-            await api.StoreSnapshotAsync("5a7q5av1kX3ewlMwGuaQE3");
+            await api.StoreSnapshotIdAsync("5a7q5av1kX3ewlMwGuaQE3");
         }
 
     }
