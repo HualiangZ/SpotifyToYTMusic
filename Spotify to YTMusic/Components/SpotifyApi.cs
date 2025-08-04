@@ -5,18 +5,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http.Headers;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
+[assembly: InternalsVisibleTo("SpotifyToTYMusicTest")]
 
 namespace Spotify_to_YTMusic.Components
 {
+    
     internal class SpotifyApi
     {
+
         public string AccessToken { get; set; }
-        private static readonly HttpClient client = new HttpClient();
+        private readonly HttpClient client;
         JsonReader jsonReader = new JsonReader();
         
+        public SpotifyApi(HttpClient client)
+        {
+            this.client = client;
+        }
+
         public async Task GetAccessTokenAsync()
         {
             await jsonReader.ReadJsonAsync();
@@ -51,17 +61,22 @@ namespace Spotify_to_YTMusic.Components
 
         }
 
-        public async Task RetryGetPlaylistAsync(string PlaylistId)
-        {
-            await GetAccessTokenAsync().ConfigureAwait(false);
-            await GetPlaylistAsync(PlaylistId).ConfigureAwait(false);
-        }
         
         public async Task<string> GetPlaylistSnapshotIdAsync(string playlistId)
         {
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
             string url = $"https://api.spotify.com/v1/playlists/{playlistId}";
             HttpResponseMessage responseMessage = await client.GetAsync(url).ConfigureAwait(false);
+            if (!responseMessage.IsSuccessStatusCode)
+            {
+                await GetAccessTokenAsync().ConfigureAwait(false);
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
+                responseMessage = await client.GetAsync(url).ConfigureAwait(false);
+
+                if (!responseMessage.IsSuccessStatusCode)
+                    return null;
+
+            }
             string json = await responseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
             JObject data = JObject.Parse(json);
             var snapshot = data["snapshot_id"];
@@ -73,6 +88,7 @@ namespace Spotify_to_YTMusic.Components
             var snapshot = await GetPlaylistSnapshotIdAsync(playlistId).ConfigureAwait(false);
             await jsonReader.WriteSpotifySnapshotIdToJsonAsync(snapshot, playlistId).ConfigureAwait(false);
         }
+
 
         public async Task CheckSnapshotIdChangeAsync(string playlistId)
         {
@@ -103,6 +119,11 @@ namespace Spotify_to_YTMusic.Components
                 await StoreSnapshotIdAsync(playlistId).ConfigureAwait(false);
             }
 
+        }
+        public async Task RetryGetPlaylistAsync(string PlaylistId)
+        {
+            await GetAccessTokenAsync().ConfigureAwait(false);
+            await GetPlaylistAsync(PlaylistId).ConfigureAwait(false);
         }
 
         //change this to return a file with all the music name and artist.

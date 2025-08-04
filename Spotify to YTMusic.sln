@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36301.6 d17.14
+VisualStudioVersion = 17.14.36301.6
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spotify to YTMusic", "Spotify to YTMusic\Spotify to YTMusic.csproj", "{C731EA4F-8168-4011-AF20-65DCA66B5BFD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpotifyToTYMusicTest", "SpotifyToTYMusicTest\SpotifyToTYMusicTest.csproj", "{3D8A3A8E-8EBB-4DF8-B1A3-C2EAC3DC48C1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{C731EA4F-8168-4011-AF20-65DCA66B5BFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C731EA4F-8168-4011-AF20-65DCA66B5BFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C731EA4F-8168-4011-AF20-65DCA66B5BFD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3D8A3A8E-8EBB-4DF8-B1A3-C2EAC3DC48C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D8A3A8E-8EBB-4DF8-B1A3-C2EAC3DC48C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D8A3A8E-8EBB-4DF8-B1A3-C2EAC3DC48C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D8A3A8E-8EBB-4DF8-B1A3-C2EAC3DC48C1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

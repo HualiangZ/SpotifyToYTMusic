@@ -25,11 +25,12 @@ namespace Spotify_to_YTMusic
             }
 
             Console.ReadKey();*/
-            SpotifyApi api = new SpotifyApi();
+            HttpClient client = new HttpClient();
+            SpotifyApi api = new SpotifyApi(client);
             await api.GetAccessTokenAsync().ConfigureAwait(false);
-            //await api.GetPlaylistAsync("5a7q5av1kX3ewlMwGuaQE3").ConfigureAwait(false);
+            await api.GetPlaylistAsync("5a7q5av1kX3ewlMwGuaQE3").ConfigureAwait(false);
             //await api.GetPlaylistSnapshotIdAsync("5a7q5av1kX3ewlMwGuaQE3").ConfigureAwait(false);
-            await api.StoreSnapshotIdAsync("5a7q5av1kX3ewlMwGuaQE3");
+            //await api.StoreSnapshotIdAsync("5a7q5av1kX3ewlMwGuaQE3");
         }
 
     }
