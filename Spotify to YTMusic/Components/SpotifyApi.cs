@@ -15,19 +15,17 @@ using System.Threading.Tasks;
 namespace Spotify_to_YTMusic.Components
 {
     
-    internal class SpotifyApi
+    public class SpotifyApi
     {
-
         public string AccessToken { get; set; }
         private readonly HttpClient client;
         JsonReader jsonReader = new JsonReader();
-        
         public SpotifyApi(HttpClient client)
         {
             this.client = client;
         }
 
-        public async Task GetAccessTokenAsync()
+        public virtual async Task GetAccessTokenAsync()
         {
             await jsonReader.ReadJsonAsync();
             var clientId = jsonReader.SpotifyClientID;

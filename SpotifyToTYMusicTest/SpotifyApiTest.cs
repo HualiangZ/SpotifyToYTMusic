@@ -8,6 +8,18 @@ namespace SpotifyToTYMusicTest
 {
     public class Tests
     {
+        public class SpotifyApiMock : SpotifyApi
+        {
+            public SpotifyApiMock(HttpClient client) : base(client)
+            {
+            }
+            public override async Task GetAccessTokenAsync()
+            {
+                AccessToken = "newToken";
+                await Task.CompletedTask;
+            }
+        }
+
         public class HttpMessageHandelerMock : HttpMessageHandler
         {
             private readonly HttpStatusCode httpStatusCode;
@@ -102,15 +114,13 @@ namespace SpotifyToTYMusicTest
             var handler = new HttpMessageHandelerMock(firstResponse, secondResponse);
             var client = new HttpClient(handler);
 
-            var api = new SpotifyApi(client) 
+            var api = new SpotifyApiMock(client) 
             {
                 AccessToken = "OldToken",
-                GetAccessTokenAsync = () =>
-                {
-                    service.AccessToken = "newToken";
-                    return Task.CompletedTask;
-                }
             };
+
+            
+
             var result = await api.GetPlaylistSnapshotIdAsync("playlistId").ConfigureAwait(false);
 
             Assert.NotNull(result);
