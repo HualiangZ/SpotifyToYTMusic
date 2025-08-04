@@ -104,7 +104,7 @@ namespace SpotifyToTYMusicTest
         }
 
         [Test]
-        public async Task FirstBadRequest_ThenGetNewAccessToken_()
+        public async Task Should_RefreshAccessToken_And_RetryGetPlaylistSnapshotIdAsync()
         {
             var firstResponse = new HttpResponseMessage(HttpStatusCode.Unauthorized);
             var secondResponse = new HttpResponseMessage(HttpStatusCode.OK)
