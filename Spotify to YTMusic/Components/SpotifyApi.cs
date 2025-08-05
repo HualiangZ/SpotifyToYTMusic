@@ -59,6 +59,12 @@ namespace Spotify_to_YTMusic.Components
 
         }
 
+        public async Task<HttpResponseMessage> RefreshAccessToken(string url)
+        {
+            await GetAccessTokenAsync().ConfigureAwait(false);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
+            return await client.GetAsync(url).ConfigureAwait(false);
+        }
         
         public async Task<string> GetPlaylistSnapshotIdAsync(string playlistId)
         {
@@ -67,9 +73,7 @@ namespace Spotify_to_YTMusic.Components
             HttpResponseMessage responseMessage = await client.GetAsync(url).ConfigureAwait(false);
             if (!responseMessage.IsSuccessStatusCode)
             {
-                await GetAccessTokenAsync().ConfigureAwait(false);
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
-                responseMessage = await client.GetAsync(url).ConfigureAwait(false);
+                responseMessage = await RefreshAccessToken(url).ConfigureAwait(false);
 
                 if (!responseMessage.IsSuccessStatusCode)
                     return null;
@@ -118,11 +122,6 @@ namespace Spotify_to_YTMusic.Components
             }
 
         }
-        public async Task RetryGetPlaylistAsync(string PlaylistId)
-        {
-            await GetAccessTokenAsync().ConfigureAwait(false);
-            await GetPlaylistAsync(PlaylistId).ConfigureAwait(false);
-        }
 
         //change this to return a file with all the music name and artist.
         public async Task GetPlaylistAsync(string PlaylistId)
@@ -135,17 +134,18 @@ namespace Spotify_to_YTMusic.Components
             {
                 string url = $"https://api.spotify.com/v1/playlists/{PlaylistId}/tracks?limit{limit}&offsset={offset}";
                 HttpResponseMessage responseMessage = await client.GetAsync(url).ConfigureAwait(false);
-                string json = await responseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
                 if (!responseMessage.IsSuccessStatusCode)
                 {
-                    Console.WriteLine(responseMessage.StatusCode);
-                    if(responseMessage.StatusCode == HttpStatusCode.Unauthorized)
+                    responseMessage = await RefreshAccessToken(url).ConfigureAwait(false);
+
+                    if (!responseMessage.IsSuccessStatusCode) 
                     {
-                        await RetryGetPlaylistAsync(PlaylistId).ConfigureAwait(false);
+                        Console.WriteLine(responseMessage.StatusCode);
+                        break;
                     }
-                    break;
                 }
 
+                string json = await responseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
                 JObject data = JObject.Parse(json);
                 var items = data["items"];
                 var total = data["total"];
