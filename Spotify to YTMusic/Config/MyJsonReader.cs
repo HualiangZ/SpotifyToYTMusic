@@ -6,33 +6,45 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
-[assembly: InternalsVisibleTo("SpotifyToTYMusicTest")]
+[assembly: InternalsVisibleTo("JsonReaderTest")]
 namespace Spotify_to_YTMusic.Config
 {
-    internal class JsonReader
+    internal class MyJsonReader
     {
         public string SpotifyClientID { get; set; }
         public string SpotifyClientSecret { get; set; }
         public List<PlaylistsStruct> Playlists {  get; set; }
 
-        public async Task ReadJsonAsync() 
+
+        public virtual async Task<JsonStruck> JsonStreamReader()
         {
             StreamReader reader = new StreamReader("config.json");
             string json = await reader.ReadToEndAsync().ConfigureAwait(false);
             JsonStruck data = JsonConvert.DeserializeObject<JsonStruck>(json);
+            reader.Close();
+            return data;
+        }
+
+        public virtual void JsonsStreamWriter(JsonStruck data)
+        {
+            StreamWriter writer = new StreamWriter("config.json");
+            JsonSerializer serializer = new JsonSerializer();
+            serializer.Serialize(writer, data);
+            writer.Close();
+        }
+        public async Task ReadJsonAsync() 
+        {
+            JsonStruck data = await JsonStreamReader().ConfigureAwait(false);
             this.SpotifyClientID = data.SpotifyClientID;
             this.SpotifyClientSecret = data.SpotifyClientSecret;
-            this.Playlists = data.Playlists;  
-            reader.Close();
+            this.Playlists = data.Playlists;
         }
 
         public async Task WriteSpotifySnapshotIdToJsonAsync(string spotifySnapshotId, string playlistId)
         {
-            StreamReader reader = new StreamReader("config.json");
-            string json = await reader.ReadToEndAsync().ConfigureAwait(false);
-            JsonStruck data = JsonConvert.DeserializeObject<JsonStruck>(json);
-            reader.Close();
+            JsonStruck data = await JsonStreamReader().ConfigureAwait(false);
 
             if(playlistId == "")
             {
@@ -61,21 +73,15 @@ namespace Spotify_to_YTMusic.Config
                 });
             }
 
-            StreamWriter writer = new StreamWriter("config.json");
-            JsonSerializer serializer = new JsonSerializer();
-            serializer.Serialize(writer, data);
-            writer.Close();
+            JsonsStreamWriter(data);
         }
 
 
         public async Task<string> GetPlaylistSnapshotIdAsync(string playlistId)
         {
-            StreamReader reader = new StreamReader("config.json");
-            string json = await reader.ReadToEndAsync().ConfigureAwait(false);
-            JsonStruck data = JsonConvert.DeserializeObject<JsonStruck>(json);
-            reader.Close();
+            JsonStruck data = await JsonStreamReader().ConfigureAwait(false);
 
-            foreach(var item in data.Playlists)
+            foreach (var item in data.Playlists)
             {
                 if(item.PlaylistId == playlistId)
                 {
@@ -87,7 +93,6 @@ namespace Spotify_to_YTMusic.Config
         }
 
     }
-
 
     internal sealed class JsonStruck
     { 

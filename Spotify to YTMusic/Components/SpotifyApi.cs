@@ -14,12 +14,12 @@ using System.Threading.Tasks;
 
 namespace Spotify_to_YTMusic.Components
 {
-    
-    public class SpotifyApi
+
+    internal class SpotifyApi
     {
         public string AccessToken { get; set; }
         private readonly HttpClient client;
-        JsonReader jsonReader = new JsonReader();
+        MyJsonReader jsonReader = new MyJsonReader();
         public SpotifyApi(HttpClient client)
         {
             this.client = client;
@@ -117,7 +117,7 @@ namespace Spotify_to_YTMusic.Components
             if(storedSnapshotId != newSnapshotId)
             {
                 //might need changing down the line no sure yet
-                //await GetPlaylistAsync(playlistId).ConfigureAwait(false);
+                await GetPlaylistAsync(playlistId).ConfigureAwait(false);
                 await StoreSnapshotIdAsync(playlistId).ConfigureAwait(false);
             }
 

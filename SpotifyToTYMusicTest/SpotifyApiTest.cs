@@ -8,7 +8,7 @@ namespace SpotifyToTYMusicTest
 {
     public class Tests
     {
-        public class SpotifyApiMock : SpotifyApi
+        internal class SpotifyApiMock : SpotifyApi
         {
             public SpotifyApiMock(HttpClient client) : base(client)
             {
