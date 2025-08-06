@@ -28,10 +28,10 @@ namespace Spotify_to_YTMusic.Components
                 }
                 else
                 {
-                    return "";
+                    return "no Video ID found";
                 }
             }
-            return "no Video ID found";
+            return "URL link error";
 
         }
 
