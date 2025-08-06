@@ -19,7 +19,7 @@ public class JsonReaderTest
         List<Playlists> playlists = new List<Playlists>();
         playlists.Add(new Playlists 
         { 
-            PlaylistId = "1",
+            PlaylistId = "playlistId1",
             SnapshotId = "oldSnapshot",
         });
         string json = System.Text.Json.JsonSerializer.Serialize(playlists);
@@ -44,13 +44,13 @@ public class JsonReaderTest
             writer.Close();
         }
     }
+    JsonReaderMock jsonReader = new JsonReaderMock();
 
     [Test]
     public async Task WriteSpotifySnapshotIdToJsonAsync_WhenPlaylistIdIsNull_ReturnNullAsync()
     {
         string snapshotId = "SnapshotId";
         string playlistId = "";
-        JsonReaderMock jsonReader = new JsonReaderMock();
         await jsonReader.WriteSpotifySnapshotIdToJsonAsync(snapshotId, playlistId).ConfigureAwait(false);
         await jsonReader.ReadJsonAsync().ConfigureAwait(false);
         foreach(var item in jsonReader.Playlists)
@@ -61,20 +61,20 @@ public class JsonReaderTest
         }
         Assert.Pass();
     }
-
+    
     [Test]
     public async Task WriteSpotifySnapshotIdToJsonAsync_WhenAddingPlaylistAsync()
     {
         string snapshotId = "SnapshotId2";
-        string playlistId = "playlistId2";
-        JsonReaderMock jsonReader = new JsonReaderMock();
+        string playlistId = "playlistId2";   
         await jsonReader.WriteSpotifySnapshotIdToJsonAsync(snapshotId, playlistId).ConfigureAwait(false);
         await jsonReader.ReadJsonAsync().ConfigureAwait(false);
         foreach (var item in jsonReader.Playlists)
         {
-            if (item.PlaylistId == "playlistId2")
+            if (item.PlaylistId == playlistId)
             {
-                Assert.Pass();
+                Assert.That(item.PlaylistId, Is.EqualTo(playlistId));
+                return;
             }
         }
         Assert.Fail();
@@ -84,13 +84,12 @@ public class JsonReaderTest
     public async Task WriteSpotifySnapshotIdToJsonAsync_WhenUpdatingSnapshotIdAsync()
     {
         string snapshotId = "NewSnapshot";
-        string playlistId = "1";
-        JsonReaderMock jsonReader = new JsonReaderMock();
+        string playlistId = "playlistId1";
         await jsonReader.WriteSpotifySnapshotIdToJsonAsync(snapshotId, playlistId).ConfigureAwait(false);
         await jsonReader.ReadJsonAsync().ConfigureAwait(false);
         foreach (var item in jsonReader.Playlists)
         {
-            if (item.PlaylistId == "1")
+            if (item.PlaylistId == playlistId)
             {
                 Assert.That(item.SnapshotId, Is.EqualTo(snapshotId));
                 return;
