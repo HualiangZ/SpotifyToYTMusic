@@ -13,7 +13,7 @@ public class JsonReaderTest
         public string SnapshotId { get; set; }
     }
 
-    [SetUp]
+    [OneTimeSetUp]
     public void Setup()
     {
         List<Playlists> playlists = new List<Playlists>();
