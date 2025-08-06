@@ -13,31 +13,25 @@ namespace Spotify_to_YTMusic.Components
     {
         private static string fileoutput = @"./youtubeText.txt";
 
-        public static void StoreHTML(string url)
+        public static string GetVideoId(string url)
         {
             var awaiter = CallURL(url);
-            if (awaiter.Result != "")
-            {
-                File.WriteAllText(fileoutput, awaiter.Result);
-                Console.WriteLine("output compleated");
-            }
-        }
 
-        public static string GetVideoId()
-        {
-            string html = File.ReadAllText(fileoutput);
-            string pattern = "\"videoId\":\"([a-zA-Z0-9_-]{11})\"";
-
-            Match match = Regex.Match(html, pattern);
-
-            if (match.Success)
+            if(awaiter.Result != "")
             {
-                return match.Groups[1].Value;
+                string pattern = "\"videoId\":\"([a-zA-Z0-9_-]{11})\"";
+                Match match = Regex.Match(awaiter.Result, pattern);
+
+                if (match.Success)
+                {
+                    return match.Groups[1].Value;
+                }
+                else
+                {
+                    return "";
+                }
             }
-            else
-            {
-                return "";
-            }
+            return "no Video ID found";
 
         }
 
