@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Spotify_to_YTMusic.Config;
 using System;
 using System.Collections.Generic;
@@ -23,6 +24,7 @@ namespace Spotify_to_YTMusic.Components
         public SpotifyApi(HttpClient client)
         {
             this.client = client;
+            jsonReader.File = "config.json";
         }
 
         public virtual async Task GetAccessTokenAsync()

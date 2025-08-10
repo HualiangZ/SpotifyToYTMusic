@@ -17,7 +17,7 @@ public class JsonReaderTest
         public string SnapshotId { get; set; }
     }
 
-    JsonReaderMock jsonReader = new JsonReaderMock();
+    MyJsonReaderMock jsonReader = new MyJsonReaderMock();
 
     [OneTimeSetUp]
     public void Setup()
@@ -30,6 +30,7 @@ public class JsonReaderTest
         });
         string json = System.Text.Json.JsonSerializer.Serialize(playlists);
         File.WriteAllText("testPlaylist.json", "{\"Playlists\": "+ json +"}");
+        jsonReader.File = "testPlaylist.json";
     }
 
     [Test]
@@ -134,30 +135,15 @@ public class JsonReaderTest
         return (false, null);
     }
 
-    internal class JsonReaderMock : MyJsonReader
+    internal class MyJsonReaderMock : MyJsonReader
     {
-        public override async Task<JsonStruck> JsonStreamReader()
-        {
-            StreamReader reader = new StreamReader("testPlaylist.json");
-            string json = await reader.ReadToEndAsync().ConfigureAwait(false);
-            JsonStruck data = JsonConvert.DeserializeObject<JsonStruck>(json);
-            reader.Close();
-            return data;
-        }
-        public override void JsonsStreamWriter(JsonStruck data)
-        {
-            StreamWriter writer = new StreamWriter("testPlaylist.json");
-            JsonSerializer serializer = new JsonSerializer();
-            serializer.Serialize(writer, data);
-            writer.Close();
-        }
         public override string GetVideoID(string VideoID)
         {
             return VideoID;
         }
 
     }
-    
+
 
 }
 

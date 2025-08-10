@@ -18,10 +18,10 @@ namespace Spotify_to_YTMusic.Config
         public string SpotifyClientSecret { get; set; }
         public List<PlaylistsStruct> Playlists {  get; set; }
         //public List<VideoID> Tracks { get; set; }
-
+        public string File {  get; set; }
         public virtual async Task<JsonStruck> JsonStreamReader()
         {
-            StreamReader reader = new StreamReader("config.json");
+            StreamReader reader = new StreamReader(File);
             string json = await reader.ReadToEndAsync().ConfigureAwait(false);
             JsonStruck data = JsonConvert.DeserializeObject<JsonStruck>(json);
             reader.Close();
@@ -30,7 +30,7 @@ namespace Spotify_to_YTMusic.Config
 
         public virtual void JsonsStreamWriter(JsonStruck data)
         {
-            StreamWriter writer = new StreamWriter("config.json");
+            StreamWriter writer = new StreamWriter(File);
             JsonSerializer serializer = new JsonSerializer();
             serializer.Serialize(writer, data);
             writer.Close();
