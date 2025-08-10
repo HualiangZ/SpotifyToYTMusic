@@ -30,8 +30,8 @@ namespace Spotify_to_YTMusic.Components
         public virtual async Task GetAccessTokenAsync()
         {
             await jsonReader.ReadJsonAsync();
-            var clientId = jsonReader.SpotifyClientID;
-            var clientSecret = jsonReader.SpotifyClientSecret;
+            var clientId = jsonReader.ClientID;
+            var clientSecret = jsonReader.ClientSecret;
 
             var form = new Dictionary<string, string> 
             {

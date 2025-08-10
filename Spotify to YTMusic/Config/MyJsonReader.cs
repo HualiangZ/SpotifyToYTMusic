@@ -14,8 +14,8 @@ namespace Spotify_to_YTMusic.Config
 {
     internal class MyJsonReader
     {
-        public string SpotifyClientID { get; set; }
-        public string SpotifyClientSecret { get; set; }
+        public string ClientID { get; set; }
+        public string ClientSecret { get; set; }
         public List<PlaylistsStruct> Playlists {  get; set; }
         //public List<VideoID> Tracks { get; set; }
         public string File {  get; set; }
@@ -38,8 +38,8 @@ namespace Spotify_to_YTMusic.Config
         public async Task ReadJsonAsync() 
         {
             JsonStruck data = await JsonStreamReader().ConfigureAwait(false);
-            this.SpotifyClientID = data.SpotifyClientID;
-            this.SpotifyClientSecret = data.SpotifyClientSecret;
+            this.ClientID = data.ClientID;
+            this.ClientSecret = data.ClientSecret;
             this.Playlists = data.Playlists;
         }
 
@@ -168,8 +168,8 @@ namespace Spotify_to_YTMusic.Config
 
     internal sealed class JsonStruck
     { 
-        public string SpotifyClientID {  get; set; }
-        public string SpotifyClientSecret { get; set;} 
+        public string ClientID {  get; set; }
+        public string ClientSecret { get; set;} 
         public List<PlaylistsStruct> Playlists {  get; set; }
     }
 
