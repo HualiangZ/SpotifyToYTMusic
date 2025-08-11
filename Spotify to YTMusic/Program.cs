@@ -22,6 +22,11 @@ namespace Spotify_to_YTMusic
             {
                 Console.WriteLine("no ID found");
             }
+
+            YoutubeApi api = new YoutubeApi();
+            string playlistId = "PLbqjJZ3RMAtFZhdAnwXI0FJIsrH6rvm9D";
+            await api.GetCredential();
+            await api.AddToPlaylist(playlistId, videoID);
             Console.ReadKey();
             /*            HttpClient client = new HttpClient();
                         SpotifyApi api = new SpotifyApi(client);
