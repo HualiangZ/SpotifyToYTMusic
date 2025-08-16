@@ -62,7 +62,7 @@ namespace Spotify_to_YTMusic.Components
             {
                 try
                 {
-                    playlist = await youtubeService.PlaylistItems.Insert(playlist, "snippet").ExecuteAsync().ConfigureAwait(false);
+                    await youtubeService.PlaylistItems.Insert(playlist, "snippet").ExecuteAsync().ConfigureAwait(false);
                     return;
                 }
                 catch (Exception ex)
@@ -76,5 +76,38 @@ namespace Spotify_to_YTMusic.Components
             Console.WriteLine("Invalid Video ID or Playlist ID");
         }
 
+        public async Task DeleteItemFromPlaylistAsync(string playlistId, string videoId)
+        {
+            if (playlistId == "")
+            {
+                Console.WriteLine("Playlist ID is empty");
+                return;
+            }
+            if (videoId == "")
+            {
+                Console.WriteLine("Video ID is empty");
+            }
+
+            int retry = 1;
+
+            var playlist = new PlaylistItem();
+            playlist.Snippet = new PlaylistItemSnippet();
+            playlist.Snippet.PlaylistId = playlistId;
+
+            while (retry != 0)
+            {
+                try
+                {
+                    await youtubeService.PlaylistItems.Delete(videoId).ExecuteAsync().ConfigureAwait(false);
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    await GetCredential().ConfigureAwait(false);
+                    retry--;
+                    Console.WriteLine(retry);
+                }
+            }
+        }
     }
 }
