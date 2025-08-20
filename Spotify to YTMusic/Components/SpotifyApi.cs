@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Google.Apis.YouTube.v3.Data;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Spotify_to_YTMusic.Config;
 using System;
@@ -125,16 +126,37 @@ namespace Spotify_to_YTMusic.Components
 
         }
 
+        public async Task<string> GetPlaylistTrackLimitAsync(string PlaylistId)
+        {
+            string url = $"https://api.spotify.com/v1/playlists/{PlaylistId}/tracks";
+            HttpResponseMessage responseMessage = await client.GetAsync(url).ConfigureAwait(false);
+            if (!responseMessage.IsSuccessStatusCode)
+            {
+                responseMessage = await RefreshAccessToken(url).ConfigureAwait(false);
+
+                if (!responseMessage.IsSuccessStatusCode)
+                {
+                    Console.WriteLine(responseMessage.StatusCode);
+                }
+            }
+
+            string json = await responseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
+            JObject data = JObject.Parse(json);
+
+            return data["total"].ToString();
+        }
+
         //change this to return a file with all the music name and artist.
         public async Task GetPlaylistAsync(string PlaylistId)
         {
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
             int limit = 100;
             int offset = 0;
+            string url = $"https://api.spotify.com/v1/playlists/{PlaylistId}/tracks?limit={limit}&offsset={offset}";
             int totalFetched = 0;
-            while (totalFetched < 200)
+            int total = Int32.Parse(await GetPlaylistTrackLimitAsync(PlaylistId));
+            while (totalFetched < total)
             {
-                string url = $"https://api.spotify.com/v1/playlists/{PlaylistId}/tracks?limit{limit}&offsset={offset}";
                 HttpResponseMessage responseMessage = await client.GetAsync(url).ConfigureAwait(false);
                 if (!responseMessage.IsSuccessStatusCode)
                 {
@@ -150,20 +172,20 @@ namespace Spotify_to_YTMusic.Components
                 string json = await responseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
                 JObject data = JObject.Parse(json);
                 var items = data["items"];
-                var total = data["total"];
                 if (items == null || items.Count() == 0)
                 {
                     Console.WriteLine("Playlist empty");
                     break;
                 }
-
+                
                 foreach (var item in items) 
                 {
                     string trackName = item["track"]["name"].ToString();
                     string artist = item["track"]["artists"][0]["name"].ToString();
-                    Console.WriteLine($"{trackName} by {artist}");
+                    var videoID = YoutubeVideoIDFinder.GetVideoId($"https://www.youtube.com/results?search_query={trackName}+by+{artist}+%22topic%22");
+                    Console.WriteLine($"{trackName} by {artist}: {videoID}");
                 }
-                Console.WriteLine(total);
+                url = data["next"].ToString();
                 totalFetched += items.Count();
                 offset += items.Count();
                 if(items.Count() < limit)

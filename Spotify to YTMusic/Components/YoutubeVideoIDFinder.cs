@@ -11,9 +11,6 @@ namespace Spotify_to_YTMusic.Components
 
     internal class YoutubeVideoIDFinder
     {
-        private static string fileoutput = @"./youtubeText.txt";
-
- 
 
         public static string GetVideoId(string url)
         {
