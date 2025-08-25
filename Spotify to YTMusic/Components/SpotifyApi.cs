@@ -147,14 +147,15 @@ namespace Spotify_to_YTMusic.Components
         }
 
         //change this to return a file with all the music name and artist.
-        public async Task GetPlaylistAsync(string PlaylistId)
+        public async Task GetPlaylistAsync(string playlistId)
         {
+            YoutubeVideoIDFinder videoIDFinder = new YoutubeVideoIDFinder();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
             int limit = 100;
             int offset = 0;
-            string url = $"https://api.spotify.com/v1/playlists/{PlaylistId}/tracks?limit={limit}&offsset={offset}";
+            string url = $"https://api.spotify.com/v1/playlists/{playlistId}/tracks?limit={limit}&offsset={offset}";
             int totalFetched = 0;
-            int total = Int32.Parse(await GetPlaylistTrackLimitAsync(PlaylistId));
+            int total = Int32.Parse(await GetPlaylistTrackLimitAsync(playlistId));
             while (totalFetched < total)
             {
                 HttpResponseMessage responseMessage = await client.GetAsync(url).ConfigureAwait(false);
@@ -182,8 +183,9 @@ namespace Spotify_to_YTMusic.Components
                 {
                     string trackName = item["track"]["name"].ToString();
                     string artist = item["track"]["artists"][0]["name"].ToString();
-                    var videoID = YoutubeVideoIDFinder.GetVideoId($"https://www.youtube.com/results?search_query={trackName}+by+{artist}+%22topic%22");
+                    var videoID = videoIDFinder.GetVideoId($"https://www.youtube.com/results?search_query={trackName}+by+{artist}+%22topic%22");
                     Console.WriteLine($"{trackName} by {artist}: {videoID}");
+                    await jsonReader.AddTracksToJsonAsync(playlistId, videoID);
                 }
                 url = data["next"].ToString();
                 totalFetched += items.Count();

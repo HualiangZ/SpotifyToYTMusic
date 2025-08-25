@@ -17,7 +17,7 @@ namespace Spotify_to_YTMusic.Config
         public string ClientID { get; set; }
         public string ClientSecret { get; set; }
         public List<PlaylistsStruct> Playlists {  get; set; }
-        //public List<VideoID> Tracks { get; set; }
+        public List<VideoID> Tracks { get; set; }
         public string File {  get; set; }
         public virtual async Task<JsonStruck> JsonStreamReader()
         {
@@ -79,7 +79,8 @@ namespace Spotify_to_YTMusic.Config
 
         public virtual string GetVideoID(string url)
         {
-            return YoutubeVideoIDFinder.GetVideoId(url);
+            YoutubeVideoIDFinder videoIDFinder = new YoutubeVideoIDFinder();
+            return videoIDFinder.GetVideoId(url);
         } 
 
         public async Task AddTracksToJsonAsync(string playlistId, string url)
