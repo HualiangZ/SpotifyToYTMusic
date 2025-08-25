@@ -17,7 +17,7 @@ public class JsonReaderTest
         public string SnapshotId { get; set; }
     }
 
-    MyJsonReaderMock jsonReader = new MyJsonReaderMock();
+    MyJsonReader jsonReader = new MyJsonReader();
 
     [OneTimeSetUp]
     public void Setup()
@@ -133,15 +133,6 @@ public class JsonReaderTest
         }
 
         return (false, null);
-    }
-
-    internal class MyJsonReaderMock : MyJsonReader
-    {
-        public override string GetVideoID(string VideoID)
-        {
-            return VideoID;
-        }
-
     }
 
 
