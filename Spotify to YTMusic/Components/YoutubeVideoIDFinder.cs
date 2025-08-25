@@ -12,7 +12,7 @@ namespace Spotify_to_YTMusic.Components
     internal class YoutubeVideoIDFinder
     {
 
-        public string GetVideoId(string url)
+        public static string GetVideoId(string url)
         {
             var awaiter = CallURL(url);
 
@@ -34,7 +34,7 @@ namespace Spotify_to_YTMusic.Components
 
         }
 
-        private async Task<string> CallURL(string url)
+        private static async Task<string> CallURL(string url)
         {
             HttpClient client = new HttpClient();
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;

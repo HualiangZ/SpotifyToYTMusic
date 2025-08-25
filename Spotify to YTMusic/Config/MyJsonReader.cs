@@ -77,13 +77,7 @@ namespace Spotify_to_YTMusic.Config
             JsonsStreamWriter(data);
         }
 
-        public virtual string GetVideoID(string url)
-        {
-            YoutubeVideoIDFinder videoIDFinder = new YoutubeVideoIDFinder();
-            return videoIDFinder.GetVideoId(url);
-        } 
-
-        public async Task AddTracksToJsonAsync(string playlistId, string url)
+        public async Task AddTracksToJsonAsync(string playlistId, string videoId)
         {
             JsonStruck data = await JsonStreamReader().ConfigureAwait(false);
 
@@ -111,8 +105,6 @@ namespace Spotify_to_YTMusic.Config
                 Console.WriteLine("No playlist found");
                 return;
             }
-
-            string videoId = GetVideoID(url);
             if(data.Playlists[playlistIndex].Tracks == null)
             {
                 List<VideoID> videoIDs = new List<VideoID>();
