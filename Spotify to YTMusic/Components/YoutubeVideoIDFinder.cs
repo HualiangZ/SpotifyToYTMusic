@@ -14,23 +14,31 @@ namespace Spotify_to_YTMusic.Components
 
         public static string GetVideoId(string url)
         {
-            var awaiter = CallURL(url);
-
-            if(awaiter.Result != "")
+            try
             {
-                string pattern = "\"videoId\":\"([a-zA-Z0-9_-]{11})\"";
-                Match match = Regex.Match(awaiter.Result, pattern);
+                var awaiter = CallURL(url);
+                if (awaiter.Result != "")
+                {
+                    string pattern = "\"videoId\":\"([a-zA-Z0-9_-]{11})\"";
+                    Match match = Regex.Match(awaiter.Result, pattern);
 
-                if (match.Success)
-                {
-                    return match.Groups[1].Value;
+                    if (match.Success)
+                    {
+                        return match.Groups[1].Value;
+                    }
+                    else
+                    {
+                        return "no Video ID found";
+                    }
                 }
-                else
-                {
-                    return "no Video ID found";
-                }
+                return "URL link error";
             }
-            return "URL link error";
+            catch (Exception ex) 
+            {
+                return "URL link error";
+            }
+
+
 
         }
 
