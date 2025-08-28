@@ -109,5 +109,25 @@ namespace Spotify_to_YTMusic.Components
                 }
             }
         }
+
+        public async Task GetItemInPlaylistAsync(string playlistId)
+        {
+            var nextPageToken = "";
+            while (nextPageToken != null) 
+            {
+                var playlistItemsRequest = youtubeService.PlaylistItems.List("snippet");
+                playlistItemsRequest.PlaylistId = playlistId;
+                playlistItemsRequest.MaxResults = 50;
+                playlistItemsRequest.PageToken = nextPageToken;
+
+                var playlistItemsResponse = await playlistItemsRequest.ExecuteAsync().ConfigureAwait(false);
+                foreach(var item in playlistItemsResponse.Items)
+                {
+                    Console.WriteLine($"{item.Snippet.ResourceId.VideoId}");
+                }
+                nextPageToken = playlistItemsResponse.NextPageToken;
+            } 
+            
+        }
     }
 }
