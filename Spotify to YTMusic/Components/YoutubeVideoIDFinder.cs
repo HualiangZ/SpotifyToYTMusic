@@ -37,9 +37,6 @@ namespace Spotify_to_YTMusic.Components
             {
                 return "URL link error";
             }
-
-
-
         }
 
         private static async Task<string> CallURL(string url)
