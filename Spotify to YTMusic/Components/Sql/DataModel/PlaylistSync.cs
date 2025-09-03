@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Spotify_to_YTMusic.Components.Sql.DataModel
 {
-    internal class PlaylistSync
+    public class PlaylistSync
     {
         public string SpotifyPlaylistID { get; set; }
         public string YTPlaylistID { get; set; }

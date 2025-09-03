@@ -8,7 +8,7 @@ namespace Spotify_to_YTMusic.Components.Sql.DataModel
 {
     public class SpotifyPlaylistTracks
     {
-        public string SpotiftPlaylistID {  get; set; }
+        public string PlaylistID {  get; set; }
         public string TrackID { get; set; }
     }
 }
