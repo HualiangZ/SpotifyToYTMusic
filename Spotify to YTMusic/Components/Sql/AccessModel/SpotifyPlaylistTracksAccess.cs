@@ -18,7 +18,7 @@ namespace Spotify_to_YTMusic.Components.Sql.AccessModel
 
         public static List<SpotifyPlaylistTracks> GetAllTrackInPlaylist(string playlistID)
         {
-            using(var cnn = new SQLiteConnection(cnnString))
+            using(IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 try
                 {
@@ -26,7 +26,7 @@ namespace Spotify_to_YTMusic.Components.Sql.AccessModel
                 }
                 catch (Exception ex) 
                 {
-                    Console.WriteLine(ex.Message);
+                    Console.WriteLine("GET "+ex.Message);
                     return null;
                 }
                 
@@ -35,7 +35,7 @@ namespace Spotify_to_YTMusic.Components.Sql.AccessModel
 
         public static void PostTrackToPlaylist(SpotifyPlaylistTracks PlaylistTrack)
         {
-            using (var cnn = new SQLiteConnection(cnnString))
+            using (IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 try
                 {
@@ -43,9 +43,25 @@ namespace Spotify_to_YTMusic.Components.Sql.AccessModel
                 }
                 catch (Exception ex)
                 { 
-                    Console.WriteLine(ex.Message);
+                    Console.WriteLine("Post " + ex.Message);
                 }
                 
+            }
+        }
+
+
+        public static void DeleteTrackFromPlaylist(SpotifyPlaylistTracks PlaylistTrack)
+        {
+            using (IDbConnection cnn = new SQLiteConnection(cnnString))
+            {
+                try
+                {
+                    cnn.Execute("DELETE FROM SpotifyPlaylistTracks WHERE PlaylistID = @PlaylistID AND TrackID = @TrackID ", PlaylistTrack);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Delete " + ex.Message);
+                }
             }
         }
     }

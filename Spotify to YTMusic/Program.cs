@@ -38,12 +38,16 @@ namespace Spotify_to_YTMusic
                      await api.GetPlaylistSnapshotIdAsync("5a7q5av1kX3ewlMwGuaQE3").ConfigureAwait(false);*/
 
             SpotifyPlaylistTracks spotifyPlaylistTracks = new SpotifyPlaylistTracks();
+            spotifyPlaylistTracks.PlaylistID = "Id2";
+            spotifyPlaylistTracks.TrackID = "track1";
 
-            spotifyPlaylistTracks.PlaylistID = "Id1";
-            spotifyPlaylistTracks.TrackID = "track2";
+            SpotifyPlaylistTracks spotifyPlaylistTracks1 = new SpotifyPlaylistTracks();
+            spotifyPlaylistTracks1.PlaylistID = "Id1";
+            spotifyPlaylistTracks1.TrackID = "track1";
 
             SpotifyPlaylistTracksAccess.PostTrackToPlaylist(spotifyPlaylistTracks);
-            foreach(var item in SpotifyPlaylistTracksAccess.GetAllTrackInPlaylist("Id1"))
+            SpotifyPlaylistTracksAccess.DeleteTrackFromPlaylist(spotifyPlaylistTracks1);
+            foreach (var item in SpotifyPlaylistTracksAccess.GetAllTrackInPlaylist("Id1"))
             {
                 Console.WriteLine($"{item.PlaylistID}: {item.TrackID}");
             }
