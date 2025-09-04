@@ -10,6 +10,6 @@ namespace Spotify_to_YTMusic.Components.Sql.DataModel
     {
         public string PlaylistID { get; set; }
         public string SnapshotID { get; set; }
-        public string PlaylistName {  get; set; } 
+        public string Name {  get; set; } 
     }
 }
