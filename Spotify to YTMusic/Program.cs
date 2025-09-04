@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Spotify_to_YTMusic.Components;
-using Spotify_to_YTMusic.Components.Sql.AccessModel;
+using Spotify_to_YTMusic.Components.Sql;
 using Spotify_to_YTMusic.Components.Sql.DataModel;
 using System.Buffers.Text;
 using System.Net;
@@ -45,9 +45,9 @@ namespace Spotify_to_YTMusic
             spotifyPlaylistTracks1.PlaylistID = "Id1";
             spotifyPlaylistTracks1.TrackID = "track1";
 
-            SpotifyPlaylistTracksAccess.PostTrackToPlaylist(spotifyPlaylistTracks);
-            SpotifyPlaylistTracksAccess.DeleteTrackFromPlaylist(spotifyPlaylistTracks1);
-            foreach (var item in SpotifyPlaylistTracksAccess.GetAllTrackInPlaylist("Id1"))
+            MusicDBApi.PostTrackToPlaylist(spotifyPlaylistTracks);
+            MusicDBApi.DeleteTrackFromPlaylist(spotifyPlaylistTracks1);
+            foreach (var item in MusicDBApi.GetAllTrackInPlaylist("Id1"))
             {
                 Console.WriteLine($"{item.PlaylistID}: {item.TrackID}");
             }

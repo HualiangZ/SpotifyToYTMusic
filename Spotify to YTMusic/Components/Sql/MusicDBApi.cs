@@ -10,9 +10,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
-namespace Spotify_to_YTMusic.Components.Sql.AccessModel
+namespace Spotify_to_YTMusic.Components.Sql
 {
-    public class SpotifyPlaylistTracksAccess
+    public class MusicDBApi
     {
         static string cnnString = "Data Source=./MusicDB.db";
 
