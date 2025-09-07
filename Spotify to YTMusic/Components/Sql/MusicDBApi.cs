@@ -1,7 +1,11 @@
 ﻿using Dapper;
+using Google.Apis.YouTube.v3.Data;
 using Spotify_to_YTMusic.Components.Sql.DataModel;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
+using System.Linq;
+using Xunit.Abstractions;
 
 namespace Spotify_to_YTMusic.Components.Sql
 {
@@ -15,7 +19,16 @@ namespace Spotify_to_YTMusic.Components.Sql
             {
                 try
                 {
-                    return cnn.Query<SpotifyPlaylistTracks>("select * from SpotifyPlaylistTracks", new DynamicParameters()).ToList();
+                    List<SpotifyPlaylistTracks> items = cnn.Query<SpotifyPlaylistTracks>("select * from SpotifyPlaylistTracks", new DynamicParameters()).ToList();
+                    List<SpotifyPlaylistTracks> output = new List<SpotifyPlaylistTracks>();
+                    foreach (SpotifyPlaylistTracks i in items) 
+                    {
+                        if(i.PlaylistID == playlistID)
+                        {
+                            output.Add(i);
+                        }
+                    }
+                    return output;
                 }
                 catch (Exception ex) 
                 {
@@ -58,13 +71,22 @@ namespace Spotify_to_YTMusic.Components.Sql
             }
         }
 
-        public static List<SpotifyPlaylistsModels> GetAllSportifyPlaylists()
+        public static List<SpotifyPlaylistsModels> GetAllSportifyPlaylists(string playlistID)
         {
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 try
                 {
-                    return cnn.Query<SpotifyPlaylistsModels>("select * from SpotifyPlaylists", new DynamicParameters()).ToList();
+                    List<SpotifyPlaylistsModels> items = cnn.Query<SpotifyPlaylistsModels>("select * from SpotifyPlaylists", new DynamicParameters()).ToList();
+                    List<SpotifyPlaylistsModels> output = new List<SpotifyPlaylistsModels>();
+                    foreach (SpotifyPlaylistsModels i in items)
+                    {
+                        if (i.PlaylistID == playlistID)
+                        {
+                            output.Add(i);
+                        }
+                    }
+                    return output;
                 }
                 catch (Exception ex)
                 {
@@ -111,7 +133,16 @@ namespace Spotify_to_YTMusic.Components.Sql
             {
                 try
                 {
-                    return cnn.Query<YouTubePlaylistTracks>($"select * from YouTubePlaylistTracks where PlaylistID = {playlistID}", new DynamicParameters()).ToList();
+                    var items = cnn.Query<YouTubePlaylistTracks>($"select * from YouTubePlaylistTracks where PlaylistID = {playlistID}", new DynamicParameters()).ToList();
+                    List<YouTubePlaylistTracks> output = new List<YouTubePlaylistTracks>();
+                    foreach (YouTubePlaylistTracks i in items)
+                    {
+                        if (i.PlaylistID == playlistID)
+                        {
+                            output.Add(i);
+                        }
+                    }
+                    return output;
                 }
                 catch (Exception ex)
                 {

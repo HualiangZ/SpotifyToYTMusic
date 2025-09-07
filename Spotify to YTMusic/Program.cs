@@ -47,7 +47,7 @@ namespace Spotify_to_YTMusic
 
             MusicDBApi.PostSpotifyTrackToPlaylist(spotifyPlaylistTracks);
             //MusicDBApi.DeleteSpotifyTrackFromPlaylist(spotifyPlaylistTracks1);
-            foreach (var item in MusicDBApi.GetAllSpotifyTrackInPlaylist("Id2"))
+            foreach (var item in MusicDBApi.GetAllSpotifyTrackInPlaylist("Id1"))
             {
                 Console.WriteLine($"{item.PlaylistID}: {item.TrackID}");
             }
