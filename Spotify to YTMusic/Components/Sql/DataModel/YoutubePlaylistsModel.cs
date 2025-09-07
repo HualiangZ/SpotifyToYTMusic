@@ -9,6 +9,6 @@ namespace Spotify_to_YTMusic.Components.Sql.DataModel
     public class YoutubePlaylistsModel
     {
         public string PlaylistID { get; set; } 
-        public string PlaylistName { get; set; }
+        public string Name { get; set; }
     }
 }
