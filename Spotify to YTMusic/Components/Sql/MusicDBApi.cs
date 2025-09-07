@@ -19,16 +19,7 @@ namespace Spotify_to_YTMusic.Components.Sql
             {
                 try
                 {
-                    List<SpotifyPlaylistTracks> items = cnn.Query<SpotifyPlaylistTracks>("select * from SpotifyPlaylistTracks", new DynamicParameters()).ToList();
-                    List<SpotifyPlaylistTracks> output = new List<SpotifyPlaylistTracks>();
-                    foreach (SpotifyPlaylistTracks i in items) 
-                    {
-                        if(i.PlaylistID == playlistID)
-                        {
-                            output.Add(i);
-                        }
-                    }
-                    return output;
+                    return cnn.Query<SpotifyPlaylistTracks>("select * from SpotifyPlaylistTracks where PlaylistID = @PlaylistID", new {PlaylistID = playlistID}).ToList();
                 }
                 catch (Exception ex) 
                 {
@@ -77,16 +68,7 @@ namespace Spotify_to_YTMusic.Components.Sql
             {
                 try
                 {
-                    List<SpotifyPlaylistsModels> items = cnn.Query<SpotifyPlaylistsModels>("select * from SpotifyPlaylists", new DynamicParameters()).ToList();
-                    List<SpotifyPlaylistsModels> output = new List<SpotifyPlaylistsModels>();
-                    foreach (SpotifyPlaylistsModels i in items)
-                    {
-                        if (i.PlaylistID == playlistID)
-                        {
-                            output.Add(i);
-                        }
-                    }
-                    return output;
+                    return cnn.Query<SpotifyPlaylistsModels>("select * from SpotifyPlaylists where PlaylistID = @PlaylistID", new {PlaylistID = playlistID}).ToList();
                 }
                 catch (Exception ex)
                 {
@@ -133,16 +115,7 @@ namespace Spotify_to_YTMusic.Components.Sql
             {
                 try
                 {
-                    var items = cnn.Query<YouTubePlaylistTracks>($"select * from YouTubePlaylistTracks where PlaylistID = {playlistID}", new DynamicParameters()).ToList();
-                    List<YouTubePlaylistTracks> output = new List<YouTubePlaylistTracks>();
-                    foreach (YouTubePlaylistTracks i in items)
-                    {
-                        if (i.PlaylistID == playlistID)
-                        {
-                            output.Add(i);
-                        }
-                    }
-                    return output;
+                    return cnn.Query<YouTubePlaylistTracks>($"select * from YouTubePlaylistTracks where PlaylistID = @PlaylistID", new {PlaylistID = playlistID}).ToList();
                 }
                 catch (Exception ex)
                 {
