@@ -203,9 +203,68 @@ namespace Spotify_to_YTMusic.Components.Sql
                 }
             }
         }
+        public static List<PlaylistSync> GetSyncedPlaylists()
+        {
+            using (IDbConnection cnn = new SQLiteConnection(cnnString))
+            {
+                try
+                {
+                    return cnn.Query<PlaylistSync>("select * from PlaylistSync").ToList();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("GET All playlist sync " + ex.Message);
+                    return null;
+                }
+            }
+        }
 
+        public static List<PlaylistSync> GetoneSyncedPlaylists(string playlistSyncID)
+        {
+            using (IDbConnection cnn = new SQLiteConnection(cnnString))
+            {
+                try
+                {
+                    return cnn.Query<PlaylistSync>("select * from PlaylistSync where SyncID = @SyncID", new {syncID = playlistSyncID }).ToList();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("GET one playlist sync " + ex.Message);
+                    return null;
+                }
+            }
+        }
 
+        public static void PostPlaylistSync(PlaylistSync playlistsyncID)
+        {
+            using (IDbConnection cnn = new SQLiteConnection(cnnString))
+            {
+                try
+                {
+                    cnn.Execute("insert into PlaylistSync (YTPlaylistID, SpotifyPlaylistID) values (@YTPlaylistID, @SpotifyPlaylistID)", playlistsyncID);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Post " + ex.Message);
+                }
 
+            }
+        }
+
+        public static void DeletePlaylistSync(string playlistSyncID)
+        {
+            using (IDbConnection cnn = new SQLiteConnection(cnnString))
+            {
+                try
+                {
+                    cnn.Execute("DELETE FROM PlaylistSync WHERE SyncID = @SyncID", new { syncID = playlistSyncID });
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Delete " + ex.Message);
+                }
+            }
+        }
 
     }
 }
