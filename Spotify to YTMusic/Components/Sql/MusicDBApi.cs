@@ -219,13 +219,29 @@ namespace Spotify_to_YTMusic.Components.Sql
             }
         }
 
-        public static List<PlaylistSync> GetoneSyncedPlaylists(string playlistSyncID)
+        public static PlaylistSync GetSyncedPlaylistWithSpotify(string SpotifyPlaylistID)
         {
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 try
                 {
-                    return cnn.Query<PlaylistSync>("select * from PlaylistSync where SyncID = @SyncID", new {syncID = playlistSyncID }).ToList();
+                    return cnn.Query<PlaylistSync>("select * from PlaylistSync where SpotifyPlaylistID = @SynSpotifyPlaylistIDcID", new { SpotifyPlaylistID = SpotifyPlaylistID }).ToList()[0];
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("GET one playlist sync " + ex.Message);
+                    return null;
+                }
+            }
+        }
+
+        public static List<PlaylistSync> GetSyncedPlaylistWithYouTube(string YTPlaylistID)
+        {
+            using (IDbConnection cnn = new SQLiteConnection(cnnString))
+            {
+                try
+                {
+                    return cnn.Query<PlaylistSync>("select * from PlaylistSync where YTPlaylistID = @YTPlaylistID", new { YTPlaylistID = YTPlaylistID }).ToList();
                 }
                 catch (Exception ex)
                 {
