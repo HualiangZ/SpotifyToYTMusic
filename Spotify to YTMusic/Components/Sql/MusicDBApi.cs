@@ -225,7 +225,7 @@ namespace Spotify_to_YTMusic.Components.Sql
             {
                 try
                 {
-                    return cnn.Query<PlaylistSync>("select * from PlaylistSync where SpotifyPlaylistID = @SynSpotifyPlaylistIDcID", new { SpotifyPlaylistID = SpotifyPlaylistID }).ToList()[0];
+                    return cnn.Query<PlaylistSync>("select * from PlaylistSync where SpotifyPlaylistID = @SpotifyPlaylistID", new { SpotifyPlaylistID = SpotifyPlaylistID }).ToList()[0];
                 }
                 catch (Exception ex)
                 {
