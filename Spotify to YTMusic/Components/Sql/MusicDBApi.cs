@@ -13,6 +13,51 @@ namespace Spotify_to_YTMusic.Components.Sql
     {
         static string cnnString = "Data Source=./MusicDB.db";
 
+        public static SpotifyTracks GetSpotifyTrack(string trackID)
+        {
+            using (IDbConnection cnn = new SQLiteConnection(cnnString))
+            {
+                try
+                {
+                    return cnn.Query<SpotifyTracks>("select * from SpotifyTracks where TrackID = @TrackID", new { TrackID = trackID }).ToList()[0];
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("GET " + ex.Message);
+                    return null;
+                }
+            }
+        }
+        public static void PostSpotifyTrack(SpotifyTracks spotifyTrack)
+        {
+            using (IDbConnection cnn = new SQLiteConnection(cnnString))
+            {
+                try
+                {
+                    cnn.Execute("insert into SpotifyTracks (TrackID, TrackName, ArtistName) values (@TrackID, @TrackName, @ArtistName)", spotifyTrack);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Post " + ex.Message);
+                }
+
+            }
+        }
+        public static void DeleteSpotifyTrack(SpotifyTracks playlistTrack)
+        {
+            using (IDbConnection cnn = new SQLiteConnection(cnnString))
+            {
+                try
+                {
+                    cnn.Execute("DELETE FROM SpotifyTracks WHERE TrackID = @TrackID AND TrackName = @TrackName AND ArtistName = @ArtistName", playlistTrack);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Delete " + ex.Message);
+                }
+            }
+        }
+
         public static List<SpotifyPlaylistTracks> GetAllSpotifyTrackInPlaylist(string playlistID)
         {
             using(IDbConnection cnn = new SQLiteConnection(cnnString))
@@ -27,6 +72,21 @@ namespace Spotify_to_YTMusic.Components.Sql
                     return null;
                 }
                 
+            }
+        }
+
+        public static void DeleteSpotifyTrack(SpotifyPlaylistTracks playlistTrack)
+        {
+            using (IDbConnection cnn = new SQLiteConnection(cnnString))
+            {
+                try
+                {
+                    cnn.Execute("DELETE FROM SpotifyPlaylistTracks WHERE PlaylistID = @PlaylistID AND TrackID = @TrackID ", playlistTrack);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Delete " + ex.Message);
+                }
             }
         }
 
@@ -101,6 +161,51 @@ namespace Spotify_to_YTMusic.Components.Sql
                 try
                 {
                     cnn.Execute("DELETE FROM SpotifyPlaylistsModels WHERE PlaylistID = @PlaylistID", playlist);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Delete " + ex.Message);
+                }
+            }
+        }
+
+        public static YouTubeTracks GetYouTubeTrack(string trackID)
+        {
+            using (IDbConnection cnn = new SQLiteConnection(cnnString))
+            {
+                try
+                {
+                    return cnn.Query<YouTubeTracks>("select * from YouTubeTracks where TrackID = @TrackID", new { TrackID = trackID }).ToList()[0];
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("GET " + ex.Message);
+                    return null;
+                }
+            }
+        }
+        public static void PostYouTubeTrack(YouTubeTracks spotifyTrack)
+        {
+            using (IDbConnection cnn = new SQLiteConnection(cnnString))
+            {
+                try
+                {
+                    cnn.Execute("insert into YouTubeTracks (TrackID, TrackName, ArtistName) values (@TrackID, @TrackName, @ArtistName)", spotifyTrack);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Post " + ex.Message);
+                }
+
+            }
+        }
+        public static void DeleteYouTubeTrack(YouTubeTracks playlistTrack)
+        {
+            using (IDbConnection cnn = new SQLiteConnection(cnnString))
+            {
+                try
+                {
+                    cnn.Execute("DELETE FROM YouTubeTracks WHERE TrackID = @TrackID AND TrackName = @TrackName AND ArtistName = @ArtistName", playlistTrack);
                 }
                 catch (Exception ex)
                 {
