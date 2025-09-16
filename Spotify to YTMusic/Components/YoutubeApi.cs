@@ -50,7 +50,7 @@ namespace Spotify_to_YTMusic.Components
             {
                 try
                 {
-                    await youtubeService.Playlists.Insert(newPlaylist, "snippet,status").ExecuteAsync();
+                    await youtubeService.Playlists.Insert(newPlaylist, "snippet,status").ExecuteAsync().ConfigureAwait(false);
                     return;
                 }
                 catch (Exception ex)

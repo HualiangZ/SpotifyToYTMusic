@@ -48,7 +48,7 @@ namespace Spotify_to_YTMusic.Components
             var byteArray = Encoding.ASCII.GetBytes($"{clientId}:{clientSecret}");
             request.Headers.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
 
-            var response = await client.SendAsync(request);
+            var response = await client.SendAsync(request).ConfigureAwait(false);
             var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
@@ -175,7 +175,7 @@ namespace Spotify_to_YTMusic.Components
             string url = $"https://api.spotify.com/v1/playlists/{playlistId}/tracks?limit={limit}&offsset={offset}";
             int totalFetched = 0;
             int total = Int32.Parse(await GetPlaylistTrackLimitAsync(playlistId));
-            while (totalFetched < total)
+            while (url != "null" || url != null)
             {
                 HttpResponseMessage responseMessage = await client.GetAsync(url).ConfigureAwait(false);
                 if (!responseMessage.IsSuccessStatusCode)
