@@ -37,7 +37,7 @@ namespace Spotify_to_YTMusic.Components
             });
         }
 
-        public async Task CreateNewPlaylist(string playlistName)
+        public async Task<string> CreateNewPlaylist(string playlistName)
         {
             var newPlaylist = new Playlist();
             newPlaylist.Snippet = new PlaylistSnippet();
@@ -51,7 +51,7 @@ namespace Spotify_to_YTMusic.Components
                 try
                 {
                     await youtubeService.Playlists.Insert(newPlaylist, "snippet,status").ExecuteAsync().ConfigureAwait(false);
-                    return;
+                    return newPlaylist.Id;
                 }
                 catch (Exception ex)
                 {
@@ -62,6 +62,7 @@ namespace Spotify_to_YTMusic.Components
             }
 
             Console.WriteLine("Cannot connect to API");
+            return "";
         }
 
         public async Task AddToPlaylist(string playlistId, string videoId)
