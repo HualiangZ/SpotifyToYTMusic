@@ -75,21 +75,6 @@ namespace Spotify_to_YTMusic.Components.Sql
             }
         }
 
-        public static void DeleteSpotifyTrack(SpotifyPlaylistTracks playlistTrack)
-        {
-            using (IDbConnection cnn = new SQLiteConnection(cnnString))
-            {
-                try
-                {
-                    cnn.Execute("DELETE FROM SpotifyPlaylistTracks WHERE PlaylistID = @PlaylistID AND TrackID = @TrackID ", playlistTrack);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("Delete " + ex.Message);
-                }
-            }
-        }
-
         public static void PostSpotifyTrackToPlaylist(SpotifyPlaylistTracks playlistTrack)
         {
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
@@ -105,7 +90,6 @@ namespace Spotify_to_YTMusic.Components.Sql
                 
             }
         }
-
 
         public static void DeleteSpotifyTrackFromPlaylist(SpotifyPlaylistTracks playlistTrack)
         {
@@ -186,13 +170,13 @@ namespace Spotify_to_YTMusic.Components.Sql
 
             }
         }
-        public static void DeleteSpotifyPlaylist(SpotifyPlaylistsModels playlist)
+        public static void DeleteSpotifyPlaylist(string playlistID)
         {
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 try
                 {
-                    cnn.Execute("DELETE FROM SpotifyPlaylists WHERE PlaylistID = @PlaylistID", playlist);
+                    cnn.Execute("DELETE FROM SpotifyPlaylists WHERE PlaylistID = @PlaylistID", new { PlaylistID = playlistID });
                 }
                 catch (Exception ex)
                 {
@@ -246,13 +230,13 @@ namespace Spotify_to_YTMusic.Components.Sql
             }
         }
 
-        public static List<YoutubePlaylistsModel> GetAllYTPlaylist(string playlistID) 
+        public static YoutubePlaylistsModel GetOneYTPlaylist(string playlistID) 
         {
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 try
                 {
-                    return cnn.Query<YoutubePlaylistsModel>("select * from YouTubePlaylists where PlaylistID = @PlaylistID", new { PlaylistID = playlistID }).ToList();
+                    return cnn.Query<YoutubePlaylistsModel>("select * from YouTubePlaylists where PlaylistID = @PlaylistID", new { PlaylistID = playlistID }).ToList()[0];
                 }catch(Exception ex)
                 {
                     Console.WriteLine("Get " + ex.ToString());
