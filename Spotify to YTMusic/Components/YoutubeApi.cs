@@ -37,6 +37,33 @@ namespace Spotify_to_YTMusic.Components
             });
         }
 
+        public async Task CreateNewPlaylist(string playlistName)
+        {
+            var newPlaylist = new Playlist();
+            newPlaylist.Snippet = new PlaylistSnippet();
+            newPlaylist.Snippet.Title = playlistName;
+            newPlaylist.Snippet.Description = "A playlist created with the YouTube API";
+            newPlaylist.Status = new PlaylistStatus();
+            newPlaylist.Status.PrivacyStatus = "public";
+            int retry = 1;
+            while (retry != 0) 
+            {
+                try
+                {
+                    await youtubeService.Playlists.Insert(newPlaylist, "snippet,status").ExecuteAsync();
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    await GetCredential().ConfigureAwait(false);
+                    retry--;
+                    Console.WriteLine(retry);
+                }
+            }
+
+            Console.WriteLine("Cannot connect to API");
+        }
+
         public async Task AddToPlaylist(string playlistId, string videoId)
         {
             if(playlistId == "")
