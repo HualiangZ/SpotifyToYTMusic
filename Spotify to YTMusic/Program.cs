@@ -31,26 +31,25 @@ namespace Spotify_to_YTMusic
                         //await api.AddToPlaylist(playlistId, videoID);
                         await api.GetItemInPlaylistAsync(playlistId);*/
 
-            /*         HttpClient client = new HttpClient();
-                     SpotifyApi api = new SpotifyApi(client);
-                     await api.GetAccessTokenAsync().ConfigureAwait(false);
-                     await api.GetPlaylistAsync("5a7q5av1kX3ewlMwGuaQE3").ConfigureAwait(false);
-                     await api.GetPlaylistSnapshotIdAsync("5a7q5av1kX3ewlMwGuaQE3").ConfigureAwait(false);*/
+            HttpClient client = new HttpClient();
+            SpotifyApi api = new SpotifyApi(client);
+            await api.GetAccessTokenAsync().ConfigureAwait(false);
+            await api.StorePlaylistToDB("5a7q5av1kX3ewlMwGuaQE3").ConfigureAwait(false);
 
-            SpotifyPlaylistTracks spotifyPlaylistTracks = new SpotifyPlaylistTracks();
-            spotifyPlaylistTracks.PlaylistID = "Id2";
-            spotifyPlaylistTracks.TrackID = "track1";
+            /*            SpotifyPlaylistTracks spotifyPlaylistTracks = new SpotifyPlaylistTracks();
+                        spotifyPlaylistTracks.PlaylistID = "Id2";
+                        spotifyPlaylistTracks.TrackID = "track1";
 
-            SpotifyPlaylistTracks spotifyPlaylistTracks1 = new SpotifyPlaylistTracks();
-            spotifyPlaylistTracks1.PlaylistID = "Id1";
-            spotifyPlaylistTracks1.TrackID = "track1";
+                        SpotifyPlaylistTracks spotifyPlaylistTracks1 = new SpotifyPlaylistTracks();
+                        spotifyPlaylistTracks1.PlaylistID = "Id1";
+                        spotifyPlaylistTracks1.TrackID = "track1";
 
-            MusicDBApi.PostSpotifyTrackToPlaylist(spotifyPlaylistTracks);
-            //MusicDBApi.DeleteSpotifyTrackFromPlaylist(spotifyPlaylistTracks1);
-            foreach (var item in MusicDBApi.GetAllSpotifyTrackInPlaylist("Id1"))
-            {
-                Console.WriteLine($"{item.PlaylistID}: {item.TrackID}");
-            }
+                        MusicDBApi.PostSpotifyTrackToPlaylist(spotifyPlaylistTracks);
+                        //MusicDBApi.DeleteSpotifyTrackFromPlaylist(spotifyPlaylistTracks1);
+                        foreach (var item in MusicDBApi.GetAllSpotifyTrackInPlaylist("Id1"))
+                        {
+                            Console.WriteLine($"{item.PlaylistID}: {item.TrackID}");
+                        }*/
         }
 
     }

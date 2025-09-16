@@ -139,13 +139,45 @@ namespace Spotify_to_YTMusic.Components.Sql
             }
         }
 
+        public static SpotifyPlaylistsModels GetOneSportifyPlaylists(string playlistID)
+        {
+            using (IDbConnection cnn = new SQLiteConnection(cnnString))
+            {
+                try
+                {
+                    return cnn.Query<SpotifyPlaylistsModels>("select * from SpotifyPlaylists where PlaylistID = @PlaylistID", new {PlaylistID = playlistID}).ToList()[0];
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("GET " + ex.Message);
+                    return null;
+                }
+
+            }
+        }
+
         public static void PostSpotifyPlaylist(SpotifyPlaylistsModels playlist)
         {
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 try
                 {
-                    cnn.Execute("insert into SpotifyPlaylistTracks (PlaylistID, SnapshotID, Name) values (@PlaylistID, @SnapshotID, @Name)", playlist);
+                    cnn.Execute("insert into SpotifyPlaylists (PlaylistID, SnapshotID, Name) values (@PlaylistID, @SnapshotID, @Name)", playlist);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Post " + ex.Message);
+                }
+
+            }
+        }
+        public static void UpdateSpotifyPlaylistSnapshotID(string playlistID, string snapshotID)
+        {
+            using (IDbConnection cnn = new SQLiteConnection(cnnString))
+            {
+                try
+                {
+                    cnn.Execute("update SpotifyPlaylists set SnapshotID = @SnapshotID where PlaylistID = @PlaylistID", new { PlaylistID = playlistID, SnapshotID = snapshotID }) ;
                 }
                 catch (Exception ex)
                 {
@@ -160,7 +192,7 @@ namespace Spotify_to_YTMusic.Components.Sql
             {
                 try
                 {
-                    cnn.Execute("DELETE FROM SpotifyPlaylistsModels WHERE PlaylistID = @PlaylistID", playlist);
+                    cnn.Execute("DELETE FROM SpotifyPlaylists WHERE PlaylistID = @PlaylistID", playlist);
                 }
                 catch (Exception ex)
                 {

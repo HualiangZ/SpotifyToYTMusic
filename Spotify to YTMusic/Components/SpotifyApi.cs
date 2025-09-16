@@ -1,6 +1,8 @@
 ﻿using Google.Apis.YouTube.v3.Data;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Spotify_to_YTMusic.Components.Sql;
+using Spotify_to_YTMusic.Components.Sql.DataModel;
 using Spotify_to_YTMusic.Config;
 using System;
 using System.Collections.Generic;
@@ -68,7 +70,31 @@ namespace Spotify_to_YTMusic.Components
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
             return await client.GetAsync(url).ConfigureAwait(false);
         }
-        
+
+        public async Task StorePlaylistToDB(string playlistId)
+        {
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
+            string url = $"https://api.spotify.com/v1/playlists/{playlistId}";
+            HttpResponseMessage responseMessage = await client.GetAsync(url).ConfigureAwait(false);
+            if (!responseMessage.IsSuccessStatusCode)
+            {
+                responseMessage = await RefreshAccessToken(url).ConfigureAwait(false);
+
+                if (!responseMessage.IsSuccessStatusCode)
+                {
+                    Console.WriteLine(responseMessage.StatusCode);
+                }
+            }
+
+            string json = await responseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
+            JObject data = JObject.Parse(json);
+            var sportifyPlaylist = new SpotifyPlaylistsModels();
+            sportifyPlaylist.PlaylistID = playlistId;
+            sportifyPlaylist.Name = data["name"].ToString();
+            sportifyPlaylist.SnapshotID = await GetPlaylistSnapshotIdAsync(playlistId).ConfigureAwait(false);
+            MusicDBApi.PostSpotifyPlaylist(sportifyPlaylist);
+        }
+
         public async Task<string> GetPlaylistSnapshotIdAsync(string playlistId)
         {
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
@@ -88,17 +114,11 @@ namespace Spotify_to_YTMusic.Components
             return snapshot.ToString();
         }
 
-        public async Task StoreSnapshotIdAsync(string playlistId)
-        {
-            var snapshot = await GetPlaylistSnapshotIdAsync(playlistId).ConfigureAwait(false);
-            await jsonReader.WriteSpotifySnapshotIdToJsonAsync(snapshot, playlistId).ConfigureAwait(false);
-        }
-
 
         public async Task CheckSnapshotIdChangeAsync(string playlistId)
         {
             string newSnapshotId = await GetPlaylistSnapshotIdAsync(playlistId).ConfigureAwait(false);
-            string storedSnapshotId = await jsonReader.GetPlaylistSnapshotIdAsync(playlistId).ConfigureAwait (false);
+            string storedSnapshotId = MusicDBApi.GetOneSportifyPlaylists(playlistId).SnapshotID;
             if(storedSnapshotId == null)
             {
                 Console.WriteLine("No Spotify SnapshotID is stored");
@@ -121,7 +141,7 @@ namespace Spotify_to_YTMusic.Components
             {
                 //might need changing down the line no sure yet
                 await GetPlaylistAsync(playlistId).ConfigureAwait(false);
-                await StoreSnapshotIdAsync(playlistId).ConfigureAwait(false);
+                MusicDBApi.UpdateSpotifyPlaylistSnapshotID(playlistId, newSnapshotId);
             }
 
         }
@@ -182,9 +202,16 @@ namespace Spotify_to_YTMusic.Components
                 {
                     string trackName = item["track"]["name"].ToString();
                     string artist = item["track"]["artists"][0]["name"].ToString();
-                    string videoID = YoutubeVideoIDFinder.GetVideoId($"https://www.youtube.com/results?search_query={trackName}+by+{artist}+%22topic%22");
-                    Console.WriteLine($"{trackName} by {artist}: {videoID}");
-                    await jsonReader.AddTracksToJsonAsync(playlistId, videoID);
+                    string trackID = item["track"]["id"].ToString();
+                    SpotifyPlaylistTracks PlaylistTracks = new SpotifyPlaylistTracks();
+                    PlaylistTracks.TrackID = trackID;
+                    PlaylistTracks.PlaylistID = playlistId;
+                    SpotifyTracks tracks = new SpotifyTracks();
+                    tracks.TrackID = trackID;
+                    tracks.TrackName = trackName; 
+                    tracks.ArtistName = artist;
+                    MusicDBApi.PostSpotifyTrackToPlaylist(PlaylistTracks);
+                    MusicDBApi.PostSpotifyTrack(tracks);
                 }
                 url = data["next"].ToString();
                 totalFetched += items.Count();
