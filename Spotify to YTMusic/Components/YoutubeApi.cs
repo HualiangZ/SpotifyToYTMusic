@@ -10,6 +10,8 @@ using Google.Apis.Upload;
 using Google.Apis.Util.Store;
 using Google.Apis.YouTube.v3;
 using Google.Apis.YouTube.v3.Data;
+using Spotify_to_YTMusic.Components.Sql;
+using Spotify_to_YTMusic.Components.Sql.DataModel;
 namespace Spotify_to_YTMusic.Components
 {
     internal class YoutubeApi
@@ -156,6 +158,16 @@ namespace Spotify_to_YTMusic.Components
                 nextPageToken = playlistItemsResponse.NextPageToken;
             } 
             
+        }
+
+        public static void StoreTrackToYouTubeDB(string trackName, string artist)
+        {
+            string url = $"https://www.youtube.com/results?search_query={trackName}+by+{artist}+%22topic%22";
+            YouTubeTracks tracks = new YouTubeTracks();
+            tracks.TrackName = trackName;
+            tracks.ArtistName = artist;
+            tracks.TrackID = YoutubeVideoIDFinder.GetVideoId(url);
+            MusicDBApi.PostYouTubeTrack(tracks);
         }
     }
 }

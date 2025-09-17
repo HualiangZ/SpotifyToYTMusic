@@ -212,6 +212,7 @@ namespace Spotify_to_YTMusic.Components
                     tracks.ArtistName = artist;
                     MusicDBApi.PostSpotifyTrackToPlaylist(PlaylistTracks);
                     MusicDBApi.PostSpotifyTrack(tracks);
+                    YoutubeApi.StoreTrackToYouTubeDB(trackName, artist);
                 }
                 url = data["next"].ToString();
                 totalFetched += items.Count();
@@ -222,5 +223,6 @@ namespace Spotify_to_YTMusic.Components
                 }
             }//end of loop
         }
+
     }
 }

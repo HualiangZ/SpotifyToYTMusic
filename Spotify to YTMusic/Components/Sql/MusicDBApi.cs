@@ -200,13 +200,13 @@ namespace Spotify_to_YTMusic.Components.Sql
                 }
             }
         }
-        public static void PostYouTubeTrack(YouTubeTracks spotifyTrack)
+        public static void PostYouTubeTrack(YouTubeTracks youtubeTrack)
         {
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 try
                 {
-                    cnn.Execute("insert into YouTubeTracks (TrackID, TrackName, ArtistName) values (@TrackID, @TrackName, @ArtistName)", spotifyTrack);
+                    cnn.Execute("insert into YouTubeTracks (TrackID, TrackName, ArtistName) values (@TrackID, @TrackName, @ArtistName)", youtubeTrack);
                 }
                 catch (Exception ex)
                 {
