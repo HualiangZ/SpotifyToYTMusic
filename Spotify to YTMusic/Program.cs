@@ -35,7 +35,7 @@ namespace Spotify_to_YTMusic
             SpotifyApi api = new SpotifyApi(client);
             await api.GetAccessTokenAsync().ConfigureAwait(false);
             await api.StorePlaylistToDB("3vzc1IWX4yE5txsMCXxGzS").ConfigureAwait(false);
-            await api.GetPlaylistAsync("3vzc1IWX4yE5txsMCXxGzS").ConfigureAwait(false);
+            await api.StorePlaylistInfoToDBAsync("3vzc1IWX4yE5txsMCXxGzS").ConfigureAwait(false);
 
             /*            SpotifyPlaylistTracks spotifyPlaylistTracks = new SpotifyPlaylistTracks();
                         spotifyPlaylistTracks.PlaylistID = "Id2";

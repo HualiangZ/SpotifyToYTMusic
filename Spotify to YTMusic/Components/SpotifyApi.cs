@@ -140,12 +140,12 @@ namespace Spotify_to_YTMusic.Components
             if(storedSnapshotId != newSnapshotId)
             {
                 //might need changing down the line no sure yet
-                await GetPlaylistAsync(playlistId).ConfigureAwait(false);
+                await StorePlaylistInfoToDBAsync(playlistId).ConfigureAwait(false);
                 MusicDBApi.UpdateSpotifyPlaylistSnapshotID(playlistId, newSnapshotId);
             }
 
         }
-
+        
         public async Task<string> GetPlaylistTrackLimitAsync(string PlaylistId)
         {
             string url = $"https://api.spotify.com/v1/playlists/{PlaylistId}/tracks";
@@ -166,8 +166,9 @@ namespace Spotify_to_YTMusic.Components
             return data["total"].ToString();
         }
 
-        //change this to return a file with all the music name and artist.
-        public async Task GetPlaylistAsync(string playlistId)
+        //store tracks to SpotiftTracks table and YouTubeTrack table
+        //Store Tracks To SpotiftPlaylist table
+        public async Task StorePlaylistInfoToDBAsync(string playlistId)
         {
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
             int limit = 100;
@@ -203,16 +204,8 @@ namespace Spotify_to_YTMusic.Components
                     string trackName = item["track"]["name"].ToString();
                     string artist = item["track"]["artists"][0]["name"].ToString();
                     string trackID = item["track"]["id"].ToString();
-                    SpotifyPlaylistTracks PlaylistTracks = new SpotifyPlaylistTracks();
-                    PlaylistTracks.TrackID = trackID;
-                    PlaylistTracks.PlaylistID = playlistId;
-                    SpotifyTracks tracks = new SpotifyTracks();
-                    tracks.TrackID = trackID;
-                    tracks.TrackName = trackName; 
-                    tracks.ArtistName = artist;
-                    MusicDBApi.PostSpotifyTrackToPlaylist(PlaylistTracks);
-                    MusicDBApi.PostSpotifyTrack(tracks);
-                    YoutubeApi.StoreTrackToYouTubeDB(trackName, artist);
+                    StoreTracksToSpotiftPlaylistDB(trackID, playlistId);
+                    StoreTracksToDB(trackID, trackName, artist);
                 }
                 url = data["next"].ToString();
                 totalFetched += items.Count();
@@ -224,5 +217,22 @@ namespace Spotify_to_YTMusic.Components
             }//end of loop
         }
 
+        private void StoreTracksToDB(string trackID, string trackName, string artist)
+        {
+            SpotifyTracks tracks = new SpotifyTracks();
+            tracks.TrackID = trackID;
+            tracks.TrackName = trackName;
+            tracks.ArtistName = artist;
+            YoutubeApi.StoreTrackToYouTubeDB(trackName, artist);
+            MusicDBApi.PostSpotifyTrack(tracks);
+        }
+
+        private void StoreTracksToSpotiftPlaylistDB(string trackID, string playlistId)
+        {
+            SpotifyPlaylistTracks PlaylistTracks = new SpotifyPlaylistTracks();
+            PlaylistTracks.TrackID = trackID;
+            PlaylistTracks.PlaylistID = playlistId;
+            MusicDBApi.PostSpotifyTrackToPlaylist(PlaylistTracks);
+        }
     }
 }
