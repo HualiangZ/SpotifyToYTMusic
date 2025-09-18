@@ -300,6 +300,7 @@ namespace Spotify_to_YTMusic.Components.Sql
                 try
                 {
                     cnn.Execute("insert into YouTubePlaylistTracks (PlaylistID, TrackID) values (@PlaylistID, @TrackID)", playlistTrack);
+
                 }
                 catch (Exception ex)
                 {

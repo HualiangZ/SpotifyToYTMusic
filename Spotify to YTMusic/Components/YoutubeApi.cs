@@ -39,6 +39,14 @@ namespace Spotify_to_YTMusic.Components
             });
         }
 
+        private void StorePlaylistToDB(string playlistName, string playlistId)
+        {
+            YoutubePlaylistsModel playlist = new YoutubePlaylistsModel();
+            playlist.Name = playlistName;
+            playlist.PlaylistID = playlistId;
+            MusicDBApi.PostYouTubePlaylists(playlist);
+        }
+
         public async Task<string> CreateNewPlaylist(string playlistName)
         {
             var newPlaylist = new Playlist();
@@ -53,6 +61,7 @@ namespace Spotify_to_YTMusic.Components
                 try
                 {
                     await youtubeService.Playlists.Insert(newPlaylist, "snippet,status").ExecuteAsync().ConfigureAwait(false);
+                    StorePlaylistToDB(playlistName, newPlaylist.Id);
                     return newPlaylist.Id;
                 }
                 catch (Exception ex)
@@ -87,12 +96,16 @@ namespace Spotify_to_YTMusic.Components
             playlist.Snippet.ResourceId = new ResourceId();
             playlist.Snippet.ResourceId.Kind = "youtube#video";
             playlist.Snippet.ResourceId.VideoId = videoId;
-
-            while(retry != 0)
+            StorePlaylistToDB(playlist.Snippet.Title, playlistId);
+            while (retry != 0)
             {
                 try
                 {
                     await youtubeService.PlaylistItems.Insert(playlist, "snippet").ExecuteAsync().ConfigureAwait(false);
+                    YouTubePlaylistTracks youTubePlaylistTracks = new YouTubePlaylistTracks();
+                    youTubePlaylistTracks.TrackID = videoId;
+                    youTubePlaylistTracks.PlaylistID = playlistId;
+                    MusicDBApi.PostYTTrackToPlaylist(youTubePlaylistTracks);
                     return;
                 }
                 catch (Exception ex)
@@ -149,6 +162,11 @@ namespace Spotify_to_YTMusic.Components
                 playlistItemsRequest.PlaylistId = playlistId;
                 playlistItemsRequest.MaxResults = 50;
                 playlistItemsRequest.PageToken = nextPageToken;
+
+                var playlist = new PlaylistItem();
+                playlist.Snippet = new PlaylistItemSnippet();
+                playlist.Snippet.PlaylistId = playlistId;
+                StorePlaylistToDB(playlist.Snippet.Title, playlistId);
 
                 var playlistItemsResponse = await playlistItemsRequest.ExecuteAsync().ConfigureAwait(false);
                 foreach(var item in playlistItemsResponse.Items)
