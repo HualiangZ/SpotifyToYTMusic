@@ -6,6 +6,7 @@ using Spotify_to_YTMusic.Components.Sql.DataModel;
 using Spotify_to_YTMusic.Config;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http.Headers;
@@ -166,8 +167,13 @@ namespace Spotify_to_YTMusic.Components
             return data["total"].ToString();
         }
 
-        //store tracks to SpotiftTracks table and YouTubeTrack table
-        //Store Tracks To SpotiftPlaylist table
+        /*
+         * This method does four thing:
+         * 1. Store Spotify tracks to DB
+         * 2. store Youtube tracks to DB
+         * 3. Store Spotify playlist informantion to DB
+         * 4. Store what tracks are in the playlist to DB
+        */
         public async Task StorePlaylistInfoToDBAsync(string playlistId)
         {
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);

@@ -31,26 +31,6 @@ namespace Spotify_to_YTMusic
                         //await api.AddToPlaylist(playlistId, videoID);
                         await api.GetItemInPlaylistAsync(playlistId);*/
 
-            HttpClient client = new HttpClient();
-            SpotifyApi api = new SpotifyApi(client);
-            await api.GetAccessTokenAsync().ConfigureAwait(false);
-            await api.StorePlaylistToDB("3vzc1IWX4yE5txsMCXxGzS").ConfigureAwait(false);
-            await api.StorePlaylistInfoToDBAsync("3vzc1IWX4yE5txsMCXxGzS").ConfigureAwait(false);
-
-            /*            SpotifyPlaylistTracks spotifyPlaylistTracks = new SpotifyPlaylistTracks();
-                        spotifyPlaylistTracks.PlaylistID = "Id2";
-                        spotifyPlaylistTracks.TrackID = "track1";
-
-                        SpotifyPlaylistTracks spotifyPlaylistTracks1 = new SpotifyPlaylistTracks();
-                        spotifyPlaylistTracks1.PlaylistID = "Id1";
-                        spotifyPlaylistTracks1.TrackID = "track1";
-
-                        MusicDBApi.PostSpotifyTrackToPlaylist(spotifyPlaylistTracks);
-                        //MusicDBApi.DeleteSpotifyTrackFromPlaylist(spotifyPlaylistTracks1);
-                        foreach (var item in MusicDBApi.GetAllSpotifyTrackInPlaylist("Id1"))
-                        {
-                            Console.WriteLine($"{item.PlaylistID}: {item.TrackID}");
-                        }*/
         }
 
     }
