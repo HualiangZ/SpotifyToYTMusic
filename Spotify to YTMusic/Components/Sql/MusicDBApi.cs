@@ -404,5 +404,36 @@ namespace Spotify_to_YTMusic.Components.Sql
             }
         }
 
+        public static List<YouTubeTracks> GetUnsyncedTracks(string spotifyPlaylistId)
+        {
+            PlaylistSync playlistSync = GetSyncedPlaylistWithSpotify(spotifyPlaylistId);
+            using (IDbConnection cnn = new SQLiteConnection(cnnString))
+            {
+                try
+                {
+                    return cnn.Query<YouTubeTracks>(
+                        "SELECT * " +
+                        "FROM SpotifyPlaylistTracks spt " +
+                        "JOIN SpotifyTracks st " +
+                        "ON st.TrackID = spt.TrackID " +
+                        "JOIN YouTubeTracks yt " +
+                        "ON yt.TrackName = st.TrackName " +
+                        "AND yt.ArtistName = st.ArtistName " +
+                        "LEFT JOIN YoutubePlaylistTracks ypt " +
+                        "ON ypt.PlaylistID = @YoutubePlaylistID " +
+                        "AND ypt.TrackID = yt.TrackID " +
+                        "WHERE spt.PlaylistID = @SpotifyPlaylistID " +
+                        "AND ypt.TrackID IS NULL", 
+                        new { SpotifyPlaylistID = spotifyPlaylistId, YoutubePlaylistID = playlistSync.YTPlaylistID})
+                        .ToList();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Delete " + ex.Message);
+                    return null;
+                }
+            }
+        }
+
     }
 }

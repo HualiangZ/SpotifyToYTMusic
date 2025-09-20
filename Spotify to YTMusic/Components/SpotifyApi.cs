@@ -37,12 +37,12 @@ namespace Spotify_to_YTMusic.Components
             var clientId = jsonReader.ClientID;
             var clientSecret = jsonReader.ClientSecret;
 
-            var form = new Dictionary<string, string> 
+            var form = new Dictionary<string, string>
             {
                 {"grant_type", "client_credentials" }
             };
 
-            var request = new HttpRequestMessage(HttpMethod.Post, "https://accounts.spotify.com/api/token") 
+            var request = new HttpRequestMessage(HttpMethod.Post, "https://accounts.spotify.com/api/token")
             {
                 Content = new FormUrlEncodedContent(form)
             };
@@ -72,7 +72,7 @@ namespace Spotify_to_YTMusic.Components
             return await client.GetAsync(url).ConfigureAwait(false);
         }
 
-        public async Task StorePlaylistToDB(string playlistId)
+        public async Task<string> StorePlaylistToDB(string playlistId)
         {
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
             string url = $"https://api.spotify.com/v1/playlists/{playlistId}";
@@ -94,6 +94,7 @@ namespace Spotify_to_YTMusic.Components
             sportifyPlaylist.Name = data["name"].ToString();
             sportifyPlaylist.SnapshotID = await GetPlaylistSnapshotIdAsync(playlistId).ConfigureAwait(false);
             MusicDBApi.PostSpotifyPlaylist(sportifyPlaylist);
+            return sportifyPlaylist.Name;
         }
 
         public async Task<string> GetPlaylistSnapshotIdAsync(string playlistId)
@@ -120,13 +121,13 @@ namespace Spotify_to_YTMusic.Components
         {
             string newSnapshotId = await GetPlaylistSnapshotIdAsync(playlistId).ConfigureAwait(false);
             string storedSnapshotId = MusicDBApi.GetOneSportifyPlaylists(playlistId).SnapshotID;
-            if(storedSnapshotId == null)
+            if (storedSnapshotId == null)
             {
                 Console.WriteLine("No Spotify SnapshotID is stored");
                 return;
             }
 
-            if(newSnapshotId == null)
+            if (newSnapshotId == null)
             {
                 Console.WriteLine("Playlist doesnt exist");
                 return;
@@ -138,7 +139,7 @@ namespace Spotify_to_YTMusic.Components
                 return;
             }
 
-            if(storedSnapshotId != newSnapshotId)
+            if (storedSnapshotId != newSnapshotId)
             {
                 //might need changing down the line no sure yet
                 await StorePlaylistInfoToDBAsync(playlistId).ConfigureAwait(false);
@@ -146,7 +147,7 @@ namespace Spotify_to_YTMusic.Components
             }
 
         }
-        
+
         public async Task<string> GetPlaylistTrackLimitAsync(string PlaylistId)
         {
             string url = $"https://api.spotify.com/v1/playlists/{PlaylistId}/tracks";
@@ -172,7 +173,7 @@ namespace Spotify_to_YTMusic.Components
          * 1. Store Spotify tracks to DB
          * 2. store Youtube tracks to DB
          * 3. Store Spotify playlist informantion to DB
-         * 4. Store what tracks are in the playlist to DB
+         * 4. Store what tracks are in Spotify playlist to DB
         */
         public async Task StorePlaylistInfoToDBAsync(string playlistId)
         {
@@ -189,10 +190,9 @@ namespace Spotify_to_YTMusic.Components
                 {
                     responseMessage = await RefreshAccessToken(url).ConfigureAwait(false);
 
-                    if (!responseMessage.IsSuccessStatusCode) 
+                    if (!responseMessage.IsSuccessStatusCode)
                     {
-                        Console.WriteLine(responseMessage.StatusCode);
-                        break;
+                        Console.WriteLine(responseMessage.StatusCode); break;
                     }
                 }
 
@@ -204,8 +204,8 @@ namespace Spotify_to_YTMusic.Components
                     Console.WriteLine("Playlist empty");
                     break;
                 }
-                
-                foreach (var item in items) 
+
+                foreach (var item in items)
                 {
                     string trackName = item["track"]["name"].ToString();
                     string artist = item["track"]["artists"][0]["name"].ToString();
@@ -216,7 +216,7 @@ namespace Spotify_to_YTMusic.Components
                 url = data["next"].ToString();
                 totalFetched += items.Count();
                 offset += items.Count();
-                if(items.Count() < limit)
+                if (items.Count() < limit)
                 {
                     break;
                 }

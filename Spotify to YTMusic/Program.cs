@@ -15,22 +15,16 @@ namespace Spotify_to_YTMusic
     {
         static async Task Main(string[] args)
         {
-            /*            var videoID = YoutubeVideoIDFinder.GetVideoId("https://www.youtube.com/results?search_query=jump+by+blackpink+%22topic%22");
-                        if (videoID != "")
-                        {
-                            Console.WriteLine(videoID);
-                        }
-                        else
-                        {
-                            Console.WriteLine("no ID found");
-                        }
-
-                        YoutubeApi api = new YoutubeApi();
-                        string playlistId = "PLbqjJZ3RMAtFZhdAnwXI0FJIsrH6rvm9D";
-                        await api.GetCredential();
-                        //await api.AddToPlaylist(playlistId, videoID);
-                        await api.GetItemInPlaylistAsync(playlistId);*/
-
+            HttpClient client = new HttpClient();
+            SpotifyApi spotifyAPI = new SpotifyApi(client);
+            await spotifyAPI.GetAccessTokenAsync().ConfigureAwait(false);
+            //string playlistName = await spotifyAPI.StorePlaylistToDB("3vzc1IWX4yE5txsMCXxGzS").ConfigureAwait(false);
+            //await spotifyAPI.StorePlaylistInfoToDBAsync("3vzc1IWX4yE5txsMCXxGzS").ConfigureAwait(false);
+            Console.WriteLine(MusicDBApi.GetUnsyncedTracks("3vzc1IWX4yE5txsMCXxGzS").Count);
+            foreach (var item in MusicDBApi.GetUnsyncedTracks("3vzc1IWX4yE5txsMCXxGzS"))
+            {
+                Console.WriteLine(item.TrackID);
+            }
         }
 
     }
