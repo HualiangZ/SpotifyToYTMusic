@@ -14,10 +14,15 @@ using Spotify_to_YTMusic.Components.Sql;
 using Spotify_to_YTMusic.Components.Sql.DataModel;
 namespace Spotify_to_YTMusic.Components
 {
-    internal class YoutubeApi
+    public class YoutubeApi
     {
         UserCredential credential;
         YouTubeService youtubeService;
+
+        public YoutubeApi()
+        {
+            GetCredential().ConfigureAwait(false);
+        }
 
         public async Task GetCredential()
         {

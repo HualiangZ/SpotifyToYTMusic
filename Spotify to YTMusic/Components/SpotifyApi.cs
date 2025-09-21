@@ -183,6 +183,7 @@ namespace Spotify_to_YTMusic.Components
             string url = $"https://api.spotify.com/v1/playlists/{playlistId}/tracks?limit={limit}&offsset={offset}";
             int totalFetched = 0;
             int total = Int32.Parse(await GetPlaylistTrackLimitAsync(playlistId));
+            List<string> spotifyPlaylistTracks = MusicDBApi.GetAllSpotifyTrackInPlaylist(playlistId);
             while (url != "null" || url != null)
             {
                 HttpResponseMessage responseMessage = await client.GetAsync(url).ConfigureAwait(false);
@@ -199,20 +200,37 @@ namespace Spotify_to_YTMusic.Components
                 string json = await responseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
                 JObject data = JObject.Parse(json);
                 var items = data["items"];
+                List<string> IDs = new List<string>();
                 if (items == null || items.Count() == 0)
                 {
                     Console.WriteLine("Playlist empty");
                     break;
                 }
-
+                //add new tracks to DB
                 foreach (var item in items)
                 {
                     string trackName = item["track"]["name"].ToString();
                     string artist = item["track"]["artists"][0]["name"].ToString();
                     string trackID = item["track"]["id"].ToString();
-                    StoreTracksToSpotiftPlaylistDB(trackID, playlistId);
-                    StoreTracksToDB(trackID, trackName, artist);
+                    IDs.Add(trackID);
+                    if (!spotifyPlaylistTracks.Contains(trackID))
+                    {
+                        StoreTracksToSpotiftPlaylistDB(trackID, playlistId);
+                        StoreTracksToDB(trackID, trackName, artist);
+                    }           
                 }
+                //delete tracks from DB
+                foreach (var item in spotifyPlaylistTracks) 
+                {
+                    if (!IDs.Contains(item))
+                    {
+                        SpotifyPlaylistTracks toBeDeleted= new SpotifyPlaylistTracks();
+                        toBeDeleted.PlaylistID = playlistId;
+                        toBeDeleted.TrackID = item;
+                        MusicDBApi.DeleteSpotifyTrackFromPlaylist(toBeDeleted);
+                    }
+                }
+
                 url = data["next"].ToString();
                 totalFetched += items.Count();
                 offset += items.Count();

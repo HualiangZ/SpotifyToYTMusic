@@ -58,13 +58,13 @@ namespace Spotify_to_YTMusic.Components.Sql
             }
         }
 
-        public static List<SpotifyPlaylistTracks> GetAllSpotifyTrackInPlaylist(string playlistID)
+        public static List<string> GetAllSpotifyTrackInPlaylist(string playlistID)
         {
             using(IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 try
                 {
-                    return cnn.Query<SpotifyPlaylistTracks>("select * from SpotifyPlaylistTracks where PlaylistID = @PlaylistID", new {PlaylistID = playlistID}).ToList();
+                    return cnn.Query<string>("select TrackID from SpotifyPlaylistTracks where PlaylistID = @PlaylistID", new {PlaylistID = playlistID}).ToList();
                 }
                 catch (Exception ex) 
                 {
@@ -341,13 +341,13 @@ namespace Spotify_to_YTMusic.Components.Sql
             }
         }
 
-        public static PlaylistSync GetSyncedPlaylistWithSpotify(string SpotifyPlaylistID)
+        public static string GetSyncedPlaylistWithSpotify(string SpotifyPlaylistID)
         {
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 try
                 {
-                    return cnn.Query<PlaylistSync>("select * from PlaylistSync where SpotifyPlaylistID = @SpotifyPlaylistID", new { SpotifyPlaylistID = SpotifyPlaylistID }).ToList()[0];
+                    return cnn.Query<string>("select YTPlaylistID from PlaylistSync where SpotifyPlaylistID = @SpotifyPlaylistID", new { SpotifyPlaylistID = SpotifyPlaylistID }).ToList()[0];
                 }
                 catch (Exception ex)
                 {
@@ -406,7 +406,7 @@ namespace Spotify_to_YTMusic.Components.Sql
 
         public static List<YouTubeTracks> GetUnsyncedTracks(string spotifyPlaylistId)
         {
-            PlaylistSync playlistSync = GetSyncedPlaylistWithSpotify(spotifyPlaylistId);
+            string YTPlaylistID = GetSyncedPlaylistWithSpotify(spotifyPlaylistId);
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 try
@@ -424,7 +424,7 @@ namespace Spotify_to_YTMusic.Components.Sql
                         "AND ypt.TrackID = yt.TrackID " +
                         "WHERE spt.PlaylistID = @SpotifyPlaylistID " +
                         "AND ypt.TrackID IS NULL", 
-                        new { SpotifyPlaylistID = spotifyPlaylistId, YoutubePlaylistID = playlistSync.YTPlaylistID})
+                        new { SpotifyPlaylistID = spotifyPlaylistId, YoutubePlaylistID = YTPlaylistID})
                         .ToList();
                 }
                 catch (Exception ex)

@@ -10,6 +10,11 @@ namespace Spotify_to_YTMusic.Components
 {
     internal class SpotifyToYouTubeSync
     {
+        static YoutubeApi youtubeApi;
+        public SpotifyToYouTubeSync()
+        {
+            youtubeApi = new YoutubeApi();
+        }
         public static async Task SyncPlaylistAsync(string? youtubePlaylistId, string spotifyPlaylistId)
         {
 
@@ -17,14 +22,12 @@ namespace Spotify_to_YTMusic.Components
             SpotifyApi spotifyAPI = new SpotifyApi(client);
             await spotifyAPI.GetAccessTokenAsync().ConfigureAwait(false);
             string playlistName = await spotifyAPI.StorePlaylistToDB(spotifyPlaylistId).ConfigureAwait(false);
-            await spotifyAPI.StorePlaylistInfoToDBAsync(spotifyPlaylistId).ConfigureAwait(false);
 
             if (youtubePlaylistId != null)
             {
-                YoutubeApi youtubeAPI = new YoutubeApi();
                 string playlistId = youtubePlaylistId;
-                await youtubeAPI.GetCredential();
-                string newYoutubePlaylistId = await youtubeAPI.CreateNewPlaylist(playlistName).ConfigureAwait(false);
+                await youtubeApi.GetCredential();
+                string newYoutubePlaylistId = await youtubeApi.CreateNewPlaylist(playlistName).ConfigureAwait(false);
                 PlaylistSync newPlaylistSync = new PlaylistSync();
                 newPlaylistSync.SpotifyPlaylistID = spotifyPlaylistId;
                 newPlaylistSync.YTPlaylistID = newYoutubePlaylistId;
@@ -37,6 +40,22 @@ namespace Spotify_to_YTMusic.Components
             playlistSync.YTPlaylistID = youtubePlaylistId;
             MusicDBApi.PostPlaylistSync(playlistSync);
 
+        }
+
+        public static async Task SyncYoutubeTracksToSpotify(string spotifyPlaylistId)
+        {
+            List<YouTubeTracks> tracks = MusicDBApi.GetUnsyncedTracks(spotifyPlaylistId);
+            string youtubePlaylistID = MusicDBApi.GetSyncedPlaylistWithSpotify(spotifyPlaylistId);
+            if (tracks == null) 
+            {
+                Console.WriteLine("No missing tracks");
+                return; 
+            }
+
+            foreach (YouTubeTracks track in tracks) 
+            {
+                await youtubeApi.AddToPlaylist(spotifyPlaylistId, track.TrackID).ConfigureAwait(false);
+            }
         }
     }
 }
