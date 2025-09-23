@@ -357,13 +357,13 @@ namespace Spotify_to_YTMusic.Components.Sql
             }
         }
 
-        public static List<PlaylistSync> GetSyncedPlaylistWithYouTube(string YTPlaylistID)
+        public static string GetSyncedPlaylistWithYouTube(string YTPlaylistID)
         {
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 try
                 {
-                    return cnn.Query<PlaylistSync>("select * from PlaylistSync where YTPlaylistID = @YTPlaylistID", new { YTPlaylistID = YTPlaylistID }).ToList();
+                    return cnn.Query<string>("select SpotifyPlaylistID from PlaylistSync where YTPlaylistID = @YTPlaylistID", new { YTPlaylistID = YTPlaylistID }).ToList()[0];
                 }
                 catch (Exception ex)
                 {
@@ -404,7 +404,7 @@ namespace Spotify_to_YTMusic.Components.Sql
             }
         }
 
-        public static List<YouTubeTracks> GetUnsyncedTracks(string spotifyPlaylistId)
+        public static List<YouTubeTracks> GetUnsyncedTracksFromSpotify(string spotifyPlaylistId)
         {
             string YTPlaylistID = GetSyncedPlaylistWithSpotify(spotifyPlaylistId);
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
@@ -425,6 +425,37 @@ namespace Spotify_to_YTMusic.Components.Sql
                         "WHERE spt.PlaylistID = @SpotifyPlaylistID " +
                         "AND ypt.TrackID IS NULL", 
                         new { SpotifyPlaylistID = spotifyPlaylistId, YoutubePlaylistID = YTPlaylistID})
+                        .ToList();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Delete " + ex.Message);
+                    return null;
+                }
+            }
+        }
+
+        public static List<YouTubeTracks> GetUnsyncedTracksFromYoutube(string youtubePlaylistID)
+        {
+            string spotifyPlaylistID = GetSyncedPlaylistWithYouTube(youtubePlaylistID);
+            using (IDbConnection cnn = new SQLiteConnection(cnnString))
+            {
+                try
+                {
+                    return cnn.Query<YouTubeTracks>(
+                        "SELECT * " +
+                        "FROM YoutubePlaylistTracks ypt " +
+                        "JOIN YouTubeTracks yt " +
+                        "ON ypt.TrackID = yt.TrackID " +
+                        "LEFT JOIN SpotifyTracks st " +
+                        "ON st.TrackName = yt.TrackName " +
+                        "AND st.ArtistName = yt.ArtistName " +
+                        "LEFT JOIN SpotifyPlaylistTracks spt " +
+                        "ON spt.PlaylistID = @SpotifyPlaylistID " +
+                        "AND spt.TrackID = st.TrackID " +
+                        "WHERE ypt.PlaylistID = @YoutubePlaylistID " +
+                        "AND spt.TrackID IS NULL",
+                        new { SpotifyPlaylistID = spotifyPlaylistID, YoutubePlaylistID = youtubePlaylistID })
                         .ToList();
                 }
                 catch (Exception ex)

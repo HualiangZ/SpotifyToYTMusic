@@ -11,18 +11,18 @@ namespace Spotify_to_YTMusic.Components
     internal class SpotifyToYouTubeSync
     {
         static YoutubeApi youtubeApi;
+        static SpotifyApi spotifyApi;
+        HttpClient client = new HttpClient();
         public SpotifyToYouTubeSync()
         {
             youtubeApi = new YoutubeApi();
+            spotifyApi = new SpotifyApi(client);
         }
         public static async Task SyncPlaylistAsync(string? youtubePlaylistId, string spotifyPlaylistId)
         {
-
-            HttpClient client = new HttpClient();
-            SpotifyApi spotifyAPI = new SpotifyApi(client);
-            await spotifyAPI.GetAccessTokenAsync().ConfigureAwait(false);
-            string playlistName = await spotifyAPI.StorePlaylistToDB(spotifyPlaylistId).ConfigureAwait(false);
-
+            await spotifyApi.GetAccessTokenAsync().ConfigureAwait(false);
+            string playlistName = await spotifyApi.StorePlaylistToDB(spotifyPlaylistId).ConfigureAwait(false);
+            await spotifyApi.StorePlaylistInfoToDBAsync(spotifyPlaylistId).ConfigureAwait(false);
             if (youtubePlaylistId != null)
             {
                 string playlistId = youtubePlaylistId;
@@ -44,7 +44,7 @@ namespace Spotify_to_YTMusic.Components
 
         public static async Task SyncYoutubeTracksToSpotify(string spotifyPlaylistId)
         {
-            List<YouTubeTracks> tracks = MusicDBApi.GetUnsyncedTracks(spotifyPlaylistId);
+            List<YouTubeTracks> tracks = MusicDBApi.GetUnsyncedTracksFromSpotify(spotifyPlaylistId);
             string youtubePlaylistID = MusicDBApi.GetSyncedPlaylistWithSpotify(spotifyPlaylistId);
             if (tracks == null) 
             {

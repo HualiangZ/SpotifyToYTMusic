@@ -20,8 +20,8 @@ namespace Spotify_to_YTMusic
             await spotifyAPI.GetAccessTokenAsync().ConfigureAwait(false);
             //string playlistName = await spotifyAPI.StorePlaylistToDB("3vzc1IWX4yE5txsMCXxGzS").ConfigureAwait(false);
             //await spotifyAPI.StorePlaylistInfoToDBAsync("3vzc1IWX4yE5txsMCXxGzS").ConfigureAwait(false);
-            Console.WriteLine(MusicDBApi.GetUnsyncedTracks("3vzc1IWX4yE5txsMCXxGzS").Count);
-            foreach (var item in MusicDBApi.GetUnsyncedTracks("3vzc1IWX4yE5txsMCXxGzS"))
+            Console.WriteLine(MusicDBApi.GetUnsyncedTracksFromYoutube("abc").Count);
+            foreach (var item in MusicDBApi.GetUnsyncedTracksFromYoutube("abc"))
             {
                 Console.WriteLine(item.TrackID);
             }

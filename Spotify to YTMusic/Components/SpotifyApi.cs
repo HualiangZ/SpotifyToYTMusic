@@ -117,34 +117,35 @@ namespace Spotify_to_YTMusic.Components
         }
 
 
-        public async Task CheckSnapshotIdChangeAsync(string playlistId)
+        public async Task<bool> CheckSnapshotIdChangeAsync(string playlistId)
         {
             string newSnapshotId = await GetPlaylistSnapshotIdAsync(playlistId).ConfigureAwait(false);
             string storedSnapshotId = MusicDBApi.GetOneSportifyPlaylists(playlistId).SnapshotID;
             if (storedSnapshotId == null)
             {
                 Console.WriteLine("No Spotify SnapshotID is stored");
-                return;
+                return true;
             }
 
             if (newSnapshotId == null)
             {
                 Console.WriteLine("Playlist doesnt exist");
-                return;
+                return true;
             }
 
             if (storedSnapshotId == newSnapshotId)
             {
                 Console.WriteLine("No changes in playlist");
-                return;
+                return false;
             }
 
             if (storedSnapshotId != newSnapshotId)
             {
                 //might need changing down the line no sure yet
-                await StorePlaylistInfoToDBAsync(playlistId).ConfigureAwait(false);
                 MusicDBApi.UpdateSpotifyPlaylistSnapshotID(playlistId, newSnapshotId);
+                return true;
             }
+            return false;
 
         }
 
