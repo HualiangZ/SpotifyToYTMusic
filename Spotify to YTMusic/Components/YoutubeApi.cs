@@ -111,6 +111,7 @@ namespace Spotify_to_YTMusic.Components
                     youTubePlaylistTracks.TrackID = videoId;
                     youTubePlaylistTracks.PlaylistID = playlistId;
                     MusicDBApi.PostYTTrackToPlaylist(youTubePlaylistTracks);
+                    
                     return;
                 }
                 catch (Exception ex)
@@ -147,6 +148,7 @@ namespace Spotify_to_YTMusic.Components
                 try
                 {
                     await youtubeService.PlaylistItems.Delete(videoId).ExecuteAsync().ConfigureAwait(false);
+                    MusicDBApi.DeleteYouTubeTrack(videoId);
                     return;
                 }
                 catch (Exception ex)
@@ -177,6 +179,19 @@ namespace Spotify_to_YTMusic.Components
                 foreach(var item in playlistItemsResponse.Items)
                 {
                     Console.WriteLine($"{item.Snippet.ResourceId.VideoId}");
+                    var request = youtubeService.Videos.List("snippet");
+                    request.Id = item.Snippet.ResourceId.VideoId;
+                    var response = await request.ExecuteAsync();
+
+                    if (response.Items.Count > 0)
+                    {
+                        var snippet = response.Items[0].Snippet;
+                        YouTubeTracks tracks = new YouTubeTracks();
+                        tracks.TrackName = snippet.Title;
+                        tracks.ArtistName = snippet.ChannelTitle.Replace(" - Topic", "");
+                        tracks.TrackID = item.Snippet.ResourceId.VideoId;
+                        MusicDBApi.PostYouTubeTrack(tracks);
+                    }
                 }
                 nextPageToken = playlistItemsResponse.NextPageToken;
             } 

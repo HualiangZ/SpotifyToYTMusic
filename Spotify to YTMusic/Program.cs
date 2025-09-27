@@ -15,16 +15,19 @@ namespace Spotify_to_YTMusic
     {
         static async Task Main(string[] args)
         {
-            HttpClient client = new HttpClient();
-            SpotifyApi spotifyAPI = new SpotifyApi(client);
-            await spotifyAPI.GetAccessTokenAsync().ConfigureAwait(false);
-            //string playlistName = await spotifyAPI.StorePlaylistToDB("3vzc1IWX4yE5txsMCXxGzS").ConfigureAwait(false);
-            //await spotifyAPI.StorePlaylistInfoToDBAsync("3vzc1IWX4yE5txsMCXxGzS").ConfigureAwait(false);
-            Console.WriteLine(MusicDBApi.GetUnsyncedTracksFromYoutube("abc").Count);
-            foreach (var item in MusicDBApi.GetUnsyncedTracksFromYoutube("abc"))
-            {
-                Console.WriteLine(item.TrackID);
-            }
+            //HttpClient client = new HttpClient();
+            //SpotifyApi spotifyAPI = new SpotifyApi(client);
+            //await spotifyAPI.GetAccessTokenAsync().ConfigureAwait(false);
+            ////string playlistName = await spotifyAPI.StorePlaylistToDB("3vzc1IWX4yE5txsMCXxGzS").ConfigureAwait(false);
+            ////await spotifyAPI.StorePlaylistInfoToDBAsync("3vzc1IWX4yE5txsMCXxGzS").ConfigureAwait(false);
+            //Console.WriteLine(MusicDBApi.GetUnsyncedTracksFromYoutube("abc").Count);
+            //foreach (var item in MusicDBApi.GetUnsyncedTracksFromYoutube("abc"))
+            //{
+            //    Console.WriteLine(item.TrackID);
+            //}
+            YoutubeApi api = new YoutubeApi();
+            await api.GetCredential();
+            await api.GetItemInPlaylistAsync("PLbqjJZ3RMAtFZhdAnwXI0FJIsrH6rvm9D");
         }
 
     }

@@ -215,13 +215,13 @@ namespace Spotify_to_YTMusic.Components.Sql
 
             }
         }
-        public static void DeleteYouTubeTrack(YouTubeTracks playlistTrack)
+        public static void DeleteYouTubeTrack(string videoId)
         {
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 try
                 {
-                    cnn.Execute("DELETE FROM YouTubeTracks WHERE TrackID = @TrackID AND TrackName = @TrackName AND ArtistName = @ArtistName", playlistTrack);
+                    cnn.Execute("DELETE FROM YouTubeTracks WHERE TrackID = @TrackID", new {TrackID = videoId});
                 }
                 catch (Exception ex)
                 {
