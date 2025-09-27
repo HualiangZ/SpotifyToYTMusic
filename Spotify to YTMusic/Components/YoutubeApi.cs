@@ -191,6 +191,11 @@ namespace Spotify_to_YTMusic.Components
                         tracks.ArtistName = snippet.ChannelTitle.Replace(" - Topic", "");
                         tracks.TrackID = item.Snippet.ResourceId.VideoId;
                         MusicDBApi.PostYouTubeTrack(tracks);
+
+                        YouTubePlaylistTracks youTubePlaylistTracks = new YouTubePlaylistTracks();
+                        youTubePlaylistTracks.TrackID = item.Snippet.ResourceId.VideoId;
+                        youTubePlaylistTracks.PlaylistID = playlistId;
+                        MusicDBApi.PostYTTrackToPlaylist(youTubePlaylistTracks);
                     }
                 }
                 nextPageToken = playlistItemsResponse.NextPageToken;
