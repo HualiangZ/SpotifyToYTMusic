@@ -218,6 +218,7 @@ namespace Spotify_to_YTMusic.Components
                     {
                         StoreTracksToSpotiftPlaylistDB(trackID, playlistId);
                         StoreTracksToDB(trackID, trackName, artist);
+                        YoutubeApi.StoreTrackToYouTubeDB(trackName, artist);
                     }           
                 }
                 //delete tracks from DB
@@ -248,7 +249,6 @@ namespace Spotify_to_YTMusic.Components
             tracks.TrackID = trackID;
             tracks.TrackName = trackName;
             tracks.ArtistName = artist;
-            YoutubeApi.StoreTrackToYouTubeDB(trackName, artist);
             MusicDBApi.PostSpotifyTrack(tracks);
         }
 
@@ -258,6 +258,33 @@ namespace Spotify_to_YTMusic.Components
             PlaylistTracks.TrackID = trackID;
             PlaylistTracks.PlaylistID = playlistId;
             MusicDBApi.PostSpotifyTrackToPlaylist(PlaylistTracks);
+        }
+
+        public async Task<SpotifyTracks> SearchAndStoreForTracks(string _trackName, string artistName)
+        {
+            string url = $"https://api.spotify.com/v1/search?q={_trackName}+by+{artistName}&type=track";
+            HttpResponseMessage responseMessage = await client.GetAsync(url).ConfigureAwait(false);
+            if (!responseMessage.IsSuccessStatusCode)
+            {
+                responseMessage = await RefreshAccessToken(url).ConfigureAwait(false);
+
+                if (!responseMessage.IsSuccessStatusCode)
+                {
+                    Console.WriteLine(responseMessage.StatusCode); 
+                    return null;
+                }
+            }
+            string json = await responseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
+            JObject data = JObject.Parse(json);
+            var items = data["items"];
+            string trackName = items[0]["track"]["name"].ToString();
+            string artist = items[0]["track"]["artists"][0]["name"].ToString();
+            string trackID = items[0]["track"]["id"].ToString();
+            SpotifyTracks spotifyTracks = new SpotifyTracks();
+            spotifyTracks.TrackID = trackID;
+            spotifyTracks.ArtistName = artistName;
+            spotifyTracks.TrackName = trackName;
+            return spotifyTracks;
         }
     }
 }

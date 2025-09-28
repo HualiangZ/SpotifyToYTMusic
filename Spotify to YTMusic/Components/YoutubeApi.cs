@@ -122,7 +122,7 @@ namespace Spotify_to_YTMusic.Components
                 }
             }
 
-            Console.WriteLine("Invalid Video ID or Playlist ID");
+            Console.WriteLine("Invalid Video ID or Playlist ID or out of Quotas");
         }
 
         public async Task DeleteItemFromPlaylistAsync(string playlistId, string videoId)

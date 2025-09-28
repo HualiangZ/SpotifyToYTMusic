@@ -48,6 +48,7 @@ namespace Spotify_to_YTMusic.Components
 
         }
 
+        //spotify -> youtube
         public static async Task SyncYoutubeTracksToSpotify(string spotifyPlaylistId)
         {
             List<YouTubeTracks> tracksToBeAdded = MusicDBApi.GetUnsyncedTracksFromSpotify(spotifyPlaylistId);
@@ -69,6 +70,12 @@ namespace Spotify_to_YTMusic.Components
                 }
             }
 
+        }
+
+        //youtube -> spotify
+        public static async Task SyncSpotifyTracksToYoutube(string youtubePlaylistId)
+        {
+            List<YouTubeTracks> tracksToBeAdded = MusicDBApi.GetUnsyncedTracksFromYoutube(youtubePlaylistId);
         }
     }
 }
