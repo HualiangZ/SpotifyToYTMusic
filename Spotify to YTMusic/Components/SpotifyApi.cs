@@ -31,15 +31,64 @@ namespace Spotify_to_YTMusic.Components
             jsonReader.File = "config.json";
         }
 
+        public async Task<string> GetAuthCodeAsync()
+        {
+            var clientId = jsonReader.ClientID;
+            var clientSecret = jsonReader.ClientSecret;
+            var redirectUri = "http://127.0.0.1:8888/callback";
+            string scopes = "playlist-modify-public playlist-modify-private";
+            string authUrl =
+            "https://accounts.spotify.com/authorize" +
+            $"?client_id={clientId}" +
+            "&response_type=code" +
+            $"&redirect_uri={Uri.EscapeDataString(redirectUri)}" +
+            $"&scope={Uri.EscapeDataString(scopes)}";
+
+            Console.WriteLine("Open this URL in your browser:");
+            Console.WriteLine(authUrl);
+
+            // Wait for the code after login
+            string authorizationCode = await WaitForSpotifyCallback();
+            Console.WriteLine($"Got authorization code: {authorizationCode}");
+            return authorizationCode;
+           
+        }
+        private static async Task<string> WaitForSpotifyCallback()
+        {
+            using (var listener = new HttpListener())
+            {
+                listener.Prefixes.Add("http://127.0.0.1:8888/callback/");
+                listener.Start();
+                Console.WriteLine("Waiting for Spotify login...");
+
+                var context = await listener.GetContextAsync();
+                var request = context.Request;
+
+                string code = request.QueryString["code"];
+
+                // Respond to browser
+                string responseString = "<html><body><h1>You may close this window.</h1></body></html>";
+                byte[] buffer = Encoding.UTF8.GetBytes(responseString);
+                context.Response.ContentLength64 = buffer.Length;
+                await context.Response.OutputStream.WriteAsync(buffer, 0, buffer.Length);
+                context.Response.OutputStream.Close();
+
+                listener.Stop();
+                return code;
+            }
+        }
+
         public virtual async Task GetAccessTokenAsync()
         {
             await jsonReader.ReadJsonAsync();
             var clientId = jsonReader.ClientID;
             var clientSecret = jsonReader.ClientSecret;
-
+            var redirectUri = "http://127.0.0.1:8888/callback";
             var form = new Dictionary<string, string>
             {
-                {"grant_type", "client_credentials" },
+                {"grant_type", "authorization_code" },
+                {"code", await GetAuthCodeAsync()},
+                {"redirect_uri", redirectUri}
             };
 
             var request = new HttpRequestMessage(HttpMethod.Post, "https://accounts.spotify.com/api/token")
@@ -219,14 +268,14 @@ namespace Spotify_to_YTMusic.Components
                         StoreTracksToSpotiftPlaylistDB(trackID, playlistId);
                         StoreTracksToDB(trackID, trackName, artist);
                         YoutubeApi.StoreTrackToYouTubeDB(trackName, artist);
-                    }           
+                    }
                 }
                 //delete tracks from DB
-                foreach (var item in spotifyPlaylistTracks) 
+                foreach (var item in spotifyPlaylistTracks)
                 {
                     if (!IDs.Contains(item))
                     {
-                        SpotifyPlaylistTracks toBeDeleted= new SpotifyPlaylistTracks();
+                        SpotifyPlaylistTracks toBeDeleted = new SpotifyPlaylistTracks();
                         toBeDeleted.PlaylistID = playlistId;
                         toBeDeleted.TrackID = item;
                         MusicDBApi.DeleteSpotifyTrackFromPlaylist(toBeDeleted);
@@ -270,7 +319,7 @@ namespace Spotify_to_YTMusic.Components
 
                 if (!responseMessage.IsSuccessStatusCode)
                 {
-                    Console.WriteLine(responseMessage.StatusCode); 
+                    Console.WriteLine(responseMessage.StatusCode);
                     return null;
                 }
             }
