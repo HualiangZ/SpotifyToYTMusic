@@ -39,7 +39,7 @@ namespace Spotify_to_YTMusic.Components
 
             var form = new Dictionary<string, string>
             {
-                {"grant_type", "client_credentials" }
+                {"grant_type", "client_credentials" },
             };
 
             var request = new HttpRequestMessage(HttpMethod.Post, "https://accounts.spotify.com/api/token")
@@ -260,7 +260,7 @@ namespace Spotify_to_YTMusic.Components
             MusicDBApi.PostSpotifyTrackToPlaylist(PlaylistTracks);
         }
 
-        public async Task<SpotifyTracks> SearchAndStoreForTracks(string _trackName, string artistName)
+        public async Task<SpotifyTracks> SearchForTracks(string _trackName, string artistName)
         {
             string url = $"https://api.spotify.com/v1/search?q={_trackName}+by+{artistName}&type=track";
             HttpResponseMessage responseMessage = await client.GetAsync(url).ConfigureAwait(false);
@@ -286,5 +286,6 @@ namespace Spotify_to_YTMusic.Components
             spotifyTracks.TrackName = trackName;
             return spotifyTracks;
         }
+
     }
 }
