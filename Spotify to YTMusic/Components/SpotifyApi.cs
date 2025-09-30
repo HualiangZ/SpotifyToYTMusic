@@ -1,4 +1,5 @@
-﻿using Google.Apis.YouTube.v3.Data;
+﻿using Google.Apis.Auth.OAuth2;
+using Google.Apis.YouTube.v3.Data;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Spotify_to_YTMusic.Components.Sql;
@@ -25,23 +26,28 @@ namespace Spotify_to_YTMusic.Components
         public string AccessToken { get; set; }
         private readonly HttpClient client;
         MyJsonReader jsonReader = new MyJsonReader();
+        private string ClientId { get; set; }
+        private string ClientSecret { get; set; }
+        private string RedirectURL { get; set; }
         public SpotifyApi(HttpClient client)
         {
             this.client = client;
             jsonReader.File = "config.json";
+            RedirectURL = "http://127.0.0.1:8888/callback";
+
         }
 
         public async Task<string> GetAuthCodeAsync()
         {
-            var clientId = jsonReader.ClientID;
-            var clientSecret = jsonReader.ClientSecret;
-            var redirectUri = "http://127.0.0.1:8888/callback";
+            await jsonReader.ReadJsonAsync();
+            ClientId = jsonReader.ClientID;
+            ClientSecret = jsonReader.ClientSecret;
             string scopes = "playlist-modify-public playlist-modify-private";
             string authUrl =
-            "https://accounts.spotify.com/authorize" +
-            $"?client_id={clientId}" +
+            "https://accounts.spotify.com/authorize?" +
+            $"client_id={ClientId}" +
             "&response_type=code" +
-            $"&redirect_uri={Uri.EscapeDataString(redirectUri)}" +
+            $"&redirect_uri={Uri.EscapeDataString(RedirectURL)}" +
             $"&scope={Uri.EscapeDataString(scopes)}";
 
             Console.WriteLine("Open this URL in your browser:");
@@ -81,21 +87,18 @@ namespace Spotify_to_YTMusic.Components
         public virtual async Task GetAccessTokenAsync()
         {
             await jsonReader.ReadJsonAsync();
-            var clientId = jsonReader.ClientID;
-            var clientSecret = jsonReader.ClientSecret;
-            var redirectUri = "http://127.0.0.1:8888/callback";
             var form = new Dictionary<string, string>
             {
                 {"grant_type", "authorization_code" },
                 {"code", await GetAuthCodeAsync()},
-                {"redirect_uri", redirectUri}
+                {"redirect_uri", RedirectURL}
             };
 
             var request = new HttpRequestMessage(HttpMethod.Post, "https://accounts.spotify.com/api/token")
             {
                 Content = new FormUrlEncodedContent(form)
             };
-            var byteArray = Encoding.ASCII.GetBytes($"{clientId}:{clientSecret}");
+            var byteArray = Encoding.ASCII.GetBytes($"{ClientId}:{ClientSecret}");
             request.Headers.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
 
             var response = await client.SendAsync(request).ConfigureAwait(false);
