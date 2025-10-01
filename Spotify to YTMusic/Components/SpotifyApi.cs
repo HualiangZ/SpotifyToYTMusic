@@ -145,6 +145,7 @@ namespace Spotify_to_YTMusic.Components
             sportifyPlaylist.PlaylistID = playlistId;
             sportifyPlaylist.Name = data["name"].ToString();
             sportifyPlaylist.SnapshotID = await GetPlaylistSnapshotIdAsync(playlistId).ConfigureAwait(false);
+            sportifyPlaylist.SnapshotID = await GetPlaylistSnapshotIdAsync(playlistId).ConfigureAwait(false);
             MusicDBApi.PostSpotifyPlaylist(sportifyPlaylist);
             return sportifyPlaylist.Name;
         }
@@ -294,6 +295,11 @@ namespace Spotify_to_YTMusic.Components
                 }
             }//end of loop
         }
+
+/*        public async Task<string> AddTrackToPlaylist(string trackID)
+        {
+
+        }*/
 
         private void StoreTracksToDB(string trackID, string trackName, string artist)
         {
