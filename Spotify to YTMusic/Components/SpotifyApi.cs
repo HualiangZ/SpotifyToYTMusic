@@ -301,16 +301,28 @@ namespace Spotify_to_YTMusic.Components
             }//end of loop
         }
 
-        public async Task<string> AddTrackToPlaylist(string playlistId, string trackID)
+        public async Task<string> AddTrackToPlaylist(string playlistId, string[] trackIDList)
         {
-            string trackUri = $"spotify:track:{trackID}";
+            if(trackIDList.Length > 100)
+            {
+                Console.WriteLine("List of track ID can't be more than 100 items");
+                return null;
+            }
+            List<string> trackUriList = new List<string>();
+            foreach(var item in trackIDList)
+            {
+                string trackUri = $"spotify:track:{trackIDList}";
+                trackUriList.Add(trackUri);
+            }
+            string[] trackUriArr = trackIDList.ToArray();
+
             client.DefaultRequestHeaders.Clear();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
             var body = new
             {
-                uris = new string[] { trackUri },
+                uris = trackUriArr,
             };
             string jsonBody = System.Text.Json.JsonSerializer.Serialize(body);
             var content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
