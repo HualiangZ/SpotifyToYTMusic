@@ -13,6 +13,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -120,12 +121,14 @@ namespace Spotify_to_YTMusic.Components
         public async Task<HttpResponseMessage> RefreshAccessToken(string url)
         {
             await GetAccessTokenAsync().ConfigureAwait(false);
+            client.DefaultRequestHeaders.Clear();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
             return await client.GetAsync(url).ConfigureAwait(false);
         }
 
         public async Task<string> StorePlaylistToDB(string playlistId)
         {
+            client.DefaultRequestHeaders.Clear();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
             string url = $"https://api.spotify.com/v1/playlists/{playlistId}";
             HttpResponseMessage responseMessage = await client.GetAsync(url).ConfigureAwait(false);
@@ -152,6 +155,7 @@ namespace Spotify_to_YTMusic.Components
 
         public async Task<string> GetPlaylistSnapshotIdAsync(string playlistId)
         {
+            client.DefaultRequestHeaders.Clear();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
             string url = $"https://api.spotify.com/v1/playlists/{playlistId}";
             HttpResponseMessage responseMessage = await client.GetAsync(url).ConfigureAwait(false);
@@ -231,6 +235,7 @@ namespace Spotify_to_YTMusic.Components
         */
         public async Task StorePlaylistInfoToDBAsync(string playlistId)
         {
+            client.DefaultRequestHeaders.Clear();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
             int limit = 100;
             int offset = 0;
@@ -296,10 +301,26 @@ namespace Spotify_to_YTMusic.Components
             }//end of loop
         }
 
-/*        public async Task<string> AddTrackToPlaylist(string trackID)
+        public async Task<string> AddTrackToPlaylist(string playlistId, string trackID)
         {
+            string trackUri = $"spotify:track:{trackID}";
+            client.DefaultRequestHeaders.Clear();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-        }*/
+            var body = new
+            {
+                uris = new string[] { trackUri },
+            };
+            string jsonBody = System.Text.Json.JsonSerializer.Serialize(body);
+            var content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
+
+            var response = await client.PostAsync($"https://api.spotify.com/v1/playlists/{playlistId}/tracks", content);
+            string json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            JObject data = JObject.Parse(json);
+            return data["snapshot_id"].ToString();
+
+        }
 
         private void StoreTracksToDB(string trackID, string trackName, string artist)
         {
