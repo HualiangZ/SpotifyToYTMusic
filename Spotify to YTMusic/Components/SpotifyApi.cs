@@ -21,7 +21,7 @@ namespace Spotify_to_YTMusic.Components
         private string ClientId { get; set; }
         private string ClientSecret { get; set; }
         private string RedirectURL { get; set; }
-        private string RefreshToken {  get; set; }
+        private string RefreshToken { get; set; }
         public SpotifyApi(HttpClient client)
         {
             this.client = client;
@@ -50,7 +50,7 @@ namespace Spotify_to_YTMusic.Components
             string authorizationCode = await WaitForSpotifyCallback();
             Console.WriteLine($"Got authorization code");
             return authorizationCode;
-           
+
         }
         private static async Task<string> WaitForSpotifyCallback()
         {
@@ -113,7 +113,7 @@ namespace Spotify_to_YTMusic.Components
 
         public async Task RefreshAccessToken()
         {
-            var data = new Dictionary<string, string> 
+            var data = new Dictionary<string, string>
             {
                 {"grant_type", "refresh_token"},
                 {"refresh_token", RefreshToken }
@@ -153,7 +153,7 @@ namespace Spotify_to_YTMusic.Components
             {
                 await RefreshAccessToken().ConfigureAwait(false);
                 responseMessage = await client.GetAsync(url).ConfigureAwait(false);
-                if (!responseMessage.IsSuccessStatusCode) 
+                if (!responseMessage.IsSuccessStatusCode)
                 {
                     Console.WriteLine("Unable to get Access Token");
                     return null;
@@ -325,7 +325,7 @@ namespace Spotify_to_YTMusic.Components
 
         public async Task<string> DeleteTrackFromPlaylist(string playlistId, string[] trackIDs)
         {
-            if(trackIDs.Length > 100)
+            if (trackIDs.Length > 100)
             {
                 Console.WriteLine("List of track ID can't be more than 100 items");
                 return null;
@@ -349,7 +349,7 @@ namespace Spotify_to_YTMusic.Components
             string jsonBody = System.Text.Json.JsonSerializer.Serialize(body);
             var content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
 
-            var request = new HttpRequestMessage(HttpMethod.Delete,$"https://api.spotify.com/v1/playlists/{playlistId}/tracks")
+            var request = new HttpRequestMessage(HttpMethod.Delete, $"https://api.spotify.com/v1/playlists/{playlistId}/tracks")
             {
                 Content = content
             };
@@ -358,7 +358,7 @@ namespace Spotify_to_YTMusic.Components
             string json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             if (response.IsSuccessStatusCode)
             {
-                
+
                 JObject data = JObject.Parse(json);
                 Console.WriteLine("Track removed successfully!");
                 return data["snapshot_id"].ToString();
@@ -368,18 +368,18 @@ namespace Spotify_to_YTMusic.Components
                 Console.WriteLine($"Error removing track: {response.StatusCode}\n{json}");
                 return null;
             }
-            
+
         }
- 
+
         public async Task<string> AddTrackToPlaylist(string playlistId, string[] trackIDList)
         {
-            if(trackIDList.Length > 100)
+            if (trackIDList.Length > 100)
             {
                 Console.WriteLine("List of track ID can't be more than 100 items");
                 return null;
             }
             List<string> trackUriList = new List<string>();
-            foreach(var item in trackIDList)
+            foreach (var item in trackIDList)
             {
                 string trackUri = $"spotify:track:{item}";
                 trackUriList.Add(trackUri);
@@ -410,7 +410,6 @@ namespace Spotify_to_YTMusic.Components
                 Console.WriteLine($"Error removing track: {response.StatusCode}\n{json}");
                 return null;
             }
-            
 
         }
 
