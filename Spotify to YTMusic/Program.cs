@@ -18,13 +18,16 @@ namespace Spotify_to_YTMusic
             HttpClient client = new HttpClient();
             SpotifyApi spotifyAPI = new SpotifyApi(client);
             await spotifyAPI.GetAccessTokenAsync().ConfigureAwait(false);
+            SpotifyTracks track = new SpotifyTracks();
+            track =  await spotifyAPI.SearchForTracks("Jump", "Blackpink");
+            Console.WriteLine($"{track.TrackName} by {track.ArtistName}: {track.TrackID}");
             //string playlistName = await spotifyAPI.StorePlaylistToDB("3vzc1IWX4yE5txsMCXxGzS").ConfigureAwait(false);
             //await spotifyAPI.StorePlaylistInfoToDBAsync("3vzc1IWX4yE5txsMCXxGzS").ConfigureAwait(false);
             //Console.WriteLine(MusicDBApi.GetUnsyncedTracksFromYoutube("abc").Count);
-/*            foreach (var item in MusicDBApi.GetUnsyncedTracksFromYoutube("abc"))
-            {
-                Console.WriteLine(item.TrackID);
-            }*/
+            /*            foreach (var item in MusicDBApi.GetUnsyncedTracksFromYoutube("abc"))
+                        {
+                            Console.WriteLine(item.TrackID);
+                        }*/
             /*            YoutubeApi api = new YoutubeApi();
                         await api.GetCredential();
                         await api.GetItemInPlaylistAsync("PLbqjJZ3RMAtFZhdAnwXI0FJIsrH6rvm9D");*/

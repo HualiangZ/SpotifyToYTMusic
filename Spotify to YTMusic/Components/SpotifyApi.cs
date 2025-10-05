@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Google.Apis.Auth.OAuth2.Requests;
+using Newtonsoft.Json.Linq;
 using Spotify_to_YTMusic.Components.Sql;
 using Spotify_to_YTMusic.Components.Sql.DataModel;
 using Spotify_to_YTMusic.Config;
@@ -20,6 +21,7 @@ namespace Spotify_to_YTMusic.Components
         private string ClientId { get; set; }
         private string ClientSecret { get; set; }
         private string RedirectURL { get; set; }
+        private string RefreshToken {  get; set; }
         public SpotifyApi(HttpClient client)
         {
             this.client = client;
@@ -46,7 +48,7 @@ namespace Spotify_to_YTMusic.Components
 
             // Wait for the code after login
             string authorizationCode = await WaitForSpotifyCallback();
-            Console.WriteLine($"Got authorization code: {authorizationCode}");
+            Console.WriteLine($"Got authorization code");
             return authorizationCode;
            
         }
@@ -99,7 +101,8 @@ namespace Spotify_to_YTMusic.Components
             {
                 JObject tokenData = JObject.Parse(json);
                 AccessToken = tokenData["access_token"].ToString();
-                Console.WriteLine($"Access Token: {AccessToken}");
+                RefreshToken = tokenData["refresh_token"].ToString();
+                Console.WriteLine($"Access Token collected");
             }
             else
             {
@@ -108,12 +111,36 @@ namespace Spotify_to_YTMusic.Components
 
         }
 
-        public async Task<HttpResponseMessage> RefreshAccessToken(string url)
+        public async Task RefreshAccessToken()
         {
-            await GetAccessTokenAsync().ConfigureAwait(false);
-            client.DefaultRequestHeaders.Clear();
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
-            return await client.GetAsync(url).ConfigureAwait(false);
+            var data = new Dictionary<string, string> 
+            {
+                {"grant_type", "refresh_token"},
+                {"refresh_token", RefreshToken }
+            };
+            var request = new HttpRequestMessage(HttpMethod.Post, "https://accounts.spotify.com/api/token")
+            {
+                Content = new FormUrlEncodedContent(data)
+            };
+            var byteArray = Encoding.ASCII.GetBytes($"{ClientId}:{ClientSecret}");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
+            var response = await client.SendAsync(request);
+            var json = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                Console.WriteLine("Error refreshing token: " + json);
+                return;
+            }
+
+            JObject tokenData = JObject.Parse(json);
+            AccessToken = tokenData["access_token"].ToString();
+            if (tokenData["refresh_token"] != null)
+            {
+                string newRefreshToken = tokenData["refresh_token"].ToString();
+                Console.WriteLine($"Updated Refresh Token: {newRefreshToken}");
+            }
+
         }
 
         public async Task<string> StorePlaylistToDB(string playlistId)
@@ -124,11 +151,12 @@ namespace Spotify_to_YTMusic.Components
             HttpResponseMessage responseMessage = await client.GetAsync(url).ConfigureAwait(false);
             if (!responseMessage.IsSuccessStatusCode)
             {
-                responseMessage = await RefreshAccessToken(url).ConfigureAwait(false);
-
-                if (!responseMessage.IsSuccessStatusCode)
+                await RefreshAccessToken().ConfigureAwait(false);
+                responseMessage = await client.GetAsync(url).ConfigureAwait(false);
+                if (!responseMessage.IsSuccessStatusCode) 
                 {
-                    Console.WriteLine(responseMessage.StatusCode);
+                    Console.WriteLine("Unable to get Access Token");
+                    return null;
                 }
             }
 
@@ -151,11 +179,13 @@ namespace Spotify_to_YTMusic.Components
             HttpResponseMessage responseMessage = await client.GetAsync(url).ConfigureAwait(false);
             if (!responseMessage.IsSuccessStatusCode)
             {
-                responseMessage = await RefreshAccessToken(url).ConfigureAwait(false);
-
+                await RefreshAccessToken().ConfigureAwait(false);
+                responseMessage = await client.GetAsync(url).ConfigureAwait(false);
                 if (!responseMessage.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("Unable to get Access Token");
                     return null;
-
+                }
             }
             string json = await responseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
             JObject data = JObject.Parse(json);
@@ -202,11 +232,12 @@ namespace Spotify_to_YTMusic.Components
             HttpResponseMessage responseMessage = await client.GetAsync(url).ConfigureAwait(false);
             if (!responseMessage.IsSuccessStatusCode)
             {
-                responseMessage = await RefreshAccessToken(url).ConfigureAwait(false);
-
+                await RefreshAccessToken().ConfigureAwait(false);
+                responseMessage = await client.GetAsync(url).ConfigureAwait(false);
                 if (!responseMessage.IsSuccessStatusCode)
                 {
-                    Console.WriteLine(responseMessage.StatusCode);
+                    Console.WriteLine("Unable to get Access Token");
+                    return null;
                 }
             }
 
@@ -238,11 +269,12 @@ namespace Spotify_to_YTMusic.Components
                 HttpResponseMessage responseMessage = await client.GetAsync(url).ConfigureAwait(false);
                 if (!responseMessage.IsSuccessStatusCode)
                 {
-                    responseMessage = await RefreshAccessToken(url).ConfigureAwait(false);
-
+                    await RefreshAccessToken().ConfigureAwait(false);
+                    responseMessage = await client.GetAsync(url).ConfigureAwait(false);
                     if (!responseMessage.IsSuccessStatusCode)
                     {
-                        Console.WriteLine(responseMessage.StatusCode); break;
+                        Console.WriteLine("Unable to get Access Token");
+                        break;
                     }
                 }
 
@@ -323,16 +355,17 @@ namespace Spotify_to_YTMusic.Components
             };
 
             var response = await client.SendAsync(request);
-            var responseContent = await response.Content.ReadAsStringAsync();
-
+            string json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             if (response.IsSuccessStatusCode)
             {
+                
+                JObject data = JObject.Parse(json);
                 Console.WriteLine("Track removed successfully!");
-                return responseContent;
+                return data["snapshot_id"].ToString();
             }
             else
             {
-                Console.WriteLine($"Error removing track: {response.StatusCode}\n{responseContent}");
+                Console.WriteLine($"Error removing track: {response.StatusCode}\n{json}");
                 return null;
             }
             
@@ -366,8 +399,18 @@ namespace Spotify_to_YTMusic.Components
 
             var response = await client.PostAsync($"https://api.spotify.com/v1/playlists/{playlistId}/tracks", content);
             string json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            JObject data = JObject.Parse(json);
-            return data["snapshot_id"].ToString();
+            if (response.IsSuccessStatusCode)
+            {
+                JObject data = JObject.Parse(json);
+                Console.WriteLine("Track addded successfully!");
+                return data["snapshot_id"].ToString();
+            }
+            else
+            {
+                Console.WriteLine($"Error removing track: {response.StatusCode}\n{json}");
+                return null;
+            }
+            
 
         }
 
@@ -390,24 +433,27 @@ namespace Spotify_to_YTMusic.Components
 
         public async Task<SpotifyTracks> SearchForTracks(string _trackName, string artistName)
         {
-            string url = $"https://api.spotify.com/v1/search?q={_trackName}+by+{artistName}&type=track";
+            client.DefaultRequestHeaders.Clear();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
+            string encodedQuery = Uri.EscapeDataString($"{_trackName} by {artistName}");
+            string url = $"https://api.spotify.com/v1/search?q={encodedQuery}&type=track";
             HttpResponseMessage responseMessage = await client.GetAsync(url).ConfigureAwait(false);
             if (!responseMessage.IsSuccessStatusCode)
             {
-                responseMessage = await RefreshAccessToken(url).ConfigureAwait(false);
-
+                await RefreshAccessToken().ConfigureAwait(false);
+                responseMessage = await client.GetAsync(url).ConfigureAwait(false);
                 if (!responseMessage.IsSuccessStatusCode)
                 {
-                    Console.WriteLine(responseMessage.StatusCode);
+                    Console.WriteLine("Unable to get Access Token");
                     return null;
                 }
             }
             string json = await responseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
             JObject data = JObject.Parse(json);
-            var items = data["items"];
-            string trackName = items[0]["track"]["name"].ToString();
-            string artist = items[0]["track"]["artists"][0]["name"].ToString();
-            string trackID = items[0]["track"]["id"].ToString();
+            var items = data["tracks"]["items"];
+            string trackName = items[0]["name"].ToString();
+            string artist = items[0]["artists"][0]["name"].ToString();
+            string trackID = items[0]["id"].ToString();
             SpotifyTracks spotifyTracks = new SpotifyTracks();
             spotifyTracks.TrackID = trackID;
             spotifyTracks.ArtistName = artistName;
