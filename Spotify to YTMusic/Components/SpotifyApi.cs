@@ -1,21 +1,11 @@
-﻿using Google.Apis.Auth.OAuth2;
-using Google.Apis.YouTube.v3.Data;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 using Spotify_to_YTMusic.Components.Sql;
 using Spotify_to_YTMusic.Components.Sql.DataModel;
 using Spotify_to_YTMusic.Config;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Security;
 using System.Text;
-using System.Threading.Tasks;
 
 [assembly: InternalsVisibleTo("SpotifyToTYMusicTest")]
 
@@ -301,6 +291,53 @@ namespace Spotify_to_YTMusic.Components
             }//end of loop
         }
 
+        public async Task<string> DeleteTrackFromPlaylist(string playlistId, string[] trackIDs)
+        {
+            if(trackIDs.Length > 100)
+            {
+                Console.WriteLine("List of track ID can't be more than 100 items");
+                return null;
+            }
+
+            List<string> trackUriList = new List<string>();
+            foreach (var item in trackIDs)
+            {
+                string trackUri = $"spotify:track:{item}";
+                trackUriList.Add(trackUri);
+            }
+            string[] trackUriArr = trackIDs.ToArray();
+            client.DefaultRequestHeaders.Clear();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            var body = new
+            {
+                uris = trackUriArr,
+            };
+            string jsonBody = System.Text.Json.JsonSerializer.Serialize(body);
+            var content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
+
+            var request = new HttpRequestMessage(HttpMethod.Delete,$"https://api.spotify.com/v1/playlists/{playlistId}/tracks")
+            {
+                Content = content
+            };
+
+            var response = await client.SendAsync(request);
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                Console.WriteLine("Track removed successfully!");
+                return responseContent;
+            }
+            else
+            {
+                Console.WriteLine($"Error removing track: {response.StatusCode}\n{responseContent}");
+                return null;
+            }
+            
+        }
+ 
         public async Task<string> AddTrackToPlaylist(string playlistId, string[] trackIDList)
         {
             if(trackIDList.Length > 100)
@@ -311,7 +348,7 @@ namespace Spotify_to_YTMusic.Components
             List<string> trackUriList = new List<string>();
             foreach(var item in trackIDList)
             {
-                string trackUri = $"spotify:track:{trackIDList}";
+                string trackUri = $"spotify:track:{item}";
                 trackUriList.Add(trackUri);
             }
             string[] trackUriArr = trackIDList.ToArray();
