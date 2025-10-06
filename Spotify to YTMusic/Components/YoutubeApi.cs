@@ -74,7 +74,7 @@ namespace Spotify_to_YTMusic.Components
             return "";
         }
 
-        public async Task AddToPlaylist(string playlistId, string videoId)
+        public async Task AddTrackToPlaylist(string playlistId, string videoId)
         {
             if(playlistId == "")
             {
@@ -112,10 +112,7 @@ namespace Spotify_to_YTMusic.Components
                         MusicDBApi.PostYouTubePlaylists(model);
                     }
 
-                    YouTubePlaylistTracks youTubePlaylistTracks = new YouTubePlaylistTracks();
-                    youTubePlaylistTracks.TrackID = videoId;
-                    youTubePlaylistTracks.PlaylistID = playlistId;
-                    MusicDBApi.PostYTTrackToPlaylist(youTubePlaylistTracks);
+                    await GetTrackTitleAndArtistNameAsync(playlistId, videoId).ConfigureAwait(false);
                     
                     return;
                 }
@@ -165,7 +162,7 @@ namespace Spotify_to_YTMusic.Components
             }
         }
 
-        public async Task GetItemInPlaylistAsync(string playlistId)
+        public async Task StoreYouTubePlaylistToSQL(string playlistId)
         {
             var nextPageToken = "";
             while (nextPageToken != null) 
@@ -184,28 +181,34 @@ namespace Spotify_to_YTMusic.Components
                 foreach(var item in playlistItemsResponse.Items)
                 {
                     Console.WriteLine($"{item.Snippet.ResourceId.VideoId}");
-                    var request = youtubeService.Videos.List("snippet");
-                    request.Id = item.Snippet.ResourceId.VideoId;
-                    var response = await request.ExecuteAsync();
+                    await GetTrackTitleAndArtistNameAsync(playlistId, item.Snippet.ResourceId.VideoId).ConfigureAwait(false);
 
-                    if (response.Items.Count > 0)
-                    {
-                        var snippet = response.Items[0].Snippet;
-                        YouTubeTracks tracks = new YouTubeTracks();
-                        tracks.TrackName = snippet.Title;
-                        tracks.ArtistName = snippet.ChannelTitle.Replace(" - Topic", "");
-                        tracks.TrackID = item.Snippet.ResourceId.VideoId;
-                        MusicDBApi.PostYouTubeTrack(tracks);
-
-                        YouTubePlaylistTracks youTubePlaylistTracks = new YouTubePlaylistTracks();
-                        youTubePlaylistTracks.TrackID = item.Snippet.ResourceId.VideoId;
-                        youTubePlaylistTracks.PlaylistID = playlistId;
-                        MusicDBApi.PostYTTrackToPlaylist(youTubePlaylistTracks);
-                    }
                 }
                 nextPageToken = playlistItemsResponse.NextPageToken;
             } 
             
+        }
+
+        private async Task GetTrackTitleAndArtistNameAsync(string playlistId, string videoId)
+        {
+            var request = youtubeService.Videos.List("snippet");
+            request.Id = videoId;
+            var response = await request.ExecuteAsync();
+
+            if (response.Items.Count > 0)
+            {
+                var snippet = response.Items[0].Snippet;
+                YouTubeTracks tracks = new YouTubeTracks();
+                tracks.TrackName = snippet.Title;
+                tracks.ArtistName = snippet.ChannelTitle.Replace(" - Topic", "");
+                tracks.TrackID = videoId;
+                MusicDBApi.PostYouTubeTrack(tracks);
+
+                YouTubePlaylistTracks youTubePlaylistTracks = new YouTubePlaylistTracks();
+                youTubePlaylistTracks.TrackID = videoId;
+                youTubePlaylistTracks.PlaylistID = playlistId;
+                MusicDBApi.PostYTTrackToPlaylist(youTubePlaylistTracks);
+            }
         }
 
         private void StorePlaylistToDB(string playlistName, string playlistId)
