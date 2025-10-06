@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using Google.Apis.Auth.OAuth2;
@@ -42,14 +43,6 @@ namespace Spotify_to_YTMusic.Components
                 HttpClientInitializer = credential,
                 ApplicationName = this.GetType().ToString()
             });
-        }
-
-        private void StorePlaylistToDB(string playlistName, string playlistId)
-        {
-            YoutubePlaylistsModel playlist = new YoutubePlaylistsModel();
-            playlist.Name = playlistName;
-            playlist.PlaylistID = playlistId;
-            MusicDBApi.PostYouTubePlaylists(playlist);
         }
 
         public async Task<string> CreateNewPlaylist(string playlistName)
@@ -101,12 +94,24 @@ namespace Spotify_to_YTMusic.Components
             playlist.Snippet.ResourceId = new ResourceId();
             playlist.Snippet.ResourceId.Kind = "youtube#video";
             playlist.Snippet.ResourceId.VideoId = videoId;
-            StorePlaylistToDB(playlist.Snippet.Title, playlistId);
             while (retry != 0)
             {
                 try
                 {
                     await youtubeService.PlaylistItems.Insert(playlist, "snippet").ExecuteAsync().ConfigureAwait(false);
+                    var request = youtubeService.Playlists.List("snippet");
+                    request.Id = playlistId;
+                    var response = await request.ExecuteAsync().ConfigureAwait(false);
+
+                    if (response.Items.Count > 0)
+                    {
+                        var playlistName = response.Items[0].Snippet.Title;
+                        YoutubePlaylistsModel model = new YoutubePlaylistsModel();
+                        model.PlaylistID = playlistId;
+                        model.Name = playlistName;
+                        MusicDBApi.PostYouTubePlaylists(model);
+                    }
+
                     YouTubePlaylistTracks youTubePlaylistTracks = new YouTubePlaylistTracks();
                     youTubePlaylistTracks.TrackID = videoId;
                     youTubePlaylistTracks.PlaylistID = playlistId;
@@ -201,6 +206,14 @@ namespace Spotify_to_YTMusic.Components
                 nextPageToken = playlistItemsResponse.NextPageToken;
             } 
             
+        }
+
+        private void StorePlaylistToDB(string playlistName, string playlistId)
+        {
+            YoutubePlaylistsModel playlist = new YoutubePlaylistsModel();
+            playlist.Name = playlistName;
+            playlist.PlaylistID = playlistId;
+            MusicDBApi.PostYouTubePlaylists(playlist);
         }
 
         public static void StoreTrackToYouTubeDB(string trackName, string artist)
