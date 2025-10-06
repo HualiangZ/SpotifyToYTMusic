@@ -153,7 +153,6 @@ namespace Spotify_to_YTMusic.Components
                     YouTubePlaylistTracks platlistTrack = new YouTubePlaylistTracks();
                     platlistTrack.PlaylistID = playlistId;
                     platlistTrack.TrackID = videoId;
-
                     MusicDBApi.DeleteYTTrackFromPlaylist(platlistTrack);
                     MusicDBApi.DeleteYouTubeTrack(videoId);
                     return;
