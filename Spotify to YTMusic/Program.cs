@@ -23,7 +23,7 @@ namespace Spotify_to_YTMusic
             Console.WriteLine($"{track.TrackName} by {track.ArtistName}: {track.TrackID}");*/
 
             YoutubeApi api = new YoutubeApi();
-            await api.AddYouTubeTrackToPlaylist("PLbqjJZ3RMAtFZhdAnwXI0FJIsrH6rvm9D", "r6Eei81SuqE");
+            await api.AddTrackToPlaylist("PLbqjJZ3RMAtFZhdAnwXI0FJIsrH6rvm9D", "r6Eei81SuqE");
             //await api.DeleteItemFromPlaylistAsync("PLbqjJZ3RMAtFZhdAnwXI0FJIsrH6rvm9D", "r6Eei81SuqE");
             //string playlistName = await spotifyAPI.StorePlaylistToDB("3vzc1IWX4yE5txsMCXxGzS").ConfigureAwait(false);
             //await spotifyAPI.StorePlaylistInfoToDBAsync("3vzc1IWX4yE5txsMCXxGzS").ConfigureAwait(false);

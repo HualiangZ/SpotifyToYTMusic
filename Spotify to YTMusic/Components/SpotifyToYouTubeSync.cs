@@ -58,7 +58,7 @@ namespace Spotify_to_YTMusic.Components
             {
                 foreach (YouTubeTracks track in tracksToBeAdded) 
                 {
-                    await youtubeApi.AddYouTubeTrackToPlaylist(spotifyPlaylistId, track.TrackID).ConfigureAwait(false);
+                    await youtubeApi.AddTrackToPlaylist(spotifyPlaylistId, track.TrackID).ConfigureAwait(false);
                 }
             }
 
