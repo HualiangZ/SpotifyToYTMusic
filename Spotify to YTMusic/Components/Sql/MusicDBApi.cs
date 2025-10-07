@@ -28,6 +28,24 @@ namespace Spotify_to_YTMusic.Components.Sql
                 }
             }
         }
+
+        public static SpotifyTracks GetSpotifyTrack(string trackName, string artistName)
+        {
+            using (IDbConnection cnn = new SQLiteConnection(cnnString))
+            {
+                try
+                {
+                    return cnn.Query<SpotifyTracks>("select * from SpotifyTracks where TrackName = @TrackName AND ArtistName = ArtistName", 
+                        new { TrackName = trackName, ArtistName = artistName }).ToList()[0];
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("GET " + ex.Message);
+                    return null;
+                }
+            }
+        }
+
         public static void PostSpotifyTrack(SpotifyTracks spotifyTrack)
         {
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
