@@ -149,7 +149,9 @@ namespace Spotify_to_YTMusic.Components
             {
                 try
                 {
+                    
                     await youtubeService.PlaylistItems.Delete(videoId).ExecuteAsync().ConfigureAwait(false);
+
                     YouTubePlaylistTracks platlistTrack = new YouTubePlaylistTracks();
                     platlistTrack.PlaylistID = playlistId;
                     platlistTrack.TrackID = videoId;
