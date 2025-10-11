@@ -58,9 +58,10 @@ namespace Spotify_to_YTMusic.Components
             {
                 try
                 {
-                    await youtubeService.Playlists.Insert(newPlaylist, "snippet,status").ExecuteAsync().ConfigureAwait(false);
-                    StorePlaylistToDB(playlistName, newPlaylist.Id);
-                    return newPlaylist.Id;
+                    var playlistResponse = await youtubeService.Playlists.Insert(newPlaylist, "snippet,status").ExecuteAsync().ConfigureAwait(false);
+                    Console.WriteLine($"{playlistResponse.Id}");
+                    StorePlaylistToDB(playlistName, playlistResponse.Id);
+                    return playlistResponse.Id;
                 }
                 catch (Exception ex)
                 {

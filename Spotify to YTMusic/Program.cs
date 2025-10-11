@@ -22,8 +22,9 @@ namespace Spotify_to_YTMusic
                         track =  await spotifyAPI.SearchForTracks("Jump", "Blackpink");
                         Console.WriteLine($"{track.TrackName} by {track.ArtistName}: {track.TrackID}");*/
 
-            YoutubeApi api = new YoutubeApi();
-            await api.DeleteItemFromPlaylistAsync("PLbqjJZ3RMAtFZhdAnwXI0FJIsrH6rvm9D", "r6Eei81SuqE");
+            //YoutubeApi api = new YoutubeApi();
+            //await api.CreateNewPlaylist("test");
+            //await api.DeleteItemFromPlaylistAsync("PLbqjJZ3RMAtFZhdAnwXI0FJIsrH6rvm9D", "r6Eei81SuqE");
 
             //await api.DeleteItemFromPlaylistAsync("PLbqjJZ3RMAtFZhdAnwXI0FJIsrH6rvm9D", "r6Eei81SuqE");
             //string playlistName = await spotifyAPI.StorePlaylistToDB("3vzc1IWX4yE5txsMCXxGzS").ConfigureAwait(false);
@@ -33,9 +34,13 @@ namespace Spotify_to_YTMusic
                         {
                             Console.WriteLine(item.TrackID);
                         }*/
-            /*            YoutubeApi api = new YoutubeApi();
-                        await api.GetCredential();
-                        await api.GetItemInPlaylistAsync("PLbqjJZ3RMAtFZhdAnwXI0FJIsrH6rvm9D");*/
+            /*           YoutubeApi api = new YoutubeApi();
+                       await api.GetCredential();
+                       await api.GetItemInPlaylistAsync("PLbqjJZ3RMAtE2tmxaKv2Nm5ysYrpVq6N4");*/
+
+            SpotifyToYouTubeSync playlistSync = new SpotifyToYouTubeSync();
+            await playlistSync.Init();
+            await playlistSync.SyncPlaylistAsync(null, "3vzc1IWX4yE5txsMCXxGzS");
         }
 
     }

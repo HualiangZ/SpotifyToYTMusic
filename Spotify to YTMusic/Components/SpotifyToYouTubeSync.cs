@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Spotify_to_YTMusic.Components
 {
-    internal class SpotifyToYouTubeSync
+    public class SpotifyToYouTubeSync
     {
         static YoutubeApi youtubeApi;
         static SpotifyApi spotifyApi;
@@ -19,26 +19,24 @@ namespace Spotify_to_YTMusic.Components
             spotifyApi = new SpotifyApi(client);
         }
         
-        public static async Task InitYoutubeAPI()
+        public async Task Init()
         {
             await spotifyApi.GetAccessTokenAsync().ConfigureAwait(false);
-            await youtubeApi.GetCredential().ConfigureAwait(false);
         }
 
-        public static async Task SyncPlaylistAsync(string? youtubePlaylistId, string spotifyPlaylistId)
+        public async Task SyncPlaylistAsync(string? youtubePlaylistId, string spotifyPlaylistId)
         {
             string playlistName = await spotifyApi.StorePlaylistToDB(spotifyPlaylistId).ConfigureAwait(false);
             await spotifyApi.StorePlaylistInfoToDBAsync(spotifyPlaylistId).ConfigureAwait(false);
-            if (youtubePlaylistId != null)
+            if (youtubePlaylistId == null)
             {
                 string playlistId = youtubePlaylistId;
-                
                 string newYoutubePlaylistId = await youtubeApi.CreateNewPlaylist(playlistName).ConfigureAwait(false);
                 PlaylistSync newPlaylistSync = new PlaylistSync();
                 newPlaylistSync.SpotifyPlaylistID = spotifyPlaylistId;
                 newPlaylistSync.YTPlaylistID = newYoutubePlaylistId;
                 MusicDBApi.PostPlaylistSync(newPlaylistSync);
-                await SyncSpotifyTracksToYoutube(spotifyPlaylistId).ConfigureAwait(false);
+                await SyncSpotifyTracksToYoutube(spotifyPlaylistId);
             }
             else
             {
@@ -46,28 +44,31 @@ namespace Spotify_to_YTMusic.Components
                 playlistSync.SpotifyPlaylistID = spotifyPlaylistId;
                 playlistSync.YTPlaylistID = youtubePlaylistId;
                 MusicDBApi.PostPlaylistSync(playlistSync);
-                await SyncSpotifyTracksToYoutube(spotifyPlaylistId).ConfigureAwait(false);
+                await SyncSpotifyTracksToYoutube(spotifyPlaylistId);
             }
 
         }
 
         //spotify -> youtube
-        public static async Task SyncSpotifyTracksToYoutube(string spotifyPlaylistId)
+        public async Task SyncSpotifyTracksToYoutube(string spotifyPlaylistId)
         {
             List<YouTubeTracks> tracksToBeAdded = MusicDBApi.GetUnsyncedTracksFromSpotify(spotifyPlaylistId);
+            Console.WriteLine(tracksToBeAdded.Count);
             string youtubePlaylistID = MusicDBApi.GetSyncedPlaylistWithSpotify(spotifyPlaylistId);
+            Console.WriteLine(youtubePlaylistID);   
             List<YouTubeTracks> tracksToBeRemoved = MusicDBApi.GetUnsyncedTracksFromYoutube(youtubePlaylistID);
             if (tracksToBeAdded != null) 
             {
+                Console.WriteLine("running");
                 foreach (YouTubeTracks track in tracksToBeAdded) 
                 {
-                    await youtubeApi.AddTrackToPlaylist(spotifyPlaylistId, track.TrackID).ConfigureAwait(false);
+                    await youtubeApi.AddTrackToPlaylist(youtubePlaylistID, track.TrackID).ConfigureAwait(false);
                 }
             }
 
             if(tracksToBeRemoved != null)
             {
-                foreach (YouTubeTracks track in tracksToBeAdded)
+                foreach (YouTubeTracks track in tracksToBeRemoved)
                 {
                     await youtubeApi.DeleteItemFromPlaylistAsync(youtubePlaylistID, track.TrackID).ConfigureAwait(false);
                 }
@@ -76,7 +77,7 @@ namespace Spotify_to_YTMusic.Components
         }
 
         //youtube -> spotify
-        public static async Task SyncYoutubeTracksToSpotify(string youtubePlaylistId)
+        public async Task SyncYoutubeTracksToSpotify(string youtubePlaylistId)
         {
             List<YouTubeTracks> youtubeTracks = MusicDBApi.GetUnsyncedTracksFromYoutube(youtubePlaylistId);
             List<string> spotifyTrackId = new List<string>();
