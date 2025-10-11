@@ -53,7 +53,6 @@ namespace Spotify_to_YTMusic.Components
         public async Task SyncSpotifyTracksToYoutube(string spotifyPlaylistId)
         {
             List<YouTubeTracks> tracksToBeAdded = MusicDBApi.GetUnsyncedTracksFromSpotify(spotifyPlaylistId);
-            Console.WriteLine(tracksToBeAdded.Count);
             string youtubePlaylistID = MusicDBApi.GetSyncedPlaylistWithSpotify(spotifyPlaylistId);
             Console.WriteLine(youtubePlaylistID);   
             List<YouTubeTracks> tracksToBeRemoved = MusicDBApi.GetUnsyncedTracksFromYoutube(youtubePlaylistID);
