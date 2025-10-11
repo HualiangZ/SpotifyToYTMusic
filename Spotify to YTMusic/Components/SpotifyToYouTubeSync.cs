@@ -38,18 +38,21 @@ namespace Spotify_to_YTMusic.Components
                 newPlaylistSync.SpotifyPlaylistID = spotifyPlaylistId;
                 newPlaylistSync.YTPlaylistID = newYoutubePlaylistId;
                 MusicDBApi.PostPlaylistSync(newPlaylistSync);
-                return;
+                await SyncSpotifyTracksToYoutube(spotifyPlaylistId).ConfigureAwait(false);
             }
-
-            PlaylistSync playlistSync = new PlaylistSync();
-            playlistSync.SpotifyPlaylistID = spotifyPlaylistId;
-            playlistSync.YTPlaylistID = youtubePlaylistId;
-            MusicDBApi.PostPlaylistSync(playlistSync);
+            else
+            {
+                PlaylistSync playlistSync = new PlaylistSync();
+                playlistSync.SpotifyPlaylistID = spotifyPlaylistId;
+                playlistSync.YTPlaylistID = youtubePlaylistId;
+                MusicDBApi.PostPlaylistSync(playlistSync);
+                await SyncSpotifyTracksToYoutube(spotifyPlaylistId).ConfigureAwait(false);
+            }
 
         }
 
         //spotify -> youtube
-        public static async Task SyncYoutubeTracksToSpotify(string spotifyPlaylistId)
+        public static async Task SyncSpotifyTracksToYoutube(string spotifyPlaylistId)
         {
             List<YouTubeTracks> tracksToBeAdded = MusicDBApi.GetUnsyncedTracksFromSpotify(spotifyPlaylistId);
             string youtubePlaylistID = MusicDBApi.GetSyncedPlaylistWithSpotify(spotifyPlaylistId);
@@ -73,7 +76,7 @@ namespace Spotify_to_YTMusic.Components
         }
 
         //youtube -> spotify
-        public static async Task SyncSpotifyTracksToYoutube(string youtubePlaylistId)
+        public static async Task SyncYoutubeTracksToSpotify(string youtubePlaylistId)
         {
             List<YouTubeTracks> youtubeTracks = MusicDBApi.GetUnsyncedTracksFromYoutube(youtubePlaylistId);
             List<string> spotifyTrackId = new List<string>();
