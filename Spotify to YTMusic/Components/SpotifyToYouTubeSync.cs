@@ -28,6 +28,9 @@ namespace Spotify_to_YTMusic.Components
         {
             string playlistName = await spotifyApi.StorePlaylistToDB(spotifyPlaylistId).ConfigureAwait(false);
             await spotifyApi.StorePlaylistInfoToDBAsync(spotifyPlaylistId).ConfigureAwait(false);
+            /* ========== To Add =========== */
+            //find youtubePlaylistId if possible
+            //========================
             if (youtubePlaylistId == null)
             {
                 string playlistId = youtubePlaylistId;
