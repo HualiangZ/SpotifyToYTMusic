@@ -141,18 +141,36 @@ namespace Spotify_to_YTMusic.Components
             }
 
             int retry = 1;
-
-            var playlist = new PlaylistItem();
-            playlist.Snippet = new PlaylistItemSnippet();
-            playlist.Snippet.PlaylistId = playlistId;
+            
 
             while (retry != 0)
             {
                 try
                 {
-                    
-                    await youtubeService.PlaylistItems.Delete(videoId).ExecuteAsync().ConfigureAwait(false);
-
+                    string nextPageToken = "";
+                    string playlistItemIdToDelete = "";
+                    while (nextPageToken !=null)
+                    {
+                        var playlist = youtubeService.PlaylistItems.List("id,snippet");
+                        playlist.PlaylistId = playlistId;
+                        playlist.MaxResults = 2;
+                        playlist.PageToken = nextPageToken;
+                        var response = await playlist.ExecuteAsync();
+                        Console.WriteLine("1");
+                        foreach(var item in response.Items)
+                        {
+                            if(item.Snippet.ResourceId.VideoId == videoId)
+                            {
+                                playlistItemIdToDelete = item.Id;
+                                break;
+                            }
+                        }
+                        if (!string.IsNullOrEmpty(playlistItemIdToDelete))
+                        break;
+                        nextPageToken = response.NextPageToken;
+                    }
+                    Console.WriteLine(playlistItemIdToDelete);
+                    await youtubeService.PlaylistItems.Delete(playlistItemIdToDelete).ExecuteAsync().ConfigureAwait(false);
                     YouTubePlaylistTracks platlistTrack = new YouTubePlaylistTracks();
                     platlistTrack.PlaylistID = playlistId;
                     platlistTrack.TrackID = videoId;
@@ -164,7 +182,7 @@ namespace Spotify_to_YTMusic.Components
                 {
                     await GetCredential().ConfigureAwait(false);
                     retry--;
-                    Console.WriteLine(retry);
+                    Console.WriteLine(ex);
                 }
             }
         }

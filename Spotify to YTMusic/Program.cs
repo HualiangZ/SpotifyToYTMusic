@@ -40,7 +40,7 @@ namespace Spotify_to_YTMusic
 
             SpotifyToYouTubeSync playlistSync = new SpotifyToYouTubeSync();
             await playlistSync.Init();
-            await playlistSync.SyncPlaylistAsync(null, "3vzc1IWX4yE5txsMCXxGzS");
+            await playlistSync.SyncPlaylistAsync("3vzc1IWX4yE5txsMCXxGzS");
 
         }
 

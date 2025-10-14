@@ -430,7 +430,7 @@ namespace Spotify_to_YTMusic.Components.Sql
                 try
                 {
                     return cnn.Query<YouTubeTracks>(
-                        "SELECT * " +
+                        "SELECT yt.TrackID " +
                         "FROM SpotifyPlaylistTracks spt " +
                         "JOIN SpotifyTracks st " +
                         "ON st.TrackID = spt.TrackID " +
@@ -461,7 +461,7 @@ namespace Spotify_to_YTMusic.Components.Sql
                 try
                 {
                     return cnn.Query<YouTubeTracks>(
-                        "SELECT * " +
+                        "SELECT yt.TrackID " +
                         "FROM YoutubePlaylistTracks ypt " +
                         "JOIN YouTubeTracks yt " +
                         "ON ypt.TrackID = yt.TrackID " +
