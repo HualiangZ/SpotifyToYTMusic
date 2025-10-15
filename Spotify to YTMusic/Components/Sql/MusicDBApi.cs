@@ -311,13 +311,30 @@ namespace Spotify_to_YTMusic.Components.Sql
             }
         }
 
+        public static YouTubePlaylistTracks GetTrackFromTYPlaylist(string playlistID, string videoID)
+        {
+            using (IDbConnection cnn = new SQLiteConnection(cnnString))
+            {
+                try
+                {
+                    return cnn.Query<YouTubePlaylistTracks>("select * from YouTubePlaylistTracks where PlaylistID = @PlaylistID and TrackID = @TrackID", new { PlaylistID = playlistID, TrackID = videoID}).ToList()[0];
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("GET " + ex.Message);
+                    return null;
+                }
+
+            }
+        }
+
         public static void PostYTTrackToPlaylist(YouTubePlaylistTracks playlistTrack)
         {
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 try
                 {
-                    cnn.Execute("insert into YouTubePlaylistTracks (PlaylistID, TrackID) values (@PlaylistID, @TrackID)", playlistTrack);
+                    cnn.Execute("insert into YouTubePlaylistTracks (PlaylistID, TrackID, ID) values (@PlaylistID, @TrackID, @ID)", playlistTrack);
 
                 }
                 catch (Exception ex)
