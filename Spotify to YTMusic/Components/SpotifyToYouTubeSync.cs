@@ -2,6 +2,7 @@
 using Spotify_to_YTMusic.Components.Sql.DataModel;
 using System;
 using System.Collections.Generic;
+using System.Data.SQLite;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -96,6 +97,15 @@ namespace Spotify_to_YTMusic.Components
                 await youtubeApi.DeleteItemFromPlaylistAsync(youtubePlaylistId, item.TrackID).ConfigureAwait(false);
             }
 
+        }
+
+        //update youtube playlist when spotify snapshot ID chagnes
+        public async Task UpdateYTPlaylist(string playlistID)
+        {
+            if (spotifyApi.CheckSnapshotIdChangeAsync(playlistID).Result)
+            {
+                await SyncPlaylistAsync(playlistID);
+            }
         }
     }
 }
