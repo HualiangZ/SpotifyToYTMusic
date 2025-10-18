@@ -104,7 +104,7 @@ namespace Spotify_to_YTMusic.Components
         {
             if (spotifyApi.CheckSnapshotIdChangeAsync(playlistID).Result)
             {
-                await SyncPlaylistAsync(playlistID);
+                await SyncSpotifyTracksToYoutube(playlistID);
             }
         }
     }
