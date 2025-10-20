@@ -1,4 +1,5 @@
 ﻿using Google.Apis.Auth.OAuth2.Requests;
+using Google.Apis.YouTube.v3.Data;
 using Newtonsoft.Json.Linq;
 using Spotify_to_YTMusic.Components.Sql;
 using Spotify_to_YTMusic.Components.Sql.DataModel;
@@ -7,6 +8,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Text;
+using static System.Net.WebRequestMethods;
 
 [assembly: InternalsVisibleTo("SpotifyToTYMusicTest")]
 
@@ -141,6 +143,64 @@ namespace Spotify_to_YTMusic.Components
                 Console.WriteLine($"Updated Refresh Token: {newRefreshToken}");
             }
 
+        }
+
+        public async Task<string> GetUserID()
+        {
+            client.DefaultRequestHeaders.Clear();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
+            string url = "https://api.spotify.com/v1/me";
+            HttpResponseMessage response = await client.GetAsync(url).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode)
+            {
+                await RefreshAccessToken().ConfigureAwait(false);
+                response = await client.GetAsync(url).ConfigureAwait(false);
+                if (!response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("Unable to get Access Token");
+                    return null;
+                }
+            }
+            string json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            JObject data = JObject.Parse(json);
+            return data["id"].ToString();
+        }
+
+        public async Task<SpotifyPlaylistsModels> CreatePlaylist(string name)
+        {
+            client.DefaultRequestHeaders.Clear();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
+            string userId = GetUserID().Result;
+            string url = $"https://api.spotify.com/v1/users/{userId}/playlists";
+
+            var body = new 
+            { 
+                name = name,
+                discription = "new playlist",
+                @public = false
+            };
+
+            string jsonBody = System.Text.Json.JsonSerializer.Serialize(body);
+            var content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
+
+            var response = await client.PostAsync(url, content);
+            if (!response.IsSuccessStatusCode)
+            {
+                await RefreshAccessToken().ConfigureAwait(false);
+                response = await client.GetAsync(url).ConfigureAwait(false);
+                if (!response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("Unable to get Access Token");
+                    return null;
+                }
+            }
+            string json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            JObject data = new JObject(json);
+            SpotifyPlaylistsModels playlist = new SpotifyPlaylistsModels();
+            playlist.Name = name;
+            playlist.SnapshotID = data["snapshot_id"].ToString();
+            playlist.PlaylistID = data["id"].ToString();
+            return playlist;
         }
 
         public async Task<string> StorePlaylistToDB(string playlistId)
