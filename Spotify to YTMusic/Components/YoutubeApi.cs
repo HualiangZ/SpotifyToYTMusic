@@ -212,7 +212,7 @@ namespace Spotify_to_YTMusic.Components
             }
         }
 
-        private void StorePlaylistToDB(string playlistName, string playlistId)
+        public void StorePlaylistToDB(string playlistName, string playlistId)
         {
             YoutubePlaylistsModel playlist = new YoutubePlaylistsModel();
             playlist.Name = playlistName;
