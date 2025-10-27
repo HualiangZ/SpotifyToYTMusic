@@ -11,6 +11,7 @@ using Google.Apis.Upload;
 using Google.Apis.Util.Store;
 using Google.Apis.YouTube.v3;
 using Google.Apis.YouTube.v3.Data;
+using Microsoft.VisualBasic;
 using Spotify_to_YTMusic.Components.Sql;
 using Spotify_to_YTMusic.Components.Sql.DataModel;
 namespace Spotify_to_YTMusic.Components
@@ -162,9 +163,12 @@ namespace Spotify_to_YTMusic.Components
             }
         }
 
-        public async Task StoreYouTubePlaylistToSQL(string playlistId)
+        //stores youtube platlist to database with its tracks
+        public async Task<string> StoreYouTubePlaylistToSQL(string playlistId)
         {
             var nextPageToken = "";
+            var dontloop = false;
+            string playlistName = "";
             while (nextPageToken != null) 
             {
                 var playlistItemsRequest = youtubeService.PlaylistItems.List("snippet");
@@ -175,10 +179,14 @@ namespace Spotify_to_YTMusic.Components
                 var playlist = new PlaylistItem();
                 playlist.Snippet = new PlaylistItemSnippet();
                 playlist.Snippet.PlaylistId = playlistId;
-                StorePlaylistToDB(playlist.Snippet.Title, playlistId);
-
                 var playlistItemsResponse = await playlistItemsRequest.ExecuteAsync().ConfigureAwait(false);
-                foreach(var item in playlistItemsResponse.Items)
+                if(dontloop == false)
+                {
+                    StorePlaylistToDB(playlist.Snippet.Title, playlistId);
+                    playlistName = playlist.Snippet.Title;
+                    dontloop = true;
+                }
+                foreach (var item in playlistItemsResponse.Items)
                 {
                     Console.WriteLine($"{item.Snippet.ResourceId.VideoId}");
                     await GetTrackTitleAndArtistNameAsync(playlistId, item.Snippet.ResourceId.VideoId, item.Id).ConfigureAwait(false);
@@ -186,6 +194,7 @@ namespace Spotify_to_YTMusic.Components
                 }
                 nextPageToken = playlistItemsResponse.NextPageToken;
             } 
+            return playlistName;
             
         }
 

@@ -25,7 +25,7 @@ namespace Spotify_to_YTMusic.Components
             await spotifyApi.GetAccessTokenAsync().ConfigureAwait(false);
         }
 
-        public async Task SyncPlaylistAsyncWithSpotifyID( string spotifyPlaylistId)
+        public async Task SyncPlaylistAsyncWithSpotifyID(string spotifyPlaylistId)
         {
             string playlistName = await spotifyApi.StorePlaylistToDB(spotifyPlaylistId).ConfigureAwait(false);
             await spotifyApi.StorePlaylistInfoToDBAsync(spotifyPlaylistId).ConfigureAwait(false);
@@ -77,9 +77,18 @@ namespace Spotify_to_YTMusic.Components
 
         }
 
-        public async Task SyncPlaylistAsyncWithYTID(string youtubePlaylistID)
+        public async Task SyncPlaylistAsyncWithYTID( string youtubePlaylistID)
         {
-
+            string spotifyPlaylistId = MusicDBApi.GetSyncedPlaylistWithYouTube(youtubePlaylistID);
+            bool checkIsYouTubePlaylistinDB = MusicDBApi.GetOneYTPlaylist(youtubePlaylistID) != null;
+            if ((spotifyPlaylistId == null && checkIsYouTubePlaylistinDB == false) || (spotifyPlaylistId == "" && checkIsYouTubePlaylistinDB == false)){
+                string playlistName = await youtubeApi.StoreYouTubePlaylistToSQL(youtubePlaylistID).ConfigureAwait(false);
+                spotifyPlaylistId = spotifyApi.CreatePlaylist(playlistName).Result.PlaylistID;
+                PlaylistSync playlistSync = new PlaylistSync();
+                playlistSync.YTPlaylistID = youtubePlaylistID;
+                playlistSync.SpotifyPlaylistID = spotifyPlaylistId;
+                MusicDBApi.PostPlaylistSync(playlistSync);
+            }
         }
 
         //youtube -> spotify

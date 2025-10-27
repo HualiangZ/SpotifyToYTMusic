@@ -200,6 +200,7 @@ namespace Spotify_to_YTMusic.Components
             playlist.Name = name;
             playlist.SnapshotID = data["snapshot_id"].ToString();
             playlist.PlaylistID = data["id"].ToString();
+            MusicDBApi.PostSpotifyPlaylist(playlist);
             return playlist;
         }
 
@@ -225,7 +226,6 @@ namespace Spotify_to_YTMusic.Components
             var sportifyPlaylist = new SpotifyPlaylistsModels();
             sportifyPlaylist.PlaylistID = playlistId;
             sportifyPlaylist.Name = data["name"].ToString();
-            sportifyPlaylist.SnapshotID = await GetPlaylistSnapshotIdAsync(playlistId).ConfigureAwait(false);
             sportifyPlaylist.SnapshotID = await GetPlaylistSnapshotIdAsync(playlistId).ConfigureAwait(false);
             MusicDBApi.PostSpotifyPlaylist(sportifyPlaylist);
             return sportifyPlaylist.Name;
@@ -421,6 +421,8 @@ namespace Spotify_to_YTMusic.Components
 
                 JObject data = JObject.Parse(json);
                 Console.WriteLine("Track removed successfully!");
+                SpotifyPlaylistTracks track = new SpotifyPlaylistTracks();
+                await StorePlaylistInfoToDBAsync(playlistId).ConfigureAwait(false);
                 return data["snapshot_id"].ToString();
             }
             else
@@ -431,20 +433,20 @@ namespace Spotify_to_YTMusic.Components
 
         }
 
-        public async Task<string> AddTrackToPlaylist(string playlistId, string[] trackIDList)
+        public async Task<string> AddTrackToPlaylist(string playlistId, string[] trackIDs)
         {
-            if (trackIDList.Length > 100)
+            if (trackIDs.Length > 100)
             {
                 Console.WriteLine("List of track ID can't be more than 100 items");
                 return null;
             }
             List<string> trackUriList = new List<string>();
-            foreach (var item in trackIDList)
+            foreach (var item in trackIDs)
             {
                 string trackUri = $"spotify:track:{item}";
                 trackUriList.Add(trackUri);
             }
-            string[] trackUriArr = trackIDList.ToArray();
+            string[] trackUriArr = trackIDs.ToArray();
 
             client.DefaultRequestHeaders.Clear();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
@@ -463,6 +465,8 @@ namespace Spotify_to_YTMusic.Components
             {
                 JObject data = JObject.Parse(json);
                 Console.WriteLine("Track addded successfully!");
+                SpotifyPlaylistTracks track = new SpotifyPlaylistTracks();
+                await StorePlaylistInfoToDBAsync(playlistId).ConfigureAwait(false);
                 return data["snapshot_id"].ToString();
             }
             else
