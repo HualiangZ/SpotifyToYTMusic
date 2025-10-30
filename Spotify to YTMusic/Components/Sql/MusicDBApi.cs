@@ -23,7 +23,7 @@ namespace Spotify_to_YTMusic.Components.Sql
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("GET " + ex.Message);
+                    Console.WriteLine("GET GetSpotifyTrack error " + ex.Message);
                     return null;
                 }
             }
@@ -40,7 +40,7 @@ namespace Spotify_to_YTMusic.Components.Sql
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("GET " + ex.Message);
+                    Console.WriteLine("GET GetSpotifyTrack error " + ex.Message);
                     return null;
                 }
             }
@@ -56,7 +56,7 @@ namespace Spotify_to_YTMusic.Components.Sql
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Post " + ex.Message);
+                    Console.WriteLine("Post PostSpotifyTrack error " + ex.Message);
                 }
 
             }
@@ -71,7 +71,7 @@ namespace Spotify_to_YTMusic.Components.Sql
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Delete " + ex.Message);
+                    Console.WriteLine("Delete DeleteSpotifyTrack error " + ex.Message);
                 }
             }
         }
@@ -86,7 +86,7 @@ namespace Spotify_to_YTMusic.Components.Sql
                 }
                 catch (Exception ex) 
                 {
-                    Console.WriteLine("GET "+ex.Message);
+                    Console.WriteLine("GET GetAllSpotifyTrackInPlaylist error " + ex.Message);
                     return null;
                 }
                 
@@ -103,7 +103,7 @@ namespace Spotify_to_YTMusic.Components.Sql
                 }
                 catch (Exception ex)
                 { 
-                    Console.WriteLine("Post " + ex.Message);
+                    Console.WriteLine("Post PostSpotifyTrackToPlaylist error " + ex.Message);
                 }
                 
             }
@@ -119,7 +119,7 @@ namespace Spotify_to_YTMusic.Components.Sql
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Delete " + ex.Message);
+                    Console.WriteLine("Delete DeleteSpotifyTrackFromPlaylist error " + ex.Message);
                 }
             }
         }
@@ -134,7 +134,7 @@ namespace Spotify_to_YTMusic.Components.Sql
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("GET " + ex.Message);
+                    Console.WriteLine("GET GetAllSportifyPlaylists error " + ex.Message);
                     return null;
                 }
 
@@ -151,7 +151,7 @@ namespace Spotify_to_YTMusic.Components.Sql
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("GET " + ex.Message);
+                    Console.WriteLine("GET GetOneSportifyPlaylists error " + ex.Message);
                     return null;
                 }
 
@@ -168,7 +168,7 @@ namespace Spotify_to_YTMusic.Components.Sql
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Post " + ex.Message);
+                    Console.WriteLine("Post PostSpotifyPlaylist error " + ex.Message);
                 }
 
             }
@@ -183,7 +183,7 @@ namespace Spotify_to_YTMusic.Components.Sql
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Post " + ex.Message);
+                    Console.WriteLine("Post UpdateSpotifyPlaylistSnapshotID error " + ex.Message);
                 }
 
             }
@@ -198,7 +198,7 @@ namespace Spotify_to_YTMusic.Components.Sql
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Delete " + ex.Message);
+                    Console.WriteLine("Delete DeleteSpotifyPlaylist error " + ex.Message);
                 }
             }
         }
@@ -213,7 +213,7 @@ namespace Spotify_to_YTMusic.Components.Sql
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("GET " + ex.Message);
+                    Console.WriteLine("GET GetYouTubeTrack error " + ex.Message);
                     return null;
                 }
             }
@@ -228,7 +228,7 @@ namespace Spotify_to_YTMusic.Components.Sql
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Post " + ex.Message);
+                    Console.WriteLine("Post PostYouTubeTrack error " + ex.Message);
                 }
 
             }
@@ -243,7 +243,7 @@ namespace Spotify_to_YTMusic.Components.Sql
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Delete " + ex.Message);
+                    Console.WriteLine("Delete DeleteYouTubeTrack error " + ex.Message);
                 }
             }
         }
@@ -257,7 +257,7 @@ namespace Spotify_to_YTMusic.Components.Sql
                     return cnn.Query<YoutubePlaylistsModel>("select * from YouTubePlaylists where PlaylistID = @PlaylistID", new { PlaylistID = playlistID }).ToList()[0];
                 }catch(Exception ex)
                 {
-                    Console.WriteLine("Get " + ex.ToString());
+                    Console.WriteLine("Get GetOneYTPlaylist error " + ex.ToString());
                     return null;
                 }
             }
@@ -273,7 +273,7 @@ namespace Spotify_to_YTMusic.Components.Sql
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Post " + ex.Message);
+                    Console.WriteLine("Post PostYouTubePlaylists error " + ex.Message);
                 }
 
             }
@@ -289,7 +289,7 @@ namespace Spotify_to_YTMusic.Components.Sql
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Delete " + ex.Message);
+                    Console.WriteLine("Delete DeleteYouTubePlaylists error " + ex.Message);
                 }
             }
         }
@@ -304,7 +304,7 @@ namespace Spotify_to_YTMusic.Components.Sql
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("GET " + ex.Message);
+                    Console.WriteLine("GET GetAllYTTracksfromPlaylist error " + ex.Message);
                     return null;
                 }
 
@@ -321,7 +321,7 @@ namespace Spotify_to_YTMusic.Components.Sql
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("GET " + ex.Message);
+                    Console.WriteLine("GET GetTrackFromTYPlaylist error " + ex.Message);
                     return null;
                 }
 
@@ -339,7 +339,7 @@ namespace Spotify_to_YTMusic.Components.Sql
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Post " + ex.Message);
+                    Console.WriteLine("Post PostYTTrackToPlaylist error " + ex.Message);
                 }
 
             }
@@ -356,11 +356,11 @@ namespace Spotify_to_YTMusic.Components.Sql
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Delete " + ex.Message);
+                    Console.WriteLine("Delete DeleteYTTrackFromPlaylist error " + ex.Message);
                 }
             }
         }
-        public static List<PlaylistSync> GetSyncedPlaylists()
+        public static List<PlaylistSync> GetAllSyncedPlaylists()
         {
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
             {
@@ -370,7 +370,7 @@ namespace Spotify_to_YTMusic.Components.Sql
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("GET All playlist sync " + ex.Message);
+                    Console.WriteLine("GET GetAllSyncedPlaylists error " + ex.Message);
                     return null;
                 }
             }
@@ -386,7 +386,7 @@ namespace Spotify_to_YTMusic.Components.Sql
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("GET one playlist sync " + ex.Message);
+                    Console.WriteLine("GET GetSyncedPlaylistWithSpotify error " + ex.Message);
                     return null;
                 }
             }
@@ -402,7 +402,7 @@ namespace Spotify_to_YTMusic.Components.Sql
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("GET one playlist sync " + ex.Message);
+                    Console.WriteLine("GET GetSyncedPlaylistWithYouTube error " + ex.Message);
                     return null;
                 }
             }
@@ -418,7 +418,7 @@ namespace Spotify_to_YTMusic.Components.Sql
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Post " + ex.Message);
+                    Console.WriteLine("Post PostPlaylistSync error " + ex.Message);
                 }
 
             }
@@ -434,7 +434,7 @@ namespace Spotify_to_YTMusic.Components.Sql
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Delete " + ex.Message);
+                    Console.WriteLine("Delete DeletePlaylistSync error " + ex.Message);
                 }
             }
         }
@@ -464,7 +464,7 @@ namespace Spotify_to_YTMusic.Components.Sql
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Delete " + ex.Message);
+                    Console.WriteLine("Get GetUnsyncedTrackToAddYouTube error " + ex.Message);
                     return null;
                 }
             }
@@ -495,7 +495,7 @@ namespace Spotify_to_YTMusic.Components.Sql
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Delete " + ex.Message);
+                    Console.WriteLine("Get GetUnsyncedTracksToRemoveYouTube error " + ex.Message);
                     return null;
                 }
             }
@@ -526,7 +526,7 @@ namespace Spotify_to_YTMusic.Components.Sql
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Delete " + ex.Message);
+                    Console.WriteLine("Get GetUnsyncedTrackToAddSpotify error " + ex.Message);
                     return null;
                 }
             }
@@ -557,7 +557,7 @@ namespace Spotify_to_YTMusic.Components.Sql
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Delete " + ex.Message);
+                    Console.WriteLine("Get GetUnsyncedTrackToRemoveSpotify error " + ex.Message);
                     return null;
                 }
             }
