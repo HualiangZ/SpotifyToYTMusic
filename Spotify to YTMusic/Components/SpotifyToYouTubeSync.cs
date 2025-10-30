@@ -57,7 +57,7 @@ namespace Spotify_to_YTMusic.Components
         //spotify -> youtube
         public async Task SyncSpotifyTracksToYoutube(string spotifyPlaylistId)
         {
-            List<YouTubeTracks> tracksToBeAdded = MusicDBApi.GetUnsyncedTracksFromSpotify(spotifyPlaylistId);
+            List<YouTubeTracks> tracksToBeAdded = MusicDBApi.GetUnsyncedTrackToAddYouTube(spotifyPlaylistId);
             string youtubePlaylistID = MusicDBApi.GetSyncedPlaylistWithSpotify(spotifyPlaylistId);
 
             if (tracksToBeAdded != null) 
@@ -72,7 +72,7 @@ namespace Spotify_to_YTMusic.Components
                     MusicDBApi.PostYTTrackToPlaylist(youTubeTracks);
                 }
             }
-            List<YouTubeTracks> tracksToBeRemoved = MusicDBApi.GetUnsyncedTracksFromSpotify(youtubePlaylistID);
+            List<YouTubeTracks> tracksToBeRemoved = MusicDBApi.GetUnsyncedTracksToRemoveYouTube(youtubePlaylistID);
             if (tracksToBeRemoved != null)
             {
                 foreach (YouTubeTracks track in tracksToBeRemoved)
@@ -83,11 +83,12 @@ namespace Spotify_to_YTMusic.Components
 
         }
 
-        public async Task SyncPlaylistAsyncWithYTID( string youtubePlaylistID)
+        public async Task SyncPlaylistAsyncWithYTID(string youtubePlaylistID)
         {
             string spotifyPlaylistId = MusicDBApi.GetSyncedPlaylistWithYouTube(youtubePlaylistID);
             bool checkIsYouTubePlaylistinDB = MusicDBApi.GetOneYTPlaylist(youtubePlaylistID) != null;
-            if ((spotifyPlaylistId == null && checkIsYouTubePlaylistinDB == false) || (spotifyPlaylistId == "" && checkIsYouTubePlaylistinDB == false)){
+            if ((spotifyPlaylistId == null && checkIsYouTubePlaylistinDB == false) || (spotifyPlaylistId == "" && checkIsYouTubePlaylistinDB == false))
+            {
                 string playlistName = await youtubeApi.StoreYouTubePlaylistToSQL(youtubePlaylistID).ConfigureAwait(false);
                 spotifyPlaylistId = spotifyApi.CreatePlaylist(playlistName).Result.PlaylistID;
                 PlaylistSync playlistSync = new PlaylistSync();
@@ -96,7 +97,7 @@ namespace Spotify_to_YTMusic.Components
                 MusicDBApi.PostPlaylistSync(playlistSync);
                 await SyncYoutubeTracksToSpotify(youtubePlaylistID).ConfigureAwait(false);
             }
-            if(spotifyPlaylistId != null && checkIsYouTubePlaylistinDB == true)
+            if (spotifyPlaylistId != null && checkIsYouTubePlaylistinDB == true)
             {
                 await SyncYoutubeTracksToSpotify(youtubePlaylistID).ConfigureAwait(false);
             }
@@ -105,20 +106,20 @@ namespace Spotify_to_YTMusic.Components
         //youtube -> spotify
         public async Task SyncYoutubeTracksToSpotify(string youtubePlaylistId)
         {
-            List<SpotifyTracks> spotifyTracks = MusicDBApi.GetUnsyncedTracksFromYoutube(youtubePlaylistId);
+            List<SpotifyTracks> spotifyTracks = MusicDBApi.GetUnsyncedTrackToAddSpotify(youtubePlaylistId);
             List<string> spotifyTrackId = new List<string>();
             var spotifyId = MusicDBApi.GetSyncedPlaylistWithYouTube(youtubePlaylistId);
 
-            foreach(var item in spotifyTracks)
+            foreach (var item in spotifyTracks)
             {
                 spotifyTrackId.Add(item.TrackID);
             }
 
             await spotifyApi.AddTrackToPlaylist(spotifyId, spotifyTrackId.ToArray()).ConfigureAwait(false);
 
-            List<SpotifyTracks> spotifyTrackToDelete = MusicDBApi.GetUnsyncedTracksFromYoutube(youtubePlaylistId);
-            List<string>  spotifyTrackIdToDelet = new List<string>();
-            foreach (var item in spotifyTrackToDelete) 
+            List<SpotifyTracks> spotifyTrackToDelete = MusicDBApi.GetUnsyncedTrackToRemoveSpotify(youtubePlaylistId);
+            List<string> spotifyTrackIdToDelet = new List<string>();
+            foreach (var item in spotifyTrackToDelete)
             {
                 spotifyTrackIdToDelet.Add(item.TrackID);
             }

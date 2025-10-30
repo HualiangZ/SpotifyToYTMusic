@@ -439,7 +439,7 @@ namespace Spotify_to_YTMusic.Components.Sql
             }
         }
 
-        public static List<YouTubeTracks> GetUnsyncedTracksFromSpotify(string spotifyPlaylistId)
+        public static List<YouTubeTracks> GetUnsyncedTrackToAddYouTube(string spotifyPlaylistId)
         {
             string YTPlaylistID = GetSyncedPlaylistWithSpotify(spotifyPlaylistId);
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
@@ -470,15 +470,15 @@ namespace Spotify_to_YTMusic.Components.Sql
             }
         }
 
-        public static List<SpotifyTracks> GetUnsyncedTracksFromYoutube(string youtubePlaylistID)
+        public static List<YouTubeTracks> GetUnsyncedTracksToRemoveYouTube(string youtubePlaylistID)
         {
             string spotifyPlaylistID = GetSyncedPlaylistWithYouTube(youtubePlaylistID);
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 try
                 {
-                    return cnn.Query<SpotifyTracks>(
-                        "SELECT * " +
+                    return cnn.Query<YouTubeTracks>(
+                        "SELECT yt.TrackID " +
                         "FROM YoutubePlaylistTracks ypt " +
                         "JOIN YouTubeTracks yt " +
                         "ON ypt.TrackID = yt.TrackID " +
@@ -501,6 +501,67 @@ namespace Spotify_to_YTMusic.Components.Sql
             }
         }
 
-        
+        public static List<SpotifyTracks> GetUnsyncedTrackToAddSpotify(string youtubePlaylistID)
+        {
+            string spotifyPlaylistID = GetSyncedPlaylistWithYouTube(youtubePlaylistID);
+            using (IDbConnection cnn = new SQLiteConnection(cnnString))
+            {
+                try
+                {
+                    return cnn.Query<SpotifyTracks>(
+                        "SELECT st.TrackID " +
+                        "FROM YoutubePlaylistTracks ypt " +
+                        "JOIN YouTubeTracks yt " +
+                        "ON ypt.TrackID = yt.TrackID " +
+                        "LEFT JOIN SpotifyTracks st " +
+                        "ON st.TrackName = yt.TrackName " +
+                        "AND st.ArtistName = yt.ArtistName " +
+                        "LEFT JOIN SpotifyPlaylistTracks spt " +
+                        "ON spt.PlaylistID = @SpotifyPlaylistID " +
+                        "AND spt.TrackID = st.TrackID " +
+                        "WHERE ypt.PlaylistID = @YoutubePlaylistID " +
+                        "AND spt.TrackID IS NULL",
+                        new { SpotifyPlaylistID = spotifyPlaylistID, YoutubePlaylistID = youtubePlaylistID })
+                        .ToList();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Delete " + ex.Message);
+                    return null;
+                }
+            }
+        }
+
+        public static List<SpotifyTracks> GetUnsyncedTrackToRemoveSpotify(string spotifyPlaylistId)
+        {
+            string YTPlaylistID = GetSyncedPlaylistWithSpotify(spotifyPlaylistId);
+            using (IDbConnection cnn = new SQLiteConnection(cnnString))
+            {
+                try
+                {
+                    return cnn.Query<SpotifyTracks>(
+                        "SELECT st.TrackID " +
+                        "FROM SpotifyPlaylistTracks spt " +
+                        "JOIN SpotifyTracks st " +
+                        "ON st.TrackID = spt.TrackID " +
+                        "JOIN YouTubeTracks yt " +
+                        "ON yt.TrackName = st.TrackName " +
+                        "AND yt.ArtistName = st.ArtistName " +
+                        "LEFT JOIN YoutubePlaylistTracks ypt " +
+                        "ON ypt.PlaylistID = @YoutubePlaylistID " +
+                        "AND ypt.TrackID = yt.TrackID " +
+                        "WHERE spt.PlaylistID = @SpotifyPlaylistID " +
+                        "AND ypt.TrackID IS NULL",
+                        new { SpotifyPlaylistID = spotifyPlaylistId, YoutubePlaylistID = YTPlaylistID })
+                        .ToList();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Delete " + ex.Message);
+                    return null;
+                }
+            }
+        }
+
     }
 }
