@@ -76,12 +76,12 @@ namespace Spotify_to_YTMusic.Components
             return "";
         }
 
-        public async Task AddTrackToPlaylist(string playlistId, string videoId)
+        public async Task<string> AddTrackToPlaylist(string playlistId, string videoId)
         {
             if(playlistId == "")
             {
                 Console.WriteLine("Playlist ID is empty");
-                return;
+                return null;
             }
             if(videoId == "")
             {
@@ -90,33 +90,21 @@ namespace Spotify_to_YTMusic.Components
 
             int retry = 1;
 
-            var playlist = new PlaylistItem();
-            playlist.Snippet = new PlaylistItemSnippet();
-            playlist.Snippet.PlaylistId = playlistId;
-            playlist.Snippet.ResourceId = new ResourceId();
-            playlist.Snippet.ResourceId.Kind = "youtube#video";
-            playlist.Snippet.ResourceId.VideoId = videoId;
+            var playlistItem = new PlaylistItem();
+            playlistItem.Snippet = new PlaylistItemSnippet();
+            playlistItem.Snippet.PlaylistId = playlistId;
+            playlistItem.Snippet.ResourceId = new ResourceId();
+            playlistItem.Snippet.ResourceId.Kind = "youtube#video";
+            playlistItem.Snippet.ResourceId.VideoId = videoId;
             while (retry != 0)
             {
                 try
                 {
-                    var item = await youtubeService.PlaylistItems.Insert(playlist, "snippet").ExecuteAsync().ConfigureAwait(false);
+                    var item = await youtubeService.PlaylistItems.Insert(playlistItem, "snippet").ExecuteAsync().ConfigureAwait(false);
                     var request = youtubeService.Playlists.List("snippet");
                     request.Id = playlistId;
                     var response = await request.ExecuteAsync().ConfigureAwait(false);
-                    
-                    if (response.Items.Count > 0)
-                    {
-                        var playlistName = response.Items[0].Snippet.Title;
-                        YoutubePlaylistsModel model = new YoutubePlaylistsModel();
-                        model.PlaylistID = playlistId;
-                        model.Name = playlistName;
-                        MusicDBApi.PostYouTubePlaylists(model);
-                    }
-
-                    await GetTrackTitleAndArtistNameAsync(playlistId, videoId, item.Id).ConfigureAwait(false);
-                    
-                    return;
+                    return item.Id;
                 }
                 catch (Exception ex)
                 {
@@ -127,6 +115,7 @@ namespace Spotify_to_YTMusic.Components
             }
 
             Console.WriteLine("Invalid Video ID or Playlist ID or out of Quotas");
+            return null;
         }
 
         public async Task DeleteItemFromPlaylistAsync(string playlistId, string videoId)

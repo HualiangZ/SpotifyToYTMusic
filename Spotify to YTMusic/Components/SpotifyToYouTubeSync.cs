@@ -64,7 +64,12 @@ namespace Spotify_to_YTMusic.Components
             {
                 foreach (YouTubeTracks track in tracksToBeAdded) 
                 {
-                    await youtubeApi.AddTrackToPlaylist(youtubePlaylistID, track.TrackID).ConfigureAwait(false);
+                    var itemId =  await youtubeApi.AddTrackToPlaylist(youtubePlaylistID, track.TrackID).ConfigureAwait(false);
+                    YouTubePlaylistTracks youTubeTracks = new YouTubePlaylistTracks();
+                    youTubeTracks.PlaylistID = youtubePlaylistID;
+                    youTubeTracks.TrackID = track.TrackID;
+                    youTubeTracks.ID = itemId;
+                    MusicDBApi.PostYTTrackToPlaylist(youTubeTracks);
                 }
             }
             List<YouTubeTracks> tracksToBeRemoved = MusicDBApi.GetUnsyncedTracksFromSpotify(youtubePlaylistID);
