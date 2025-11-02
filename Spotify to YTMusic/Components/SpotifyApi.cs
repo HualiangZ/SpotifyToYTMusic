@@ -261,13 +261,13 @@ namespace Spotify_to_YTMusic.Components
             if (storedSnapshotId == null)
             {
                 Console.WriteLine("No Spotify SnapshotID is stored");
-                return true;
+                return false;
             }
 
             if (newSnapshotId == null)
             {
                 Console.WriteLine("Playlist doesnt exist");
-                return true;
+                return false;
             }
 
             if (storedSnapshotId == newSnapshotId)
