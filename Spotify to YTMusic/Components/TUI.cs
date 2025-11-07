@@ -20,6 +20,10 @@ namespace Spotify_to_YTMusic.Components
             Console.WriteLine("3. Update Youtube Playlist");
             Console.WriteLine("4. Update Spotify Playlist");
             userResponce = Console.ReadLine();
+            if(userResponce == "1")
+            {
+                await SyncSpotifyToYouTubePlaylistAsync().ConfigureAwait(false);
+            }
             if(userResponce == "3")
             {
                 UpdatingYouTubePlaylist();
@@ -37,6 +41,14 @@ namespace Spotify_to_YTMusic.Components
 
             return $"{spotifyPlaylistId} has synced with YouTube playlist";
 
+        }
+
+        public async Task<string> SyncSpotifyToYouTubePlaylistAsync()
+        {
+            Console.WriteLine("Enter Spotify playlist ID");
+            string spotifyPlaylistId = Console.ReadLine();
+            await playlistSync.SyncPlaylistAsyncWithSpotifyID(spotifyPlaylistId).ConfigureAwait(false);
+            return $"playlist {spotifyPlaylistId} has been synced";
         }
 
         
