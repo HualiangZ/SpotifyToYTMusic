@@ -314,7 +314,7 @@ namespace Spotify_to_YTMusic.Components
          * 3. Store Spotify playlist informantion to DB
          * 4. Store what tracks are in Spotify playlist to DB
         */
-        public async Task StorePlaylistInfoToDBAsync(string playlistId)
+        public async Task<bool> StorePlaylistInfoToDBAsync(string playlistId)
         {
             client.DefaultRequestHeaders.Clear();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
@@ -334,7 +334,7 @@ namespace Spotify_to_YTMusic.Components
                     if (!responseMessage.IsSuccessStatusCode)
                     {
                         Console.WriteLine("Unable to get Access Token");
-                        break;
+                        return false;
                     }
                 }
 
@@ -378,9 +378,10 @@ namespace Spotify_to_YTMusic.Components
                 offset += items.Count();
                 if (items.Count() < limit)
                 {
-                    break;
+                    return true;
                 }
             }//end of loop
+            return true;
         }
 
         public async Task<string> DeleteTrackFromPlaylist(string playlistId, string[] trackIDs)
