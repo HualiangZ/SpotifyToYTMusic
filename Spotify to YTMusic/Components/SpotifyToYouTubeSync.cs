@@ -89,7 +89,7 @@ namespace Spotify_to_YTMusic.Components
 
         }
 
-        public async Task SyncPlaylistAsyncWithYTID(string youtubePlaylistID)
+        public async Task<bool> SyncPlaylistAsyncWithYTID(string youtubePlaylistID)
         {
             string spotifyPlaylistId = MusicDBApi.GetSyncedPlaylistWithYouTube(youtubePlaylistID);
             bool checkIsYouTubePlaylistinDB = MusicDBApi.GetOneYTPlaylist(youtubePlaylistID) != null;
@@ -101,20 +101,26 @@ namespace Spotify_to_YTMusic.Components
                 playlistSync.YTPlaylistID = youtubePlaylistID;
                 playlistSync.SpotifyPlaylistID = spotifyPlaylistId;
                 MusicDBApi.PostPlaylistSync(playlistSync);
-                await SyncYoutubeTracksToSpotify(youtubePlaylistID).ConfigureAwait(false);
+                return await SyncYoutubeTracksToSpotify(youtubePlaylistID).ConfigureAwait(false);
             }
             if (spotifyPlaylistId != null && checkIsYouTubePlaylistinDB == true)
             {
-                await SyncYoutubeTracksToSpotify(youtubePlaylistID).ConfigureAwait(false);
+                return await SyncYoutubeTracksToSpotify(youtubePlaylistID).ConfigureAwait(false);
             }
+            return false;
         }
 
         //youtube -> spotify
-        public async Task SyncYoutubeTracksToSpotify(string youtubePlaylistId)
+        public async Task<bool> SyncYoutubeTracksToSpotify(string youtubePlaylistId)
         {
             List<SpotifyTracks> spotifyTracks = MusicDBApi.GetUnsyncedTrackToAddSpotify(youtubePlaylistId);
             List<string> spotifyTrackId = new List<string>();
             var spotifyId = MusicDBApi.GetSyncedPlaylistWithYouTube(youtubePlaylistId);
+
+            if(spotifyId == null)
+            {
+                return false;
+            }
 
             foreach (var item in spotifyTracks)
             {
@@ -131,7 +137,7 @@ namespace Spotify_to_YTMusic.Components
             }
 
             await spotifyApi.DeleteTrackFromPlaylist(spotifyId, spotifyTrackIdToDelet.ToArray()).ConfigureAwait(false);
-
+            return true;
         }
 
         //update youtube playlist when spotify snapshot ID chagnes

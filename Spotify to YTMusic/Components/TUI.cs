@@ -15,7 +15,7 @@ namespace Spotify_to_YTMusic.Components
         public async Task MenuAsync()
         {
             await playlistSync.Init();
-            Console.WriteLine("Select a number depending on what you want to do");
+            Console.WriteLine("Enter a number depending on what you want to do");
             Console.WriteLine("1. Sync Spotify playlist to YouTube Playlist");
             Console.WriteLine("2. Sync YouTube Playlist to Spotify Playlist");
             Console.WriteLine("3. Update Youtube Playlist");
@@ -35,7 +35,7 @@ namespace Spotify_to_YTMusic.Components
             }
             if(userResponce == "4")
             {
-
+                await UpdateSpotifyPlaylist().ConfigureAwait(false);
             }
         }
         public async Task SyncSpotifyToYouTubePlaylistAsync()
@@ -58,10 +58,17 @@ namespace Spotify_to_YTMusic.Components
         {
             Console.WriteLine("Enter YouTube Playlist ID");
             string YTPlaylistId = Console.ReadLine();
-            await playlistSync.SyncPlaylistAsyncWithYTID(YTPlaylistId).ConfigureAwait(false);
-
-            Console.WriteLine($"playlist {YTPlaylistId} has been synced");
+            bool success = await playlistSync.SyncPlaylistAsyncWithYTID(YTPlaylistId).ConfigureAwait(false);
+            if (success)
+            {
+                Console.WriteLine($"playlist {YTPlaylistId} has been synced");
+            }
+            else
+            {
+                Console.WriteLine($"Unable to sync {YTPlaylistId}");
+            }
             await MenuAsync().ConfigureAwait(false);
+
         }
 
         public async Task UpdatingYouTubePlaylistAsync()
@@ -71,12 +78,27 @@ namespace Spotify_to_YTMusic.Components
             bool isUpdateComplete = playlistSync.SyncSpotifyTracksToYoutube(spotifyPlaylistId).Result;
             if (isUpdateComplete)
             {
+                Console.WriteLine($"{spotifyPlaylistId} has synced with YouTube playlist");
                 await MenuAsync().ConfigureAwait(false);
-                Console.WriteLine($"{spotifyPlaylistId} is not synced to any YouTube playlist");
             }
-            Console.WriteLine($"{spotifyPlaylistId} has synced with YouTube playlist");
+            Console.WriteLine($"{spotifyPlaylistId} is not synced to any YouTube playlist");
+            await MenuAsync().ConfigureAwait(false);
         }
 
+        public async Task UpdateSpotifyPlaylist()
+        {
+            Console.WriteLine("Enter YouTube playlist ID");
+            string youtubePlaylistId = Console.ReadLine();
+            bool isUpdateComplete = playlistSync.SyncYoutubeTracksToSpotify(youtubePlaylistId).Result;
+            if (isUpdateComplete)
+            {
+                Console.WriteLine($"{youtubePlaylistId} has synced with YouTube playlist");
+                await MenuAsync().ConfigureAwait(false);
+            }
+
+            Console.WriteLine($"{youtubePlaylistId} is not synced to any YouTube playlist");
+            await MenuAsync().ConfigureAwait(false);
+        }
 
     }
 }
