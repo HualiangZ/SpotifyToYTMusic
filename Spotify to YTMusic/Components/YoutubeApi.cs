@@ -23,7 +23,7 @@ namespace Spotify_to_YTMusic.Components
 
         public YoutubeApi()
         {
-            GetCredential().ConfigureAwait(false);
+            GetCredential().GetAwaiter();
         }
 
         public async Task GetCredential()

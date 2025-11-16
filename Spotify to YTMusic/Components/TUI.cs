@@ -12,9 +12,13 @@ namespace Spotify_to_YTMusic.Components
     {
         SpotifyToYouTubeSync playlistSync = new SpotifyToYouTubeSync();
         private string userResponce;
+        private TUI()
+        {
+            playlistSync.Init().GetAwaiter();
+        }
         public async Task MenuAsync()
         {
-            await playlistSync.Init();
+            
             Console.WriteLine("Enter a number depending on what you want to do");
             Console.WriteLine("1. Sync Spotify playlist to YouTube Playlist");
             Console.WriteLine("2. Sync YouTube Playlist to Spotify Playlist");
