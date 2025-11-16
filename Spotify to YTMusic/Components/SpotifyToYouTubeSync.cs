@@ -141,11 +141,15 @@ namespace Spotify_to_YTMusic.Components
         }
 
         //update youtube playlist when spotify snapshot ID chagnes
-        public async Task UpdateYTPlaylist(string playlistID)
+        public async Task UpdateYTPlaylist()
         {
-            if (spotifyApi.CheckSnapshotIdChangeAsync(playlistID).Result)
+            var spotifyPlaylist = MusicDBApi.GetAllSportifyPlaylists();
+            foreach (var playlist in spotifyPlaylist)
             {
-                await SyncSpotifyTracksToYoutube(playlistID).ConfigureAwait(false);
+                if (spotifyApi.CheckSnapshotIdChangeAsync(playlist.PlaylistID).Result)
+                {
+                    await SyncPlaylistAsyncWithSpotifyID(playlist.PlaylistID).ConfigureAwait(false);
+                }
             }
         }
     }
