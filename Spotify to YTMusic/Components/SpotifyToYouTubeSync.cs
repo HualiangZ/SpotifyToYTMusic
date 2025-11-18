@@ -144,11 +144,14 @@ namespace Spotify_to_YTMusic.Components
         public async Task UpdateYTPlaylist()
         {
             var spotifyPlaylist = MusicDBApi.GetAllSportifyPlaylists();
-            foreach (var playlist in spotifyPlaylist)
+            if(spotifyPlaylist != null || spotifyPlaylist.Count() > 0)
             {
-                if (spotifyApi.CheckSnapshotIdChangeAsync(playlist.PlaylistID).Result)
+                foreach (var playlist in spotifyPlaylist)
                 {
-                    await SyncPlaylistAsyncWithSpotifyID(playlist.PlaylistID).ConfigureAwait(false);
+                    if (spotifyApi.CheckSnapshotIdChangeAsync(playlist.PlaylistID).Result)
+                    {
+                        await SyncPlaylistAsyncWithSpotifyID(playlist.PlaylistID).ConfigureAwait(false);
+                    }
                 }
             }
         }

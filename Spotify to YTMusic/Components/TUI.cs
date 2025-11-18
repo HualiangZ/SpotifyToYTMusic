@@ -8,13 +8,21 @@ using Xunit.Sdk;
 
 namespace Spotify_to_YTMusic.Components
 {
-    internal class TUI
+    public class TUI
     {
         SpotifyToYouTubeSync playlistSync = new SpotifyToYouTubeSync();
         private string userResponce;
-        private TUI()
+        public TUI()
         {
             playlistSync.Init().GetAwaiter();
+            Task keepRunning = new Task(() =>
+            {
+                while (true)
+                {
+                    Thread.Sleep(1000);
+                    playlistSync.UpdateYTPlaylist().GetAwaiter();
+                }
+            });
         }
         public async Task MenuAsync()
         {
