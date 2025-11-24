@@ -1,10 +1,12 @@
 ﻿using Dapper;
+using Google.Apis.Util;
 using Google.Apis.YouTube.v3.Data;
 using Spotify_to_YTMusic.Components.Sql.DataModel;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using Xunit.Abstractions;
 
 namespace Spotify_to_YTMusic.Components.Sql
@@ -13,113 +15,114 @@ namespace Spotify_to_YTMusic.Components.Sql
     {
         static string cnnString = "Data Source=./MusicDB.db";
 
-        public static SpotifyTracks GetSpotifyTrack(string trackID)
+        public static (SpotifyTracks Tracks, string Err) GetSpotifyTrack(string trackID)
         {
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 try
                 {
-                    return cnn.Query<SpotifyTracks>("select * from SpotifyTracks where TrackID = @TrackID", new { TrackID = trackID }).ToList()[0];
+                    return (cnn.Query<SpotifyTracks>("select * from SpotifyTracks where TrackID = @TrackID", new { TrackID = trackID }).ToList()[0], null);
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("GET GetSpotifyTrack error " + ex.Message);
-                    return null;
+                    return (null, ex.Message);
                 }
             }
         }
 
-        public static SpotifyTracks GetSpotifyTrack(string trackName, string artistName)
+        public static (SpotifyTracks Tracks, string Err) GetSpotifyTrack(string trackName, string artistName)
         {
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 try
                 {
-                    return cnn.Query<SpotifyTracks>("select * from SpotifyTracks where TrackName = @TrackName AND ArtistName = ArtistName", 
-                        new { TrackName = trackName, ArtistName = artistName }).ToList()[0];
+                    return (cnn.Query<SpotifyTracks>("select * from SpotifyTracks where TrackName = @TrackName AND ArtistName = ArtistName", 
+                        new { TrackName = trackName, ArtistName = artistName }).ToList()[0], null);
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("GET GetSpotifyTrack error " + ex.Message);
-                    return null;
+                    return (null, ex.Message);
                 }
             }
         }
 
-        public static void PostSpotifyTrack(SpotifyTracks spotifyTrack)
+        public static (bool Success, string Err) PostSpotifyTrack(SpotifyTracks spotifyTrack)
         {
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 try
                 {
                     cnn.Execute("insert into SpotifyTracks (TrackID, TrackName, ArtistName) values (@TrackID, @TrackName, @ArtistName)", spotifyTrack);
+                    return (true, null);
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Post PostSpotifyTrack error " + ex.Message);
+                    return (false, ex.Message);
                 }
 
             }
         }
-        public static void DeleteSpotifyTrack(SpotifyTracks playlistTrack)
+        public static (bool Success, string Err) DeleteSpotifyTrack(SpotifyTracks playlistTrack)
         {
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 try
                 {
                     cnn.Execute("DELETE FROM SpotifyTracks WHERE TrackID = @TrackID AND TrackName = @TrackName AND ArtistName = @ArtistName", playlistTrack);
+                    return (true, null);
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Delete DeleteSpotifyTrack error " + ex.Message);
+                    return (false, ex.Message);
                 }
             }
         }
 
-        public static List<string> GetAllSpotifyTrackInPlaylist(string playlistID)
+        public static (List<string> Tracks, string Err) GetAllSpotifyTrackInPlaylist(string playlistID)
         {
             using(IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 try
                 {
-                    return cnn.Query<string>("select TrackID from SpotifyPlaylistTracks where PlaylistID = @PlaylistID", new {PlaylistID = playlistID}).ToList();
+                    return (cnn.Query<string>("select TrackID from SpotifyPlaylistTracks where PlaylistID = @PlaylistID", new {PlaylistID = playlistID}).ToList(), null);
                 }
                 catch (Exception ex) 
                 {
-                    Console.WriteLine("GET GetAllSpotifyTrackInPlaylist error " + ex.Message);
-                    return null;
+                    return (null, ex.Message);
                 }
                 
             }
         }
 
-        public static void PostSpotifyTrackToPlaylist(SpotifyPlaylistTracks playlistTrack)
+        public static bool PostSpotifyTrackToPlaylist(SpotifyPlaylistTracks playlistTrack)
         {
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 try
                 {
                     cnn.Execute("insert into SpotifyPlaylistTracks (PlaylistID, TrackID) values (@PlaylistID, @TrackID)", playlistTrack);
+                    return true;
                 }
                 catch (Exception ex)
-                { 
-                    Console.WriteLine("Post PostSpotifyTrackToPlaylist error " + ex.Message);
+                {
+                    return false;
                 }
                 
             }
         }
 
-        public static void DeleteSpotifyTrackFromPlaylist(SpotifyPlaylistTracks playlistTrack)
+        public static bool DeleteSpotifyTrackFromPlaylist(SpotifyPlaylistTracks playlistTrack)
         {
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 try
                 {
                     cnn.Execute("DELETE FROM SpotifyPlaylistTracks WHERE PlaylistID = @PlaylistID AND TrackID = @TrackID ", playlistTrack);
+                    return true;
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Delete DeleteSpotifyTrackFromPlaylist error " + ex.Message);
+                    return false;
                 }
             }
         }
@@ -134,7 +137,6 @@ namespace Spotify_to_YTMusic.Components.Sql
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("GET GetAllSportifyPlaylists error " + ex.Message);
                     return null;
                 }
 
@@ -151,54 +153,56 @@ namespace Spotify_to_YTMusic.Components.Sql
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("GET GetOneSportifyPlaylists error " + ex.Message);
                     return null;
                 }
 
             }
         }
 
-        public static void PostSpotifyPlaylist(SpotifyPlaylistsModels playlist)
+        public static bool PostSpotifyPlaylist(SpotifyPlaylistsModels playlist)
         {
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 try
                 {
                     cnn.Execute("insert into SpotifyPlaylists (PlaylistID, SnapshotID, Name) values (@PlaylistID, @SnapshotID, @Name)", playlist);
+                    return true;
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Post PostSpotifyPlaylist error " + ex.Message);
+                    return false;
                 }
 
             }
         }
-        public static void UpdateSpotifyPlaylistSnapshotID(string playlistID, string snapshotID)
+        public static bool UpdateSpotifyPlaylistSnapshotID(string playlistID, string snapshotID)
         {
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 try
                 {
                     cnn.Execute("update SpotifyPlaylists set SnapshotID = @SnapshotID where PlaylistID = @PlaylistID", new { PlaylistID = playlistID, SnapshotID = snapshotID }) ;
+                    return true;
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Post UpdateSpotifyPlaylistSnapshotID error " + ex.Message);
+                    return false;
                 }
 
             }
         }
-        public static void DeleteSpotifyPlaylist(string playlistID)
+        public static bool DeleteSpotifyPlaylist(string playlistID)
         {
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 try
                 {
                     cnn.Execute("DELETE FROM SpotifyPlaylists WHERE PlaylistID = @PlaylistID", new { PlaylistID = playlistID });
+                    return true;
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Delete DeleteSpotifyPlaylist error " + ex.Message);
+                    return false;
                 }
             }
         }
@@ -213,37 +217,38 @@ namespace Spotify_to_YTMusic.Components.Sql
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("GET GetYouTubeTrack error " + ex.Message);
                     return null;
                 }
             }
         }
-        public static void PostYouTubeTrack(YouTubeTracks youtubeTrack)
+        public static bool PostYouTubeTrack(YouTubeTracks youtubeTrack)
         {
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 try
                 {
                     cnn.Execute("insert into YouTubeTracks (TrackID, TrackName, ArtistName) values (@TrackID, @TrackName, @ArtistName)", youtubeTrack);
+                    return true;
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Post PostYouTubeTrack error " + ex.Message);
+                    return false;
                 }
 
             }
         }
-        public static void DeleteYouTubeTrack(string videoId)
+        public static bool DeleteYouTubeTrack(string videoId)
         {
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 try
                 {
                     cnn.Execute("DELETE FROM YouTubeTracks WHERE TrackID = @TrackID", new {TrackID = videoId});
+                    return true;
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Delete DeleteYouTubeTrack error " + ex.Message);
+                    return false;
                 }
             }
         }
@@ -257,39 +262,40 @@ namespace Spotify_to_YTMusic.Components.Sql
                     return cnn.Query<YoutubePlaylistsModel>("select * from YouTubePlaylists where PlaylistID = @PlaylistID", new { PlaylistID = playlistID }).ToList()[0];
                 }catch(Exception ex)
                 {
-                    Console.WriteLine("Get GetOneYTPlaylist error " + ex.ToString());
                     return null;
                 }
             }
         }
 
-        public static void PostYouTubePlaylists(YoutubePlaylistsModel playlist)
+        public static bool PostYouTubePlaylists(YoutubePlaylistsModel playlist)
         {
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 try
                 {
                     cnn.Execute("insert into YouTubePlaylists (PlaylistID, Name) values (@PlaylistID, @Name)", playlist);
+                    return true;
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Post PostYouTubePlaylists error " + ex.Message);
+                    return false;
                 }
 
             }
         }
 
-        public static void DeleteYouTubePlaylists(YoutubePlaylistsModel playlist)
+        public static bool DeleteYouTubePlaylists(YoutubePlaylistsModel playlist)
         {
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 try
                 {
                     cnn.Execute("DELETE FROM YouTubePlaylists WHERE PlaylistID = @PlaylistID AND Name = @Name ", playlist);
+                    return true;
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Delete DeleteYouTubePlaylists error " + ex.Message);
+                    return false;
                 }
             }
         }
@@ -304,7 +310,6 @@ namespace Spotify_to_YTMusic.Components.Sql
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("GET GetAllYTTracksfromPlaylist error " + ex.Message);
                     return null;
                 }
 
@@ -321,132 +326,131 @@ namespace Spotify_to_YTMusic.Components.Sql
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("GET GetTrackFromTYPlaylist error " + ex.Message);
                     return null;
                 }
 
             }
         }
 
-        public static void PostYTTrackToPlaylist(YouTubePlaylistTracks playlistTrack)
+        public static (bool success, string Err) PostYTTrackToPlaylist(YouTubePlaylistTracks playlistTrack)
         {
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 try
                 {
                     cnn.Execute("insert into YouTubePlaylistTracks (PlaylistID, TrackID, ID) values (@PlaylistID, @TrackID, @ID)", playlistTrack);
-
+                    return (true, null);
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Post PostYTTrackToPlaylist error " + ex.Message);
+                    return (false, ex.Message);
                 }
 
             }
         }
 
 
-        public static void DeleteYTTrackFromPlaylist(YouTubePlaylistTracks playlistTrack)
+        public static (bool success, string Err) DeleteYTTrackFromPlaylist(YouTubePlaylistTracks playlistTrack)
         {
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 try
                 {
                     cnn.Execute("DELETE FROM YouTubePlaylistTracks WHERE PlaylistID = @PlaylistID AND TrackID = @TrackID ", playlistTrack);
+                    return (true, null);
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Delete DeleteYTTrackFromPlaylist error " + ex.Message);
+                    return (false, ex.Message);
                 }
             }
         }
-        public static List<PlaylistSync> GetAllSyncedPlaylists()
+        public static (List<PlaylistSync> PlaylistSync, string err) GetAllSyncedPlaylists()
         {
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 try
                 {
-                    return cnn.Query<PlaylistSync>("select * from PlaylistSync").ToList();
+                    return (cnn.Query<PlaylistSync>("select * from PlaylistSync").ToList(), null);
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("GET GetAllSyncedPlaylists error " + ex.Message);
-                    return null;
+                    return (null, ex.Message);
                 }
             }
         }
 
-        public static string GetSyncedPlaylistWithSpotify(string SpotifyPlaylistID)
+        public static (string PlaylistId, string err) GetSyncedPlaylistWithSpotify(string SpotifyPlaylistID)
         {
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 try
                 {
-                    return cnn.Query<string>("select YTPlaylistID from PlaylistSync where SpotifyPlaylistID = @SpotifyPlaylistID", new { SpotifyPlaylistID = SpotifyPlaylistID }).ToList()[0];
+                    return (cnn.Query<string>("select YTPlaylistID from PlaylistSync where SpotifyPlaylistID = @SpotifyPlaylistID", new { SpotifyPlaylistID = SpotifyPlaylistID }).ToList()[0], null);
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("GET GetSyncedPlaylistWithSpotify error " + ex.Message);
-                    return null;
+                    return (null, ex.Message);
                 }
             }
         }
 
-        public static string GetSyncedPlaylistWithYouTube(string YTPlaylistID)
+        public static (string PlaylistId, string err) GetSyncedPlaylistWithYouTube(string YTPlaylistID)
         {
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 try
                 {
-                    return cnn.Query<string>("select SpotifyPlaylistID from PlaylistSync where YTPlaylistID = @YTPlaylistID", new { YTPlaylistID = YTPlaylistID }).ToList()[0];
+                    return (cnn.Query<string>("select SpotifyPlaylistID from PlaylistSync where YTPlaylistID = @YTPlaylistID", new { YTPlaylistID = YTPlaylistID }).ToList()[0], null);
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("GET GetSyncedPlaylistWithYouTube error " + ex.Message);
-                    return null;
+                    return (null, ex.Message);
                 }
             }
         }
 
-        public static void PostPlaylistSync(PlaylistSync playlistsync)
+        public static (bool Sucess, string err) PostPlaylistSync(PlaylistSync playlistsync)
         {
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 try
                 {
                     cnn.Execute("insert into PlaylistSync (YTPlaylistID, SpotifyPlaylistID) values (@YTPlaylistID, @SpotifyPlaylistID)", playlistsync);
+                    return (true, null);
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Post PostPlaylistSync error " + ex.Message);
+                    return (false, ex.Message);
                 }
 
             }
         }
 
-        public static void DeletePlaylistSync(string playlistSyncID)
+        public static (bool Sucess, string err) DeletePlaylistSync(string playlistSyncID)
         {
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 try
                 {
                     cnn.Execute("DELETE FROM PlaylistSync WHERE SyncID = @SyncID", new { syncID = playlistSyncID });
+                    return (true, null);
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Delete DeletePlaylistSync error " + ex.Message);
+                    return (false, ex.Message);
                 }
             }
         }
 
-        public static List<YouTubeTracks> GetUnsyncedTrackToAddYouTube(string spotifyPlaylistId)
+        public static (List<YouTubeTracks> Tracks, string err) GetUnsyncedTrackToAddYouTube(string spotifyPlaylistId)
         {
-            string YTPlaylistID = GetSyncedPlaylistWithSpotify(spotifyPlaylistId);
+            string YTPlaylistID = GetSyncedPlaylistWithSpotify(spotifyPlaylistId).PlaylistId;
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 try
                 {
-                    return cnn.Query<YouTubeTracks>(
+                    return (cnn.Query<YouTubeTracks>(
                         "SELECT yt.TrackID " +
                         "FROM SpotifyPlaylistTracks spt " +
                         "JOIN SpotifyTracks st " +
@@ -460,24 +464,23 @@ namespace Spotify_to_YTMusic.Components.Sql
                         "WHERE spt.PlaylistID = @SpotifyPlaylistID " +
                         "AND ypt.TrackID IS NULL", 
                         new { SpotifyPlaylistID = spotifyPlaylistId, YoutubePlaylistID = YTPlaylistID})
-                        .ToList();
+                        .ToList(), null);
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Get GetUnsyncedTrackToAddYouTube error " + ex.Message);
-                    return null;
+                    return (null, ex.Message);
                 }
             }
         }
 
-        public static List<YouTubeTracks> GetUnsyncedTracksToRemoveYouTube(string youtubePlaylistID)
+        public static (List<YouTubeTracks> Tracks, string err) GetUnsyncedTracksToRemoveYouTube(string youtubePlaylistID)
         {
-            string spotifyPlaylistID = GetSyncedPlaylistWithYouTube(youtubePlaylistID);
+            string spotifyPlaylistID = GetSyncedPlaylistWithYouTube(youtubePlaylistID).PlaylistId;
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 try
                 {
-                    return cnn.Query<YouTubeTracks>(
+                    return (cnn.Query<YouTubeTracks>(
                         "SELECT yt.TrackID " +
                         "FROM YoutubePlaylistTracks ypt " +
                         "JOIN YouTubeTracks yt " +
@@ -491,24 +494,24 @@ namespace Spotify_to_YTMusic.Components.Sql
                         "WHERE ypt.PlaylistID = @YoutubePlaylistID " +
                         "AND spt.TrackID IS NULL",
                         new { SpotifyPlaylistID = spotifyPlaylistID, YoutubePlaylistID = youtubePlaylistID })
-                        .ToList();
+                        .ToList(), null);
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine("Get GetUnsyncedTracksToRemoveYouTube error " + ex.Message);
-                    return null;
+                    return (null, ex.Message);
                 }
             }
         }
 
-        public static List<SpotifyTracks> GetUnsyncedTrackToAddSpotify(string youtubePlaylistID)
+        public static (List<SpotifyTracks> Tracks, string err)GetUnsyncedTrackToAddSpotify(string youtubePlaylistID)
         {
-            string spotifyPlaylistID = GetSyncedPlaylistWithYouTube(youtubePlaylistID);
+            string spotifyPlaylistID = GetSyncedPlaylistWithYouTube(youtubePlaylistID).PlaylistId;
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 try
                 {
-                    return cnn.Query<SpotifyTracks>(
+                    return (cnn.Query<SpotifyTracks>(
                         "SELECT st.TrackID " +
                         "FROM YoutubePlaylistTracks ypt " +
                         "JOIN YouTubeTracks yt " +
@@ -522,24 +525,24 @@ namespace Spotify_to_YTMusic.Components.Sql
                         "WHERE ypt.PlaylistID = @YoutubePlaylistID " +
                         "AND spt.TrackID IS NULL",
                         new { SpotifyPlaylistID = spotifyPlaylistID, YoutubePlaylistID = youtubePlaylistID })
-                        .ToList();
+                        .ToList(), null);
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine("Get GetUnsyncedTrackToAddSpotify error " + ex.Message);
-                    return null;
+                    return (null, ex.Message);
                 }
             }
         }
 
-        public static List<SpotifyTracks> GetUnsyncedTrackToRemoveSpotify(string spotifyPlaylistId)
+        public static (List<SpotifyTracks> Tracks, string err) GetUnsyncedTrackToRemoveSpotify(string spotifyPlaylistId)
         {
-            string YTPlaylistID = GetSyncedPlaylistWithSpotify(spotifyPlaylistId);
+            string YTPlaylistID = GetSyncedPlaylistWithSpotify(spotifyPlaylistId).PlaylistId;
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 try
                 {
-                    return cnn.Query<SpotifyTracks>(
+                    return (cnn.Query<SpotifyTracks>(
                         "SELECT st.TrackID " +
                         "FROM SpotifyPlaylistTracks spt " +
                         "JOIN SpotifyTracks st " +
@@ -553,12 +556,11 @@ namespace Spotify_to_YTMusic.Components.Sql
                         "WHERE spt.PlaylistID = @SpotifyPlaylistID " +
                         "AND ypt.TrackID IS NULL",
                         new { SpotifyPlaylistID = spotifyPlaylistId, YoutubePlaylistID = YTPlaylistID })
-                        .ToList();
+                        .ToList(), null);
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Get GetUnsyncedTrackToRemoveSpotify error " + ex.Message);
-                    return null;
+                    return (null, ex.Message);
                 }
             }
         }

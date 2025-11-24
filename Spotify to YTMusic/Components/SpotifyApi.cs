@@ -323,7 +323,7 @@ namespace Spotify_to_YTMusic.Components
             string url = $"https://api.spotify.com/v1/playlists/{playlistId}/tracks?limit={limit}&offsset={offset}";
             int totalFetched = 0;
             int total = Int32.Parse(await GetPlaylistTrackLimitAsync(playlistId));
-            List<string> spotifyPlaylistTracks = MusicDBApi.GetAllSpotifyTrackInPlaylist(playlistId);
+            var spotifyPlaylistTracks = MusicDBApi.GetAllSpotifyTrackInPlaylist(playlistId);
             while (url != "null" || url != null)
             {
                 HttpResponseMessage responseMessage = await client.GetAsync(url).ConfigureAwait(false);
@@ -354,7 +354,7 @@ namespace Spotify_to_YTMusic.Components
                     string artist = item["track"]["artists"][0]["name"].ToString();
                     string trackID = item["track"]["id"].ToString();
                     IDs.Add(trackID);
-                    if (!spotifyPlaylistTracks.Contains(trackID))
+                    if (!spotifyPlaylistTracks.Tracks.Contains(trackID))
                     {
                         StoreTracksToSpotiftPlaylistDB(trackID, playlistId);
                         StoreTracksToDB(trackID, trackName, artist);
@@ -362,7 +362,7 @@ namespace Spotify_to_YTMusic.Components
                     }
                 }
                 //delete tracks from DB
-                foreach (var item in spotifyPlaylistTracks)
+                foreach (var item in spotifyPlaylistTracks.Tracks)
                 {
                     if (!IDs.Contains(item))
                     {
