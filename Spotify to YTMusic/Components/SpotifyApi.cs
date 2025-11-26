@@ -257,7 +257,7 @@ namespace Spotify_to_YTMusic.Components
         public async Task<bool> CheckSnapshotIdChangeAsync(string playlistId)
         {
             string newSnapshotId = await GetPlaylistSnapshotIdAsync(playlistId).ConfigureAwait(false);
-            string storedSnapshotId = MusicDBApi.GetOneSportifyPlaylists(playlistId).SnapshotID;
+            string storedSnapshotId = MusicDBApi.GetOneSportifyPlaylists(playlistId).Playlist.SnapshotID;
             if (storedSnapshotId == null)
             {
                 Console.WriteLine("No Spotify SnapshotID is stored");

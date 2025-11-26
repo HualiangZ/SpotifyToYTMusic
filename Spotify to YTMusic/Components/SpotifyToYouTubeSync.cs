@@ -92,9 +92,9 @@ namespace Spotify_to_YTMusic.Components
         public async Task<bool> SyncPlaylistAsyncWithYTID(string youtubePlaylistID)
         {
             var spotifyPlaylistId = MusicDBApi.GetSyncedPlaylistWithYouTube(youtubePlaylistID);
-            bool checkIsYouTubePlaylistinDB = MusicDBApi.GetOneYTPlaylist(youtubePlaylistID) != null;
-            if ((spotifyPlaylistId.PlaylistId == null && checkIsYouTubePlaylistinDB == false) 
-                || (spotifyPlaylistId.PlaylistId == "" && checkIsYouTubePlaylistinDB == false))
+            var checkIsYouTubePlaylistInDB = MusicDBApi.GetOneYTPlaylist(youtubePlaylistID);
+            if ((spotifyPlaylistId.PlaylistId == null && checkIsYouTubePlaylistInDB.Playlist == null) 
+                || (spotifyPlaylistId.PlaylistId == "" && checkIsYouTubePlaylistInDB.Playlist == null))
             {
                 string playlistName = await youtubeApi.StoreYouTubePlaylistToSQL(youtubePlaylistID).ConfigureAwait(false);
                 string playlistId = spotifyApi.CreatePlaylist(playlistName).Result.PlaylistID;
@@ -104,7 +104,7 @@ namespace Spotify_to_YTMusic.Components
                 MusicDBApi.PostPlaylistSync(playlistSync);
                 return await SyncYoutubeTracksToSpotify(youtubePlaylistID).ConfigureAwait(false);
             }
-            if (spotifyPlaylistId.PlaylistId != null && checkIsYouTubePlaylistinDB == true)
+            if (spotifyPlaylistId.PlaylistId != null && checkIsYouTubePlaylistInDB.Playlist != null)
             {
                 return await SyncYoutubeTracksToSpotify(youtubePlaylistID).ConfigureAwait(false);
             }
@@ -145,9 +145,9 @@ namespace Spotify_to_YTMusic.Components
         public async Task UpdateYTPlaylist()
         {
             var spotifyPlaylist = MusicDBApi.GetAllSportifyPlaylists();
-            if(spotifyPlaylist != null || spotifyPlaylist.Count() > 0)
+            if(spotifyPlaylist.Playlists != null || spotifyPlaylist.Playlists.Count() > 0)
             {
-                foreach (var playlist in spotifyPlaylist)
+                foreach (var playlist in spotifyPlaylist.Playlists)
                 {
                     if (spotifyApi.CheckSnapshotIdChangeAsync(playlist.PlaylistID).Result)
                     {

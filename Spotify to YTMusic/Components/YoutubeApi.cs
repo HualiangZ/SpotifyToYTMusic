@@ -138,8 +138,8 @@ namespace Spotify_to_YTMusic.Components
                 try
                 {
                     var track = MusicDBApi.GetTrackFromTYPlaylist(playlistId, videoId);
-                    await youtubeService.PlaylistItems.Delete(track.ID).ExecuteAsync().ConfigureAwait(false);
-                    MusicDBApi.DeleteYTTrackFromPlaylist(track);
+                    await youtubeService.PlaylistItems.Delete(track.Track.ID).ExecuteAsync().ConfigureAwait(false);
+                    MusicDBApi.DeleteYTTrackFromPlaylist(track.Track);
                     MusicDBApi.DeleteYouTubeTrack(videoId);
                     return;
                 }
