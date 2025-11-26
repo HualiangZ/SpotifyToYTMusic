@@ -19,9 +19,9 @@ namespace Spotify_to_YTMusic.Components
             {
                 while (true)
                 {
-                    Console.WriteLine("sleeping");
+                    //Console.WriteLine("sleeping");
                     Thread.Sleep(300000); //5 min sleep
-                    Console.WriteLine("sleep finish");
+                    //Console.WriteLine("sleep finish");
                     playlistSync.UpdateYTPlaylist().GetAwaiter();
                 }
             });

@@ -272,7 +272,7 @@ namespace Spotify_to_YTMusic.Components
 
             if (storedSnapshotId == newSnapshotId)
             {
-                Console.WriteLine("No changes in playlist");
+                //Console.WriteLine("No changes in playlist");
                 return false;
             }
 
