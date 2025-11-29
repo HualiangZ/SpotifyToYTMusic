@@ -3,6 +3,7 @@ using Spotify_to_YTMusic.Components.Sql.DataModel;
 using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
+using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -59,7 +60,6 @@ namespace Spotify_to_YTMusic.Components
         {
             var tracksToBeAdded = MusicDBApi.GetUnsyncedTrackToAddYouTube(spotifyPlaylistId);
             var youtubePlaylistID = MusicDBApi.GetSyncedPlaylistWithSpotify(spotifyPlaylistId);
-
             if (youtubePlaylistID.PlaylistId == null)
             {
                 return false;
@@ -70,11 +70,10 @@ namespace Spotify_to_YTMusic.Components
                 foreach (YouTubeTracks track in tracksToBeAdded.Tracks) 
                 {
                     var itemId =  await youtubeApi.AddTrackToPlaylist(youtubePlaylistID.PlaylistId, track.TrackID).ConfigureAwait(false);
-                    YouTubePlaylistTracks youTubeTracks = new YouTubePlaylistTracks();
-                    youTubeTracks.PlaylistID = youtubePlaylistID.PlaylistId;
-                    youTubeTracks.TrackID = track.TrackID;
-                    youTubeTracks.ID = itemId;
-                    MusicDBApi.PostYTTrackToPlaylist(youTubeTracks);
+                    if(itemId != null)
+                    {
+                        Console.WriteLine("Adding songs to YouTube playlist please wait...");
+                    }
                 }
             }
             var tracksToBeRemoved = MusicDBApi.GetUnsyncedTracksToRemoveYouTube(youtubePlaylistID.PlaylistId);

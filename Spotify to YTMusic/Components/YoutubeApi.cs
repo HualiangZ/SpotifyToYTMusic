@@ -104,6 +104,11 @@ namespace Spotify_to_YTMusic.Components
                     var request = youtubeService.Playlists.List("snippet");
                     request.Id = playlistId;
                     var response = await request.ExecuteAsync().ConfigureAwait(false);
+                    YouTubePlaylistTracks youTubeTracks = new YouTubePlaylistTracks();
+                    youTubeTracks.PlaylistID = playlistId;
+                    youTubeTracks.TrackID = videoId;
+                    youTubeTracks.ID = item.Id;
+                    MusicDBApi.PostYTTrackToPlaylist(youTubeTracks);
                     return item.Id;
                 }
                 catch (Exception ex)

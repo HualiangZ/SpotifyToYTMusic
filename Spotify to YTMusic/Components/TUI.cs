@@ -40,18 +40,24 @@ namespace Spotify_to_YTMusic.Components
             {
                 await SyncSpotifyToYouTubePlaylistAsync().ConfigureAwait(false);
             }
-            if(userResponce == "2")
+            else if(userResponce == "2")
             {
                 await SyncYouTubeToSpotifyPlaylistAsync().ConfigureAwait(false);
             }
-            if(userResponce == "3")
+            else if(userResponce == "3")
             {
                 await UpdatingYouTubePlaylistAsync().ConfigureAwait(false);
             }
-            if(userResponce == "4")
+            else if(userResponce == "4")
             {
                 await UpdateSpotifyPlaylist().ConfigureAwait(false);
             }
+            else
+            {
+                Console.WriteLine("Please enter a number between 1-4");
+                MenuAsync();
+            }
+
         }
         private async Task SyncSpotifyToYouTubePlaylistAsync()
         {

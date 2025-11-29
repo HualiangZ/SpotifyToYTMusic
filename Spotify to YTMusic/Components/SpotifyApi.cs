@@ -338,6 +338,8 @@ namespace Spotify_to_YTMusic.Components
                     }
                 }
 
+                Console.WriteLine("Storing Song to Database please wait....");
+
                 string json = await responseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
                 JObject data = JObject.Parse(json);
                 var items = data["items"];
