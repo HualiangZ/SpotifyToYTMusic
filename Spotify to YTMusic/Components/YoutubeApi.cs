@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Services;
 using Google.Apis.Upload;
@@ -225,7 +226,7 @@ namespace Spotify_to_YTMusic.Components
 
         public static void StoreTrackToYouTubeDB(string trackName, string artist)
         {
-            string url = $"https://www.youtube.com/results?search_query={trackName}+by+{artist}+%22topic%22";
+            string url = $"https://www.youtube.com/results?search_query={HttpUtility.UrlEncode(trackName)}+by+{HttpUtility.UrlEncode(artist)}+%22topic%22";
             YouTubeTracks tracks = new YouTubeTracks();
             tracks.TrackName = trackName;
             tracks.ArtistName = artist;

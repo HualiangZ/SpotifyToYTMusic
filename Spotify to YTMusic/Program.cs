@@ -7,6 +7,7 @@ using System.Buffers.Text;
 using System.Net;
 using System.Runtime.InteropServices.JavaScript;
 using System.Text;
+using System.Web;
 
 namespace Spotify_to_YTMusic
 {
@@ -15,11 +16,13 @@ namespace Spotify_to_YTMusic
     {
         static async Task Main(string[] args)
         {
-           /* SpotifyToYouTubeSync playlistSync = new SpotifyToYouTubeSync();
-            await playlistSync.Init();
-            await playlistSync.SyncPlaylistAsyncWithSpotifyID("3vzc1IWX4yE5txsMCXxGzS");*/
             TUI ui = new TUI();
             await ui.MenuAsync();
+
+            /*            string trackName = "别让爱凋落（Mylove 请别让爱凋落）";
+                        string artist = "卢润泽 ";
+                        string url = $"https://www.youtube.com/results?search_query={HttpUtility.UrlEncode(trackName)}+by+{HttpUtility.UrlEncode(artist)}+%22topic%22";
+                        Console.WriteLine(url);*/
 
         }
 
