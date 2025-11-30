@@ -55,7 +55,7 @@ namespace Spotify_to_YTMusic.Components
             else
             {
                 Console.WriteLine("Please enter a number between 1-4");
-                MenuAsync();
+                await MenuAsync();
             }
 
         }
