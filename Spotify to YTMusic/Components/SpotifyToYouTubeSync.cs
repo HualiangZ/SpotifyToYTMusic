@@ -67,13 +67,10 @@ namespace Spotify_to_YTMusic.Components
 
             if (tracksToBeAdded.Tracks != null) 
             {
+                Console.WriteLine("Adding songs to YouTube playlist please wait...");
                 foreach (YouTubeTracks track in tracksToBeAdded.Tracks) 
                 {
                     var itemId =  await youtubeApi.AddTrackToPlaylist(youtubePlaylistID.PlaylistId, track.TrackID).ConfigureAwait(false);
-                    if(itemId != null)
-                    {
-                        Console.WriteLine("Adding songs to YouTube playlist please wait...");
-                    }
                 }
             }
             var tracksToBeRemoved = MusicDBApi.GetUnsyncedTracksToRemoveYouTube(youtubePlaylistID.PlaylistId);
