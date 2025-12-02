@@ -1,12 +1,5 @@
 ﻿using Spotify_to_YTMusic.Components.Sql;
 using Spotify_to_YTMusic.Components.Sql.DataModel;
-using System;
-using System.Collections.Generic;
-using System.Data.SQLite;
-using System.Diagnostics.Metrics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Spotify_to_YTMusic.Components
 {
@@ -23,7 +16,7 @@ namespace Spotify_to_YTMusic.Components
         
         public async Task Init()
         {
-            await spotifyApi.GetAccessTokenAsync().ConfigureAwait(false);
+            await spotifyApi.GetAccessTokenAsync();
         }
 
         public async Task<bool> SyncPlaylistAsyncWithSpotifyID(string spotifyPlaylistId)

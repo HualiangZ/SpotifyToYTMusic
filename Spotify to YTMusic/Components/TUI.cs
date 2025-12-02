@@ -1,12 +1,4 @@
-﻿using Spotify_to_YTMusic.Components.Sql.DataModel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Xunit.Sdk;
-
-namespace Spotify_to_YTMusic.Components
+﻿namespace Spotify_to_YTMusic.Components
 {
     public class TUI
     {
