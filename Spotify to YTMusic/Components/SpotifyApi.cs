@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Google.Apis.Auth.OAuth2.Requests;
+using Google.Apis.YouTube.v3.Data;
+using Newtonsoft.Json.Linq;
 using Spotify_to_YTMusic.Components.Sql;
 using Spotify_to_YTMusic.Components.Sql.DataModel;
 using Spotify_to_YTMusic.Config;
@@ -6,6 +8,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Text;
+using static System.Net.WebRequestMethods;
 
 [assembly: InternalsVisibleTo("SpotifyToTYMusicTest")]
 

@@ -1,11 +1,20 @@
-﻿using Google.Apis.Auth.OAuth2;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
+using System.Threading.Tasks;
+using System.Web;
+using Google.Apis.Auth.OAuth2;
 using Google.Apis.Services;
+using Google.Apis.Upload;
 using Google.Apis.Util.Store;
 using Google.Apis.YouTube.v3;
 using Google.Apis.YouTube.v3.Data;
+using Microsoft.VisualBasic;
 using Spotify_to_YTMusic.Components.Sql;
 using Spotify_to_YTMusic.Components.Sql.DataModel;
-using System.Web;
 namespace Spotify_to_YTMusic.Components
 {
     public class YoutubeApi
@@ -93,14 +102,9 @@ namespace Spotify_to_YTMusic.Components
                 try
                 {
                     var item = await youtubeService.PlaylistItems.Insert(playlistItem, "snippet").ExecuteAsync().ConfigureAwait(false);
-                    
-                    //== not sure if need ==
                     var request = youtubeService.Playlists.List("snippet");
                     request.Id = playlistId;
                     var response = await request.ExecuteAsync().ConfigureAwait(false);
-                    //======================
-
-
                     YouTubePlaylistTracks youTubeTracks = new YouTubePlaylistTracks();
                     youTubeTracks.PlaylistID = playlistId;
                     youTubeTracks.TrackID = videoId;

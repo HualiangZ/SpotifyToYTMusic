@@ -1,7 +1,13 @@
 ﻿using Dapper;
+using Google.Apis.Util;
+using Google.Apis.YouTube.v3.Data;
 using Spotify_to_YTMusic.Components.Sql.DataModel;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
+using System.Linq;
+using System.Security.Cryptography.X509Certificates;
+using Xunit.Abstractions;
 
 namespace Spotify_to_YTMusic.Components.Sql
 {
