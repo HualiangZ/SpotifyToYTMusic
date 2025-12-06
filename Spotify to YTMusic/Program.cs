@@ -16,8 +16,10 @@ namespace Spotify_to_YTMusic
     {
         static async Task Main(string[] args)
         {
-            TUI ui = new TUI();
-            await ui.MenuAsync();
+            HttpClient client = new HttpClient();
+            SpotifyApi ui = new SpotifyApi(client);
+            await ui.GetAccessTokenAsync();
+            await ui.StorePlaylistInfoToDBAsync("5a7q5av1kX3ewlMwGuaQE3");
 
             /*            string trackName = "别让爱凋落（Mylove 请别让爱凋落）";
                         string artist = "卢润泽 ";

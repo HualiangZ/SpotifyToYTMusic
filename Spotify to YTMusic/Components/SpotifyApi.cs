@@ -324,13 +324,13 @@ namespace Spotify_to_YTMusic.Components
             int totalFetched = 0;
             int total = Int32.Parse(await GetPlaylistTrackLimitAsync(playlistId));
             var spotifyPlaylistTracks = MusicDBApi.GetAllSpotifyTrackInPlaylist(playlistId);
-            while (url != "null" || url != null)
+            while (url != "")
             {
-                HttpResponseMessage responseMessage = await client.GetAsync(url).ConfigureAwait(false);
+                HttpResponseMessage responseMessage = await client.GetAsync(url);
                 if (!responseMessage.IsSuccessStatusCode)
                 {
-                    await RefreshAccessToken().ConfigureAwait(false);
-                    responseMessage = await client.GetAsync(url).ConfigureAwait(false);
+                    await RefreshAccessToken();
+                    responseMessage = await client.GetAsync(url);
                     if (!responseMessage.IsSuccessStatusCode)
                     {
                         Console.WriteLine("Unable to get Access Token");
@@ -340,7 +340,7 @@ namespace Spotify_to_YTMusic.Components
 
                 Console.WriteLine("Storing Song to Database please wait....");
 
-                string json = await responseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
+                string json = await responseMessage.Content.ReadAsStringAsync();
                 JObject data = JObject.Parse(json);
                 var items = data["items"];
                 List<string> IDs = new List<string>();
@@ -378,10 +378,10 @@ namespace Spotify_to_YTMusic.Components
                 url = data["next"].ToString();
                 totalFetched += items.Count();
                 offset += items.Count();
-                if (items.Count() < limit)
-                {
-                    return true;
-                }
+                //if(url == "")
+                //{
+                //    break;
+                //}
             }//end of loop
             return true;
         }
