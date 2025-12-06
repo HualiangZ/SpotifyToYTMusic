@@ -378,10 +378,6 @@ namespace Spotify_to_YTMusic.Components
                 url = data["next"].ToString();
                 totalFetched += items.Count();
                 offset += items.Count();
-                //if(url == "")
-                //{
-                //    break;
-                //}
             }//end of loop
             return true;
         }

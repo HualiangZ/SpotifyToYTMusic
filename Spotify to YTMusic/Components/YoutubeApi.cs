@@ -101,10 +101,10 @@ namespace Spotify_to_YTMusic.Components
             {
                 try
                 {
-                    var item = await youtubeService.PlaylistItems.Insert(playlistItem, "snippet").ExecuteAsync().ConfigureAwait(false);
+                    var item = await youtubeService.PlaylistItems.Insert(playlistItem, "snippet").ExecuteAsync();
                     var request = youtubeService.Playlists.List("snippet");
                     request.Id = playlistId;
-                    var response = await request.ExecuteAsync().ConfigureAwait(false);
+                    var response = await request.ExecuteAsync();
                     YouTubePlaylistTracks youTubeTracks = new YouTubePlaylistTracks();
                     youTubeTracks.PlaylistID = playlistId;
                     youTubeTracks.TrackID = videoId;
@@ -114,7 +114,7 @@ namespace Spotify_to_YTMusic.Components
                 }
                 catch (Exception ex)
                 {
-                    await GetCredential().ConfigureAwait(false);
+                    await GetCredential();
                     retry--;
                     Console.WriteLine(retry);
                 }
@@ -226,7 +226,7 @@ namespace Spotify_to_YTMusic.Components
 
         public static void StoreTrackToYouTubeDB(string trackName, string artist)
         {
-            string url = $"https://www.youtube.com/results?search_query={HttpUtility.UrlEncode(trackName)}+by+{HttpUtility.UrlEncode(artist)}+%22topic%22";
+            string url = $"https://www.youtube.com/results?search_query={HttpUtility.UrlEncode(trackName)}+by+{HttpUtility.UrlEncode(artist)}+%22Topic%22";
             YouTubeTracks tracks = new YouTubeTracks();
             tracks.TrackName = trackName;
             tracks.ArtistName = artist;
