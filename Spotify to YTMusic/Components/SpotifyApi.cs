@@ -286,27 +286,6 @@ namespace Spotify_to_YTMusic.Components
 
         }
 
-        public async Task<string> GetPlaylistTrackLimitAsync(string PlaylistId)
-        {
-            string url = $"https://api.spotify.com/v1/playlists/{PlaylistId}/tracks";
-            HttpResponseMessage responseMessage = await client.GetAsync(url).ConfigureAwait(false);
-            if (!responseMessage.IsSuccessStatusCode)
-            {
-                await RefreshAccessToken().ConfigureAwait(false);
-                responseMessage = await client.GetAsync(url).ConfigureAwait(false);
-                if (!responseMessage.IsSuccessStatusCode)
-                {
-                    Console.WriteLine("Unable to get Access Token");
-                    return null;
-                }
-            }
-
-            string json = await responseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
-            JObject data = JObject.Parse(json);
-
-            return data["total"].ToString();
-        }
-
         /*
          * This method does four thing:
          * 1. Store Spotify tracks to DB
@@ -321,8 +300,6 @@ namespace Spotify_to_YTMusic.Components
             int limit = 100;
             int offset = 0;
             string url = $"https://api.spotify.com/v1/playlists/{playlistId}/tracks?limit={limit}&offsset={offset}";
-            int totalFetched = 0;
-            int total = Int32.Parse(await GetPlaylistTrackLimitAsync(playlistId));
             var spotifyPlaylistTracks = MusicDBApi.GetAllSpotifyTrackInPlaylist(playlistId);
             while (url != "")
             {
@@ -376,8 +353,6 @@ namespace Spotify_to_YTMusic.Components
                 }
 
                 url = data["next"].ToString();
-                totalFetched += items.Count();
-                offset += items.Count();
             }//end of loop
             return true;
         }
