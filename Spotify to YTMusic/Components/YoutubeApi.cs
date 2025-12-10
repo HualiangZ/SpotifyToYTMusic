@@ -144,7 +144,7 @@ namespace Spotify_to_YTMusic.Components
                 try
                 {
                     var track = MusicDBApi.GetTrackFromTYPlaylist(playlistId, videoId);
-                    await youtubeService.PlaylistItems.Delete(track.Track.ID).ExecuteAsync().ConfigureAwait(false);
+                    await youtubeService.PlaylistItems.Delete(track.Track.ID).ExecuteAsync();
                     MusicDBApi.DeleteYTTrackFromPlaylist(track.Track);
                     MusicDBApi.DeleteYouTubeTrack(videoId);
                     return;
@@ -174,7 +174,7 @@ namespace Spotify_to_YTMusic.Components
                 var playlist = new PlaylistItem();
                 playlist.Snippet = new PlaylistItemSnippet();
                 playlist.Snippet.PlaylistId = playlistId;
-                var playlistItemsResponse = await playlistItemsRequest.ExecuteAsync().ConfigureAwait(false);
+                var playlistItemsResponse = await playlistItemsRequest.ExecuteAsync();
                 if(dontloop == false)
                 {
                     StorePlaylistToDB(playlist.Snippet.Title, playlistId);
@@ -184,8 +184,7 @@ namespace Spotify_to_YTMusic.Components
                 foreach (var item in playlistItemsResponse.Items)
                 {
                     Console.WriteLine($"{item.Snippet.ResourceId.VideoId}");
-                    await GetTrackTitleAndArtistNameAsync(playlistId, item.Snippet.ResourceId.VideoId, item.Id).ConfigureAwait(false);
-
+                    await GetTrackTitleAndArtistNameAsync(playlistId, item.Snippet.ResourceId.VideoId, item.Id);
                 }
                 nextPageToken = playlistItemsResponse.NextPageToken;
             } 
