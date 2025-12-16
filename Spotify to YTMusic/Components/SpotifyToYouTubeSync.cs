@@ -140,6 +140,8 @@ namespace Spotify_to_YTMusic.Components
         //update youtube playlist when spotify snapshot ID chagnes
         public async Task UpdateYTPlaylist()
         {
+            var semaphore = new SemaphoreSlim(1);
+            await semaphore.WaitAsync();
             var spotifyPlaylist = MusicDBApi.GetAllSportifyPlaylists();
             if(spotifyPlaylist.Playlists != null || spotifyPlaylist.Playlists.Count() > 0)
             {
@@ -147,10 +149,11 @@ namespace Spotify_to_YTMusic.Components
                 {
                     if (spotifyApi.CheckSnapshotIdChangeAsync(playlist.PlaylistID).Result)
                     {
-                        await SyncPlaylistAsyncWithSpotifyID(playlist.PlaylistID).ConfigureAwait(false);
+                        await SyncPlaylistAsyncWithSpotifyID(playlist.PlaylistID);
                     }
                 }
             }
+            semaphore.Release();
         }
     }
 }
