@@ -18,9 +18,16 @@ namespace Spotify_to_YTMusic
         {
             TUI ui = new TUI();
             await ui.MenuAsync();
-            /*            string trackName = "别让爱凋落（Mylove 请别让爱凋落）";
+            /*            string trackName = "别让爱凋落（Mylove - 请别让爱凋落）";
+                        string trackName2 = "SLUMP -Japanese ver.-";
+                        string s = "";
+                        if (trackName2.Contains('-'))
+                        {
+                            s = trackName2.Replace("-", " ");
+                        }
                         string artist = "卢润泽 ";
-                        string url = $"https://www.youtube.com/results?search_query={HttpUtility.UrlEncode(trackName)}+by+{HttpUtility.UrlEncode(artist)}+%22topic%22";
+                        string artist2 = "Stray Kids";
+                        string url = $"https://www.youtube.com/results?search_query={HttpUtility.UrlEncode(s)}+by+{HttpUtility.UrlEncode(artist2)}+%22topic%22";
                         Console.WriteLine(url);*/
 
         }

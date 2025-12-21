@@ -96,7 +96,7 @@ namespace Spotify_to_YTMusic.Components
         {
             Console.WriteLine("Enter Spotify playlist ID");
             string spotifyPlaylistId = Console.ReadLine();
-            bool isUpdateComplete = playlistSync.SyncSpotifyTracksToYoutube(spotifyPlaylistId).Result;
+            bool isUpdateComplete = await playlistSync.SyncSpotifyTracksToYoutube(spotifyPlaylistId).ConfigureAwait(false);
             if (isUpdateComplete)
             {
                 Console.WriteLine($"{spotifyPlaylistId} has synced with YouTube playlist");
@@ -110,7 +110,7 @@ namespace Spotify_to_YTMusic.Components
         {
             Console.WriteLine("Enter YouTube playlist ID");
             string youtubePlaylistId = Console.ReadLine();
-            bool isUpdateComplete = playlistSync.SyncYoutubeTracksToSpotify(youtubePlaylistId).Result;
+            bool isUpdateComplete = await playlistSync.SyncYoutubeTracksToSpotify(youtubePlaylistId).ConfigureAwait(false);
             if (isUpdateComplete)
             {
                 Console.WriteLine($"{youtubePlaylistId} has synced with YouTube playlist");

@@ -349,6 +349,7 @@ namespace Spotify_to_YTMusic.Components
                         toBeDeleted.PlaylistID = playlistId;
                         toBeDeleted.TrackID = item;
                         MusicDBApi.DeleteSpotifyTrackFromPlaylist(toBeDeleted);
+                        MusicDBApi.DeleteSpotifyTrack(item);
                     }
                 }
 

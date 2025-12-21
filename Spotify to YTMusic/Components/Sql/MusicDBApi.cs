@@ -62,13 +62,13 @@ namespace Spotify_to_YTMusic.Components.Sql
 
             }
         }
-        public static (bool Success, string Err) DeleteSpotifyTrack(SpotifyTracks playlistTrack)
+        public static (bool Success, string Err) DeleteSpotifyTrack(string trackId)
         {
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 try
                 {
-                    cnn.Execute("DELETE FROM SpotifyTracks WHERE TrackID = @TrackID AND TrackName = @TrackName AND ArtistName = @ArtistName", playlistTrack);
+                    cnn.Execute("DELETE FROM SpotifyTracks WHERE TrackID = @TrackID", new { TrackID = trackId });
                     return (true, null);
                 }
                 catch (Exception ex)
