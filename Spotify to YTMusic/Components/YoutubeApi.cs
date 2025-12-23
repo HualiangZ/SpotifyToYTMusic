@@ -61,14 +61,14 @@ namespace Spotify_to_YTMusic.Components
             {
                 try
                 {
-                    var playlistResponse = await youtubeService.Playlists.Insert(newPlaylist, "snippet,status").ExecuteAsync().ConfigureAwait(false);
+                    var playlistResponse = await youtubeService.Playlists.Insert(newPlaylist, "snippet,status").ExecuteAsync();
                     Console.WriteLine($"{playlistResponse.Id}");
                     StorePlaylistToDB(playlistName, playlistResponse.Id);
                     return playlistResponse.Id;
                 }
                 catch (Exception ex)
                 {
-                    await GetCredential().ConfigureAwait(false);
+                    await GetCredential();
                     retry--;
                     Console.WriteLine(retry);
                 }
@@ -152,7 +152,7 @@ namespace Spotify_to_YTMusic.Components
                 }
                 catch (Exception ex)
                 {
-                    await GetCredential().ConfigureAwait(false);
+                    await GetCredential();
                     retry--;
                     Console.WriteLine(ex);
                 }

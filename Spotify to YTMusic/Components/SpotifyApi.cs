@@ -209,11 +209,11 @@ namespace Spotify_to_YTMusic.Components
             client.DefaultRequestHeaders.Clear();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
             string url = $"https://api.spotify.com/v1/playlists/{playlistId}";
-            HttpResponseMessage responseMessage = await client.GetAsync(url).ConfigureAwait(false);
+            HttpResponseMessage responseMessage = await client.GetAsync(url);
             if (!responseMessage.IsSuccessStatusCode)
             {
-                await RefreshAccessToken().ConfigureAwait(false);
-                responseMessage = await client.GetAsync(url).ConfigureAwait(false);
+                await RefreshAccessToken();
+                responseMessage = await client.GetAsync(url);
                 if (!responseMessage.IsSuccessStatusCode)
                 {
                     Console.WriteLine("Unable to get Access Token");
@@ -221,12 +221,12 @@ namespace Spotify_to_YTMusic.Components
                 }
             }
 
-            string json = await responseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
+            string json = await responseMessage.Content.ReadAsStringAsync();
             JObject data = JObject.Parse(json);
             var sportifyPlaylist = new SpotifyPlaylistsModels();
             sportifyPlaylist.PlaylistID = playlistId;
             sportifyPlaylist.Name = data["name"].ToString();
-            sportifyPlaylist.SnapshotID = await GetPlaylistSnapshotIdAsync(playlistId).ConfigureAwait(false);
+            sportifyPlaylist.SnapshotID = await GetPlaylistSnapshotIdAsync(playlistId);
             MusicDBApi.PostSpotifyPlaylist(sportifyPlaylist);
             return sportifyPlaylist.Name;
         }
@@ -256,7 +256,7 @@ namespace Spotify_to_YTMusic.Components
 
         public async Task<bool> CheckSnapshotIdChangeAsync(string playlistId)
         {
-            string newSnapshotId = await GetPlaylistSnapshotIdAsync(playlistId).ConfigureAwait(false);
+            string newSnapshotId = await GetPlaylistSnapshotIdAsync(playlistId);
             string storedSnapshotId = MusicDBApi.GetOneSportifyPlaylists(playlistId).Playlist.SnapshotID;
             if (storedSnapshotId == null)
             {
@@ -301,6 +301,7 @@ namespace Spotify_to_YTMusic.Components
             int offset = 0;
             string url = $"https://api.spotify.com/v1/playlists/{playlistId}/tracks?limit={limit}&offsset={offset}";
             var spotifyPlaylistTracks = MusicDBApi.GetAllSpotifyTrackInPlaylist(playlistId);
+            List<string> IDs = new List<string>();
             while (url != "")
             {
                 HttpResponseMessage responseMessage = await client.GetAsync(url);
@@ -320,7 +321,7 @@ namespace Spotify_to_YTMusic.Components
                 string json = await responseMessage.Content.ReadAsStringAsync();
                 JObject data = JObject.Parse(json);
                 var items = data["items"];
-                List<string> IDs = new List<string>();
+                
                 if (items == null || items.Count() == 0)
                 {
                     Console.WriteLine("Playlist empty");
@@ -335,27 +336,33 @@ namespace Spotify_to_YTMusic.Components
                     IDs.Add(trackID);
                     if (!spotifyPlaylistTracks.Tracks.Contains(trackID))
                     {
-                        StoreTracksToSpotiftPlaylistDB(trackID, playlistId);
                         StoreTracksToDB(trackID, trackName, artist);
+                        StoreTracksToSpotiftPlaylistDB(trackID, playlistId);
                         YoutubeApi.StoreTrackToYouTubeDB(trackName, artist);
                     }
                 }
-                //delete tracks from DB
-                foreach (var item in spotifyPlaylistTracks.Tracks)
-                {
-                    if (!IDs.Contains(item))
-                    {
-                        SpotifyPlaylistTracks toBeDeleted = new SpotifyPlaylistTracks();
-                        toBeDeleted.PlaylistID = playlistId;
-                        toBeDeleted.TrackID = item;
-                        MusicDBApi.DeleteSpotifyTrackFromPlaylist(toBeDeleted);
-                        MusicDBApi.DeleteSpotifyTrack(item);
-                    }
-                }
-
                 url = data["next"].ToString();
             }//end of loop
+
+            //delete tracks from DB
+            DeleteTracksFromPlaylist(spotifyPlaylistTracks.Tracks, IDs, playlistId);
+
             return true;
+        }
+
+        private void DeleteTracksFromPlaylist(List<string> oldTracks, List<string> newTracks, string playlistId)
+        {
+            foreach (var item in oldTracks)
+            {
+                if (!newTracks.Contains(item))
+                {
+                    SpotifyPlaylistTracks toBeDeleted = new SpotifyPlaylistTracks();
+                    toBeDeleted.PlaylistID = playlistId;
+                    toBeDeleted.TrackID = item;
+                    MusicDBApi.DeleteSpotifyTrackFromPlaylist(toBeDeleted);
+                    MusicDBApi.DeleteSpotifyTrack(item);
+                }
+            }
         }
 
         public async Task<string> DeleteTrackFromPlaylist(string playlistId, string[] trackIDs)
@@ -390,14 +397,14 @@ namespace Spotify_to_YTMusic.Components
             };
 
             var response = await client.SendAsync(request);
-            string json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            string json = await response.Content.ReadAsStringAsync();
             if (response.IsSuccessStatusCode)
             {
 
                 JObject data = JObject.Parse(json);
                 Console.WriteLine("Track removed successfully!");
                 SpotifyPlaylistTracks track = new SpotifyPlaylistTracks();
-                await StorePlaylistInfoToDBAsync(playlistId).ConfigureAwait(false);
+                await StorePlaylistInfoToDBAsync(playlistId);
                 return data["snapshot_id"].ToString();
             }
             else
@@ -435,13 +442,13 @@ namespace Spotify_to_YTMusic.Components
             var content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
 
             var response = await client.PostAsync($"https://api.spotify.com/v1/playlists/{playlistId}/tracks", content);
-            string json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            string json = await response.Content.ReadAsStringAsync();
             if (response.IsSuccessStatusCode)
             {
                 JObject data = JObject.Parse(json);
                 Console.WriteLine("Track addded successfully!");
                 SpotifyPlaylistTracks track = new SpotifyPlaylistTracks();
-                await StorePlaylistInfoToDBAsync(playlistId).ConfigureAwait(false);
+                await StorePlaylistInfoToDBAsync(playlistId);
                 return data["snapshot_id"].ToString();
             }
             else
@@ -475,18 +482,18 @@ namespace Spotify_to_YTMusic.Components
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
             string encodedQuery = Uri.EscapeDataString($"{_trackName} by {artistName}");
             string url = $"https://api.spotify.com/v1/search?q={encodedQuery}&type=track";
-            HttpResponseMessage responseMessage = await client.GetAsync(url).ConfigureAwait(false);
+            HttpResponseMessage responseMessage = await client.GetAsync(url);
             if (!responseMessage.IsSuccessStatusCode)
             {
-                await RefreshAccessToken().ConfigureAwait(false);
-                responseMessage = await client.GetAsync(url).ConfigureAwait(false);
+                await RefreshAccessToken();
+                responseMessage = await client.GetAsync(url);
                 if (!responseMessage.IsSuccessStatusCode)
                 {
                     Console.WriteLine("Unable to get Access Token");
                     return null;
                 }
             }
-            string json = await responseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
+            string json = await responseMessage.Content.ReadAsStringAsync();
             JObject data = JObject.Parse(json);
             var items = data["tracks"]["items"];
             string trackName = items[0]["name"].ToString();

@@ -565,5 +565,14 @@ namespace Spotify_to_YTMusic.Components.Sql
             }
         }
 
+        public static List<string> test1()
+        {
+            using (IDbConnection cnn = new SQLiteConnection(cnnString))
+            {
+                return (cnn.Query<string>(
+                    "SELECT TrackID FROM SpotifyPlaylistTracks WHERE TrackID NOT IN (SELECT TrackID FROM SpotifyTracks)").ToList());
+            }
+        }
+
     }
 }
