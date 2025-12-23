@@ -35,10 +35,10 @@ namespace Spotify_to_YTMusic.Components
             {
                 
                 string playlistId = youtubePlaylistId;
-                //string newYoutubePlaylistId = await youtubeApi.CreateNewPlaylist(playlistName);
+                string newYoutubePlaylistId = await youtubeApi.CreateNewPlaylist(playlistName);
                 PlaylistSync newPlaylistSync = new PlaylistSync();
                 newPlaylistSync.SpotifyPlaylistID = spotifyPlaylistId;
-                newPlaylistSync.YTPlaylistID = "newYoutubePlaylistId";
+                newPlaylistSync.YTPlaylistID = newYoutubePlaylistId;
                 MusicDBApi.PostPlaylistSync(newPlaylistSync);
                 return await SyncSpotifyTracksToYoutube(spotifyPlaylistId);
             }
@@ -63,18 +63,18 @@ namespace Spotify_to_YTMusic.Components
             if (tracksToBeAdded.Tracks != null) 
             {
                 Console.WriteLine("Adding songs to YouTube playlist please wait...");
-                //foreach (YouTubeTracks track in tracksToBeAdded.Tracks)
-                //{
-                //    var itemId = await youtubeApi.AddTrackToPlaylist(youtubePlaylistID.PlaylistId, track.TrackID);
-                //}
+                foreach (YouTubeTracks track in tracksToBeAdded.Tracks)
+                {
+                    var itemId = await youtubeApi.AddTrackToPlaylist(youtubePlaylistID.PlaylistId, track.TrackID);
+                }
             }
             var tracksToBeRemoved = MusicDBApi.GetUnsyncedTracksToRemoveYouTube(youtubePlaylistID.PlaylistId);
             if (tracksToBeRemoved.Tracks != null)
             {
-                //foreach (YouTubeTracks track in tracksToBeRemoved.Tracks)
-                //{
-                //    await youtubeApi.DeleteItemFromPlaylistAsync(youtubePlaylistID.PlaylistId, track.TrackID);
-                //}
+                foreach (YouTubeTracks track in tracksToBeRemoved.Tracks)
+                {
+                    await youtubeApi.DeleteItemFromPlaylistAsync(youtubePlaylistID.PlaylistId, track.TrackID);
+                }
             }
             return true;
 
