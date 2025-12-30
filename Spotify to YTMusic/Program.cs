@@ -22,14 +22,9 @@ namespace Spotify_to_YTMusic
             //Console.WriteLine(MusicDBApi.GetAllSpotifyTrackInPlaylist("5a7q5av1kX3ewlMwGuaQE3").Tracks[0]);
             /*            string trackName = "别让爱凋落（Mylove - 请别让爱凋落）";
                         string trackName2 = "SLUMP -Japanese ver.-";
-                        string s = "";
-                        if (trackName2.Contains('-'))
-                        {
-                            s = trackName2.Replace("-", " ");
-                        }
                         string artist = "卢润泽 ";
                         string artist2 = "Stray Kids";
-                        string url = $"https://www.youtube.com/results?search_query={HttpUtility.UrlEncode(s)}+by+{HttpUtility.UrlEncode(artist2)}+%22topic%22";
+                        string url = $"https://www.youtube.com/results?search_query=%22{HttpUtility.UrlEncode(trackName2.ToLower())}%22+by+%22{HttpUtility.UrlEncode(artist2.ToLower())}%22+%22Topic%22";
                         Console.WriteLine(url);*/
 
         }
