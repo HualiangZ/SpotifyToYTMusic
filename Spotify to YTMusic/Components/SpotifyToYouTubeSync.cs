@@ -1,4 +1,5 @@
-﻿using Spotify_to_YTMusic.Components.Sql;
+﻿using Google.Apis.YouTube.v3.Data;
+using Spotify_to_YTMusic.Components.Sql;
 using Spotify_to_YTMusic.Components.Sql.DataModel;
 using System;
 using System.Collections.Generic;
@@ -53,21 +54,25 @@ namespace Spotify_to_YTMusic.Components
         public async Task<bool> SyncSpotifyTracksToYoutube(string spotifyPlaylistId)
         {
             await spotifyApi.StorePlaylistInfoToDBAsync(spotifyPlaylistId);
-            var tracksToBeAdded = MusicDBApi.GetUnsyncedTrackToAddYouTube(spotifyPlaylistId);
+            var tracks = MusicDBApi.GetUnsyncedTrackToAddYouTube(spotifyPlaylistId);
             var youtubePlaylistID = MusicDBApi.GetSyncedPlaylistWithSpotify(spotifyPlaylistId);
             if (youtubePlaylistID.PlaylistId == null)
             {
                 return false;
             }
-
-            if (tracksToBeAdded.Tracks != null) 
+            if(tracks.Tracks.Count != 0)
             {
-                Console.WriteLine("Adding songs to YouTube playlist please wait...");
-                foreach (YouTubeTracks track in tracksToBeAdded.Tracks)
+                var tracksToAdd = CheckVideoIdManually(tracks.Tracks);
+                if (tracksToAdd != null)
                 {
-                    var itemId = await youtubeApi.AddTrackToPlaylist(youtubePlaylistID.PlaylistId, track.TrackID);
+                    Console.WriteLine("Adding songs to YouTube playlist please wait...");
+                    foreach (YouTubeTracks track in tracksToAdd)
+                    {
+                        var itemId = await youtubeApi.AddTrackToPlaylist(youtubePlaylistID.PlaylistId, track.TrackID);
+                    }
                 }
             }
+
             var tracksToBeRemoved = MusicDBApi.GetUnsyncedTracksToRemoveYouTube(youtubePlaylistID.PlaylistId);
             if (tracksToBeRemoved.Tracks != null)
             {
@@ -78,6 +83,74 @@ namespace Spotify_to_YTMusic.Components
             }
             return true;
 
+        }
+
+        private List<YouTubeTracks> CheckVideoIdManually(List<YouTubeTracks> tracks)
+        {
+            int count = 1;
+            foreach(YouTubeTracks track in tracks)
+            {
+                Console.WriteLine($"{count}: {track.TrackID}, {track.TrackName}");
+            }
+            Console.WriteLine($"Do you want to change the Video Id, the video ID may not be the same as the track name" +
+                $" check on youtube to see if it's the same (Y/N) ");
+            
+            string response = Console.ReadLine();
+            if(response.ToUpper() == "Y")
+            {
+                bool change = true;
+                while (change)
+                {
+                    Console.WriteLine($"Enter the number you want to change or type 0 if you no longer want to change video IDs");
+                    bool validIndex = false;
+                    while (!validIndex)
+                    {
+                        try
+                        {
+                            int index = Int32.Parse(Console.ReadLine());
+                            if (index == 0)
+                            {
+                                validIndex = true;
+                                break;
+                            }
+                            if (index <= tracks.Count)
+                            {
+                                tracks = ChangeVideoId(index, tracks);
+                                validIndex = true;
+                                break;
+                            }
+                        }
+                        catch
+                        {
+                            Console.WriteLine("Enter a valid number.");
+                        }
+                    }
+                    Console.WriteLine("Do you want to change another track? (Y/N)");
+                    if(Console.ReadLine().ToUpper() == "N")
+                    {
+                        change = false;
+                        break;
+                    }
+                }
+            }
+
+            return tracks;
+        }
+
+        private List<YouTubeTracks> ChangeVideoId(int index, List<YouTubeTracks> tracks)
+        {
+            Console.WriteLine("Enter a new VideoId: ");
+            string newVideoId = Console.ReadLine();
+            YouTubeTracks newTrack = new YouTubeTracks();
+            newTrack.TrackID = newVideoId;
+            newTrack.TrackName = tracks[index-1].TrackName;
+            newTrack.ArtistName = tracks[index-1].ArtistName;
+
+            MusicDBApi.PostYouTubeTrack(newTrack);
+            MusicDBApi.DeleteYouTubeTrack(tracks[index - 1].TrackID);
+            
+            tracks[index - 1] = newTrack;
+            return tracks;
         }
 
         public async Task<bool> SyncPlaylistAsyncWithYTID(string youtubePlaylistID)

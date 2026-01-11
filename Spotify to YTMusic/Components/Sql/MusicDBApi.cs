@@ -451,7 +451,7 @@ namespace Spotify_to_YTMusic.Components.Sql
                 try
                 {
                     return (cnn.Query<YouTubeTracks>(
-                        "SELECT yt.TrackID " +
+                        "SELECT yt.* " +
                         "FROM SpotifyPlaylistTracks spt " +
                         "JOIN SpotifyTracks st " +
                         "ON st.TrackID = spt.TrackID " +
@@ -481,7 +481,7 @@ namespace Spotify_to_YTMusic.Components.Sql
                 try
                 {
                     return (cnn.Query<YouTubeTracks>(
-                        "SELECT yt.TrackID " +
+                        "SELECT yt.* " +
                         "FROM YoutubePlaylistTracks ypt " +
                         "JOIN YouTubeTracks yt " +
                         "ON ypt.TrackID = yt.TrackID " +
@@ -512,7 +512,7 @@ namespace Spotify_to_YTMusic.Components.Sql
                 try
                 {
                     return (cnn.Query<SpotifyTracks>(
-                        "SELECT st.TrackID " +
+                        "SELECT st.* " +
                         "FROM YoutubePlaylistTracks ypt " +
                         "JOIN YouTubeTracks yt " +
                         "ON ypt.TrackID = yt.TrackID " +
@@ -543,7 +543,7 @@ namespace Spotify_to_YTMusic.Components.Sql
                 try
                 {
                     return (cnn.Query<SpotifyTracks>(
-                        "SELECT st.TrackID " +
+                        "SELECT st.* " +
                         "FROM SpotifyPlaylistTracks spt " +
                         "JOIN SpotifyTracks st " +
                         "ON st.TrackID = spt.TrackID " +
