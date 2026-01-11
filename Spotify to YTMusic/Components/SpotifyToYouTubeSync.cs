@@ -91,6 +91,7 @@ namespace Spotify_to_YTMusic.Components
             foreach(YouTubeTracks track in tracks)
             {
                 Console.WriteLine($"{count}: {track.TrackID}, {track.TrackName}");
+                count++;
             }
             Console.WriteLine($"Do you want to change the Video Id, the video ID may not be the same as the track name" +
                 $" check on youtube to see if it's the same (Y/N) ");
