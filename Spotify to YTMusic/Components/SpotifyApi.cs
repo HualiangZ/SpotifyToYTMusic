@@ -4,6 +4,7 @@ using Newtonsoft.Json.Linq;
 using Spotify_to_YTMusic.Components.Sql;
 using Spotify_to_YTMusic.Components.Sql.DataModel;
 using Spotify_to_YTMusic.Config;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
@@ -45,8 +46,11 @@ namespace Spotify_to_YTMusic.Components
             $"&redirect_uri={Uri.EscapeDataString(RedirectURL)}" +
             $"&scope={Uri.EscapeDataString(scopes)}";
 
-            Console.WriteLine("Open this URL in your browser:");
-            Console.WriteLine(authUrl);
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = authUrl,
+                UseShellExecute = true
+            });
 
             // Wait for the code after login
             string authorizationCode = await WaitForSpotifyCallback();

@@ -25,6 +25,7 @@ namespace Spotify_to_YTMusic.Components
         public async Task Init()
         {
             await spotifyApi.GetAccessTokenAsync().ConfigureAwait(false);
+            await youtubeApi.GetCredential().ConfigureAwait(false);
         }
 
         public async Task<bool> SyncPlaylistAsyncWithSpotifyID(string spotifyPlaylistId)

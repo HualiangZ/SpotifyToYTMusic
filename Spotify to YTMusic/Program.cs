@@ -5,6 +5,7 @@ using Spotify_to_YTMusic.Components;
 using Spotify_to_YTMusic.Components.Sql;
 using Spotify_to_YTMusic.Components.Sql.DataModel;
 using System.Buffers.Text;
+using System.Diagnostics;
 using System.Net;
 using System.Runtime.InteropServices.JavaScript;
 using System.Text;
