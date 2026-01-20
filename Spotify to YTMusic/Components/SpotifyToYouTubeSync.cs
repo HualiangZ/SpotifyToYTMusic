@@ -4,10 +4,13 @@ using Spotify_to_YTMusic.Components.Sql.DataModel;
 using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
+using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+
 
 namespace Spotify_to_YTMusic.Components
 {
@@ -85,7 +88,6 @@ namespace Spotify_to_YTMusic.Components
             return true;
 
         }
-
         private List<YouTubeTracks> CheckVideoIdManually(List<YouTubeTracks> tracks)
         {
             int count = 1;
@@ -97,6 +99,8 @@ namespace Spotify_to_YTMusic.Components
             Console.WriteLine($"Do you want to change the Video Id, the video ID may not be the same as the track name" +
                 $" check on youtube to see if it's the same (Y/N) ");
             
+            
+
             string response = Console.ReadLine();
             if(response.ToUpper() == "Y")
             {
