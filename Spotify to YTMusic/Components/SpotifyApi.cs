@@ -334,16 +334,16 @@ namespace Spotify_to_YTMusic.Components
                 //add new tracks to DB
                 foreach (var item in items)
                 {
-                    string trackName = item["track"]["name"].ToString();
-                    string artist = item["track"]["artists"][0]["name"].ToString();
-                    string trackID = item["track"]["id"].ToString();
-                    IDs.Add(trackID);
-                    if (!spotifyPlaylistTracks.Tracks.Contains(trackID))
-                    {
-                        StoreTracksToDB(trackID, trackName, artist);
-                        StoreTracksToSpotiftPlaylistDB(trackID, playlistId);
-                        YoutubeApi.StoreTrackToYouTubeDB(trackName, artist);
-                    }
+                    AddTracksToPlaylist
+                        (
+                        item["track"]["name"].ToString(), 
+                        item["track"]["artists"][0]["name"].ToString(),
+                        item["track"]["id"].ToString(),
+                        spotifyPlaylistTracks.Tracks, 
+                        playlistId
+                        );
+                    IDs.Add(item["track"]["id"].ToString());
+
                 }
                 url = data["next"].ToString();
             }//end of loop
@@ -352,6 +352,20 @@ namespace Spotify_to_YTMusic.Components
             DeleteTracksFromPlaylist(spotifyPlaylistTracks.Tracks, IDs, playlistId);
 
             return true;
+        }
+
+        private void AddTracksToPlaylist(string _trackName, string _artist, string _trackID, List<string> tracks, string playlistId)
+        {
+            string trackName = _trackName;
+            string artist = _artist;
+            string trackID = _trackID;
+            
+            if (!tracks.Contains(trackID))
+            {
+                StoreTracksToDB(trackID, trackName, artist);
+                StoreTracksToSpotiftPlaylistDB(trackID, playlistId);
+                YoutubeApi.StoreTrackToYouTubeDB(trackName, artist);
+            }
         }
 
         private void DeleteTracksFromPlaylist(List<string> oldTracks, List<string> newTracks, string playlistId)
