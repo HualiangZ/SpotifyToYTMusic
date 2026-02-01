@@ -93,7 +93,7 @@ namespace Spotify_to_YTMusic.Components
             int count = 1;
             foreach(YouTubeTracks track in tracks)
             {
-                Console.WriteLine($"{count}: {track.TrackID}, {track.TrackName}");
+                Console.WriteLine($"{count}: https://music.youtube.com/watch?v={track.TrackID}, {track.TrackName}");
                 count++;
             }
             Console.WriteLine($"Do you want to change the Video Id, the video ID may not be the same as the track name" +
@@ -102,7 +102,7 @@ namespace Spotify_to_YTMusic.Components
             
 
             string response = Console.ReadLine();
-            if(response.ToUpper() == "Y")
+            if(response.ToUpper() == "Y" || response.ToUpper() == "YES")
             {
                 bool change = true;
                 while (change)
