@@ -456,9 +456,10 @@ namespace Spotify_to_YTMusic.Components
 
             var body = new
             {
-                uris = trackUriArr,
+                uris = trackUriList,
             };
             string jsonBody = System.Text.Json.JsonSerializer.Serialize(body);
+            Console.WriteLine(jsonBody);
             var content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
 
             var response = await client.PostAsync($"https://api.spotify.com/v1/playlists/{playlistId}/tracks", content);
@@ -473,7 +474,7 @@ namespace Spotify_to_YTMusic.Components
             }
             else
             {
-                Console.WriteLine($"Error removing track: {response.StatusCode}\n{json}");
+                Console.WriteLine($"Error add track: {response.StatusCode}\n{json}");
                 return null;
             }
         }

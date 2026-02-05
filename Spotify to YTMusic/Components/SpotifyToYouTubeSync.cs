@@ -185,9 +185,10 @@ namespace Spotify_to_YTMusic.Components
         //youtube -> spotify
         public async Task<bool> SyncYoutubeTracksToSpotify(string youtubePlaylistId)
         {
+            await youtubeApi.StoreYouTubePlaylistToSQL(youtubePlaylistId).ConfigureAwait(false);
             List<YouTubeTracks> missisngTrack = MusicDBApi.GetUnsyncedTrackToAddSpotify(youtubePlaylistId).Tracks;
             var spotifyId = MusicDBApi.GetSyncedPlaylistWithYouTube(youtubePlaylistId).PlaylistId;
-
+            Console.WriteLine(missisngTrack.Count);
             while (missisngTrack.Count != 0)
             {
                 List<SpotifyTracks> spotifyTracks = new List<SpotifyTracks>();
@@ -213,7 +214,7 @@ namespace Spotify_to_YTMusic.Components
                 }
 
                 await spotifyApi.AddTrackToPlaylist(spotifyId, spotifyTrackId.ToArray()).ConfigureAwait(false);
-            } 
+            }
 
 
             List<SpotifyTracks> spotifyTrackToDelete = MusicDBApi.GetUnsyncedTrackToRemoveSpotify(youtubePlaylistId).Tracks;
