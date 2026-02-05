@@ -504,15 +504,15 @@ namespace Spotify_to_YTMusic.Components.Sql
             }
         }
 
-        public static (List<SpotifyTracks> Tracks, string Err) GetUnsyncedTrackToAddSpotify(string youtubePlaylistID)
+        public static (List<YouTubeTracks> Tracks, string Err) GetUnsyncedTrackToAddSpotify(string youtubePlaylistID)
         {
             string spotifyPlaylistID = GetSyncedPlaylistWithYouTube(youtubePlaylistID).PlaylistId;
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 try
                 {
-                    return (cnn.Query<SpotifyTracks>(
-                        "SELECT st.* " +
+                    return (cnn.Query<YouTubeTracks>(
+                        "SELECT yt.* " +
                         "FROM YoutubePlaylistTracks ypt " +
                         "JOIN YouTubeTracks yt " +
                         "ON ypt.TrackID = yt.TrackID " +

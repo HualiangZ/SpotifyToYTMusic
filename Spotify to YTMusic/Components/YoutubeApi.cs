@@ -158,8 +158,18 @@ namespace Spotify_to_YTMusic.Components
         public async Task<string> StoreYouTubePlaylistToSQL(string playlistId)
         {
             var nextPageToken = "";
-            var dontloop = false;
             string playlistName = "";
+
+            var playlistRequest = youtubeService.Playlists.List("snippet");
+            playlistRequest.Id = playlistId;
+            var playlistResponse = await playlistRequest.ExecuteAsync();
+            if (playlistResponse != null)
+            {
+                StorePlaylistToDB(playlistResponse.Items.FirstOrDefault().Snippet.Title, playlistId);
+                playlistName = playlistResponse.Items.FirstOrDefault().Snippet.Title;
+            }   
+            Console.WriteLine(playlistName);
+
             while (nextPageToken != null) 
             {
                 var playlistItemsRequest = youtubeService.PlaylistItems.List("snippet");
@@ -171,12 +181,6 @@ namespace Spotify_to_YTMusic.Components
                 playlist.Snippet = new PlaylistItemSnippet();
                 playlist.Snippet.PlaylistId = playlistId;
                 var playlistItemsResponse = await playlistItemsRequest.ExecuteAsync();
-                if(dontloop == false)
-                {
-                    StorePlaylistToDB(playlist.Snippet.Title, playlistId);
-                    playlistName = playlist.Snippet.Title;
-                    dontloop = true;
-                }
                 foreach (var item in playlistItemsResponse.Items)
                 {
                     Console.WriteLine($"{item.Snippet.ResourceId.VideoId}");

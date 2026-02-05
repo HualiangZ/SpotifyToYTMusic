@@ -1,5 +1,6 @@
 ﻿using Google.Apis.Auth.OAuth2.Requests;
 using Google.Apis.YouTube.v3.Data;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Spotify_to_YTMusic.Components.Sql;
 using Spotify_to_YTMusic.Components.Sql.DataModel;
@@ -175,7 +176,7 @@ namespace Spotify_to_YTMusic.Components
             client.DefaultRequestHeaders.Clear();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
             string userId = GetUserID().Result;
-            string url = $"https://api.spotify.com/v1/users/{userId}/playlists";
+            string url = $"https://api.spotify.com/v1/me/playlists";
 
             var body = new 
             { 
@@ -184,22 +185,23 @@ namespace Spotify_to_YTMusic.Components
                 @public = false
             };
 
-            string jsonBody = System.Text.Json.JsonSerializer.Serialize(body);
+            string jsonBody = JsonConvert.SerializeObject(body);
             var content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
 
             var response = await client.PostAsync(url, content);
             if (!response.IsSuccessStatusCode)
             {
                 await RefreshAccessToken().ConfigureAwait(false);
-                response = await client.GetAsync(url).ConfigureAwait(false);
+                response = await client.PostAsync(url, content).ConfigureAwait(false);
                 if (!response.IsSuccessStatusCode)
                 {
-                    Console.WriteLine("Unable to get Access Token");
+                    Console.WriteLine($"Error: {response.StatusCode}");
                     return null;
                 }
             }
             string json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            JObject data = new JObject(json);
+            Console.WriteLine(json);
+            JObject data = JObject.Parse(json);
             SpotifyPlaylistsModels playlist = new SpotifyPlaylistsModels();
             playlist.Name = name;
             playlist.SnapshotID = data["snapshot_id"].ToString();
@@ -474,7 +476,6 @@ namespace Spotify_to_YTMusic.Components
                 Console.WriteLine($"Error removing track: {response.StatusCode}\n{json}");
                 return null;
             }
-
         }
 
         private void StoreTracksToDB(string trackID, string trackName, string artist)
@@ -521,6 +522,7 @@ namespace Spotify_to_YTMusic.Components
             spotifyTracks.TrackID = trackID;
             spotifyTracks.ArtistName = artistName;
             spotifyTracks.TrackName = trackName;
+            MusicDBApi.PostSpotifyTrack(spotifyTracks);
             return spotifyTracks;
         }
 
