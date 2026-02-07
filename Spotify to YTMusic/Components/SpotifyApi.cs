@@ -392,6 +392,11 @@ namespace Spotify_to_YTMusic.Components
                 return null;
             }
 
+            if(trackIDs.Length == 0)
+            {
+                return null;
+            }
+
             List<string> trackUriList = new List<string>();
             foreach (var item in trackIDs)
             {

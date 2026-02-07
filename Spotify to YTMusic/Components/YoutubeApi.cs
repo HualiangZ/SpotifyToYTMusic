@@ -184,7 +184,6 @@ namespace Spotify_to_YTMusic.Components
                 var playlistItemsResponse = await playlistItemsRequest.ExecuteAsync();
                 foreach (var item in playlistItemsResponse.Items)
                 {
-                    Console.WriteLine("Init id " +item.Snippet.ResourceId.VideoId);
                     await GetTrackTitleAndArtistNameAsync(playlistId, item.Snippet.ResourceId.VideoId, item.Id);    
                 }
                 nextPageToken = playlistItemsResponse.NextPageToken;
@@ -195,7 +194,6 @@ namespace Spotify_to_YTMusic.Components
         {
             var request = youtubeService.Videos.List("snippet");
             request.Id = videoId;
-            Console.WriteLine(videoId);
             var response = await request.ExecuteAsync();
 
             if (response.Items.Count > 0)
@@ -206,7 +204,6 @@ namespace Spotify_to_YTMusic.Components
                 tracks.ArtistName = snippet.ChannelTitle.Replace(" - Topic", "");
                 tracks.TrackID = videoId;
                 MusicDBApi.PostYouTubeTrack(tracks);
-                Console.WriteLine(tracks.TrackID + " " + snippet.Title);
 
                 YouTubePlaylistTracks youTubePlaylistTracks = new YouTubePlaylistTracks();
                 youTubePlaylistTracks.TrackID = videoId;
