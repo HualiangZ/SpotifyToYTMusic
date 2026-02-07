@@ -168,7 +168,6 @@ namespace Spotify_to_YTMusic.Components
                 StorePlaylistToDB(playlistResponse.Items.FirstOrDefault().Snippet.Title, playlistId);
                 playlistName = playlistResponse.Items.FirstOrDefault().Snippet.Title;
             }   
-            Console.WriteLine(playlistName);
             await StoreYTPlaylistTracksToDB(playlistId);
             return playlistName;
             
@@ -183,12 +182,9 @@ namespace Spotify_to_YTMusic.Components
                 playlistItemsRequest.PlaylistId = playlistId;
                 playlistItemsRequest.MaxResults = 50;
                 playlistItemsRequest.PageToken = nextPageToken;
-                Console.WriteLine("run");
                 var playlistItemsResponse = await playlistItemsRequest.ExecuteAsync();
-                Console.WriteLine(playlistItemsResponse.Items.Count);
                 foreach (var item in playlistItemsResponse.Items)
                 {
-                    Console.WriteLine($"{item.Snippet.ResourceId.VideoId}");
                     await GetTrackTitleAndArtistNameAsync(playlistId, item.Snippet.ResourceId.VideoId, item.Id);
                 }
                 nextPageToken = playlistItemsResponse.NextPageToken;

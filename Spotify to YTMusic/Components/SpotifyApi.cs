@@ -200,7 +200,6 @@ namespace Spotify_to_YTMusic.Components
                 }
             }
             string json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            Console.WriteLine(json);
             JObject data = JObject.Parse(json);
             SpotifyPlaylistsModels playlist = new SpotifyPlaylistsModels();
             playlist.Name = name;
@@ -399,14 +398,13 @@ namespace Spotify_to_YTMusic.Components
                 string trackUri = $"spotify:track:{item}";
                 trackUriList.Add(trackUri);
             }
-            string[] trackUriArr = trackIDs.ToArray();
             client.DefaultRequestHeaders.Clear();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
             var body = new
             {
-                uris = trackUriArr,
+                uris = trackUriList,
             };
             string jsonBody = System.Text.Json.JsonSerializer.Serialize(body);
             var content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
@@ -459,7 +457,6 @@ namespace Spotify_to_YTMusic.Components
                 uris = trackUriList,
             };
             string jsonBody = System.Text.Json.JsonSerializer.Serialize(body);
-            Console.WriteLine(jsonBody);
             var content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
 
             var response = await client.PostAsync($"https://api.spotify.com/v1/playlists/{playlistId}/tracks", content);
