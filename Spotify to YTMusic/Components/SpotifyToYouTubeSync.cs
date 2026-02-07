@@ -224,7 +224,7 @@ namespace Spotify_to_YTMusic.Components
                 spotifyTrackIdToDelet.Add(item.TrackID);
             }
 
-            await spotifyApi.DeleteTrackFromPlaylist(spotifyId, spotifyTrackIdToDelet.ToArray()).ConfigureAwait(false);
+            //await spotifyApi.DeleteTrackFromPlaylist(spotifyId, spotifyTrackIdToDelet.ToArray()).ConfigureAwait(false);
             return true;
         }
 

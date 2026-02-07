@@ -465,8 +465,14 @@ namespace Spotify_to_YTMusic.Components
             {
                 JObject data = JObject.Parse(json);
                 Console.WriteLine("Track addded successfully!");
-                SpotifyPlaylistTracks track = new SpotifyPlaylistTracks();
-                await StorePlaylistInfoToDBAsync(playlistId);
+
+                foreach (var id in trackIDs) 
+                {
+                    SpotifyPlaylistTracks track = new SpotifyPlaylistTracks();
+                    track.PlaylistID = playlistId;
+                    track.TrackID = id;
+                    MusicDBApi.PostSpotifyTrackToPlaylist(track);
+                }
                 return data["snapshot_id"].ToString();
             }
             else
@@ -497,7 +503,7 @@ namespace Spotify_to_YTMusic.Components
         {
             client.DefaultRequestHeaders.Clear();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
-            string encodedQuery = Uri.EscapeDataString($"{_trackName} by {artistName}");
+            string encodedQuery = Uri.EscapeDataString($"{_trackName} {artistName}");
             string url = $"https://api.spotify.com/v1/search?q={encodedQuery}&type=track";
             HttpResponseMessage responseMessage = await client.GetAsync(url);
             if (!responseMessage.IsSuccessStatusCode)
