@@ -185,7 +185,7 @@ namespace Spotify_to_YTMusic.Components
         //youtube -> spotify
         public async Task<bool> SyncYoutubeTracksToSpotify(string youtubePlaylistId)
         {
-            await youtubeApi.StoreYouTubePlaylistToSQL(youtubePlaylistId).ConfigureAwait(false);
+            await youtubeApi.StoreYTPlaylistTracksToDB(youtubePlaylistId).ConfigureAwait(false);
             List<YouTubeTracks> missisngTrack = MusicDBApi.GetUnsyncedTrackToAddSpotify(youtubePlaylistId).Tracks;
             var spotifyId = MusicDBApi.GetSyncedPlaylistWithYouTube(youtubePlaylistId).PlaylistId;
             Console.WriteLine(missisngTrack.Count);
