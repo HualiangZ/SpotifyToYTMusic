@@ -13,7 +13,7 @@ namespace Spotify_to_YTMusic.Components.Sql
 {
     public class MusicDBApi
     {
-        static string cnnString = "Data Source=./MusicDB.db";
+        static string cnnString = "Data Source=./MusicDB.db;foreign keys=true;";
 
         public static (SpotifyTracks Track, string Err) GetSpotifyTrack(string trackID)
         {
@@ -241,6 +241,7 @@ namespace Spotify_to_YTMusic.Components.Sql
         {
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
             {
+               
                 try
                 {
                     cnn.Execute("DELETE FROM YouTubeTracks WHERE TrackID = @TrackID", new {TrackID = videoId});
@@ -542,19 +543,20 @@ namespace Spotify_to_YTMusic.Components.Sql
             {
                 try
                 {
+
                     return (cnn.Query<SpotifyTracks>(
                         "SELECT st.* " +
                         "FROM SpotifyPlaylistTracks spt " +
                         "JOIN SpotifyTracks st " +
-                        "ON st.TrackID = spt.TrackID " +
-                        "JOIN YouTubeTracks yt " +
-                        "ON yt.TrackName = st.TrackName " +
-                        "AND yt.ArtistName = st.ArtistName " +
+                        "ON spt.TrackID = st.TrackID " +
+                        "LEFT JOIN YouTubeTracks yt " +
+                        "ON LOWER(TRIM(yt.TrackName)) = LOWER(TRIM(st.TrackName)) " +
+                        "AND LOWER(TRIM(yt.ArtistName)) = LOWER(TRIM(st.ArtistName)) " +
                         "LEFT JOIN YoutubePlaylistTracks ypt " +
                         "ON ypt.PlaylistID = @YoutubePlaylistID " +
                         "AND ypt.TrackID = yt.TrackID " +
                         "WHERE spt.PlaylistID = @SpotifyPlaylistID " +
-                        "AND ypt.TrackID IS NULL",
+                        "AND ypt.TrackID IS NULL ",
                         new { SpotifyPlaylistID = spotifyPlaylistId, YoutubePlaylistID = YTPlaylistID })
                         .ToList(), null);
                 }
@@ -570,7 +572,7 @@ namespace Spotify_to_YTMusic.Components.Sql
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 return (cnn.Query<string>(
-                    "SELECT TrackID FROM SpotifyPlaylistTracks WHERE TrackID NOT IN (SELECT TrackID FROM SpotifyTracks)").ToList());
+                    "SELECT TrackID FROM YoutubePlaylistTracks WHERE TrackID NOT IN (SELECT TrackID FROM YoutubeTracks)").ToList());
             }
         }
 

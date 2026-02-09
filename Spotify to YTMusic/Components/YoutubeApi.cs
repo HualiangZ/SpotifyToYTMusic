@@ -176,7 +176,7 @@ namespace Spotify_to_YTMusic.Components
         {
             var nextPageToken = "";
             List<string> trackIDs = new List<string>();
-            do
+            while (nextPageToken != null)
             {
                 var playlistItemsRequest = youtubeService.PlaylistItems.List("snippet");
                 playlistItemsRequest.PlaylistId = playlistId;
@@ -185,14 +185,12 @@ namespace Spotify_to_YTMusic.Components
                 var playlistItemsResponse = await playlistItemsRequest.ExecuteAsync();
                 foreach (var item in playlistItemsResponse.Items)
                 {
-                    if (MusicDBApi.GetYouTubeTrack(item.Id).Track != null)
-                    {
-                        await GetTrackTitleAndArtistNameAsync(playlistId, item.Snippet.ResourceId.VideoId, item.Id);
-                    }
-                    trackIDs.Add(item.Id);
+                    await GetTrackTitleAndArtistNameAsync(playlistId, item.Snippet.ResourceId.VideoId, item.Id);
+                    trackIDs.Add(item.Snippet.ResourceId.VideoId);
                 }
                 nextPageToken = playlistItemsResponse.NextPageToken;
-            } while (nextPageToken != null || nextPageToken != "");
+            }
+
             return trackIDs;
         }
 

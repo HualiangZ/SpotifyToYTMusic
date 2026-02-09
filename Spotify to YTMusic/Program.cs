@@ -20,7 +20,14 @@ namespace Spotify_to_YTMusic
         {
             TUI ui = new TUI();
             await ui.MenuAsync();
-            //Console.WriteLine(MusicDBApi.GetAllSpotifyTrackInPlaylist("5a7q5av1kX3ewlMwGuaQE3").Tracks[0]);
+
+            //Console.WriteLine(MusicDBApi.GetAllYTTracksfromPlaylist("PLbqjJZ3RMAtE6fz-1FpmwJIcv7KVnj0Iu").Tracks.Count);
+            //YouTubeTracks track = new YouTubeTracks();
+            //track.TrackID = "4y8Hxkzkhjs";
+            //track.ArtistName = "JENNIE";
+            //track.TrackName = "SOLO";
+            //MusicDBApi.PostYouTubeTrack(track);
+            //MusicDBApi.DeleteYouTubeTrack("4y8Hxkzkhjs");
             /*            string trackName = "别让爱凋落（Mylove - 请别让爱凋落）";
                         string trackName2 = "SLUMP -Japanese ver.-";
                         string artist = "卢润泽 ";
