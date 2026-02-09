@@ -27,7 +27,9 @@ namespace Spotify_to_YTMusic
             //track.ArtistName = "JENNIE";
             //track.TrackName = "SOLO";
             //MusicDBApi.PostYouTubeTrack(track);
-            //MusicDBApi.DeleteYouTubeTrack("4y8Hxkzkhjs");
+
+            //Console.WriteLine(MusicDBApi.GetOneSportifyPlaylists("6GUQLB5L0MH15kLGIDmIAr").Playlist.SnapshotID);
+            //Console.WriteLine(MusicDBApi.GetSpotifySnapshotId("6GUQLB5L0MH15kLGIDmIAr").Err);
             /*            string trackName = "别让爱凋落（Mylove - 请别让爱凋落）";
                         string trackName2 = "SLUMP -Japanese ver.-";
                         string artist = "卢润泽 ";

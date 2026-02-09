@@ -398,18 +398,18 @@ namespace Spotify_to_YTMusic.Components
             }
 
             List<string> trackUriList = new List<string>();
-            foreach (var item in trackIDs)
-            {
-                string trackUri = $"spotify:track:{item}";
-                trackUriList.Add(trackUri);
-            }
             client.DefaultRequestHeaders.Clear();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
+            var uris = trackIDs.Select(id => new
+            {
+                uri = $"spotify:track:{id}"
+            }).ToArray();
+
             var body = new
             {
-                uris = trackUriList,
+                tracks = uris
             };
             string jsonBody = System.Text.Json.JsonSerializer.Serialize(body);
             var content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
@@ -451,7 +451,6 @@ namespace Spotify_to_YTMusic.Components
                 string trackUri = $"spotify:track:{item}";
                 trackUriList.Add(trackUri);
             }
-            string[] trackUriArr = trackIDs.ToArray();
 
             client.DefaultRequestHeaders.Clear();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);

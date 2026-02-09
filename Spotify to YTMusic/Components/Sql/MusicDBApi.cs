@@ -175,6 +175,7 @@ namespace Spotify_to_YTMusic.Components.Sql
 
             }
         }
+
         public static (bool Success, string Err) UpdateSpotifyPlaylistSnapshotID(string playlistID, string snapshotID)
         {
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
@@ -536,14 +537,13 @@ namespace Spotify_to_YTMusic.Components.Sql
             }
         }
 
-        public static (List<SpotifyTracks> Tracks, string Err) GetUnsyncedTrackToRemoveSpotify(string spotifyPlaylistId)
+        public static (List<SpotifyTracks> Tracks, string Err) GetUnsyncedTrackToRemoveSpotify(string youtubePlaylistId)
         {
-            string YTPlaylistID = GetSyncedPlaylistWithSpotify(spotifyPlaylistId).PlaylistId;
+            string spotifyPlaylistId = GetSyncedPlaylistWithYouTube(youtubePlaylistId).PlaylistId;
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 try
                 {
-
                     return (cnn.Query<SpotifyTracks>(
                         "SELECT st.* " +
                         "FROM SpotifyPlaylistTracks spt " +
@@ -557,7 +557,7 @@ namespace Spotify_to_YTMusic.Components.Sql
                         "AND ypt.TrackID = yt.TrackID " +
                         "WHERE spt.PlaylistID = @SpotifyPlaylistID " +
                         "AND ypt.TrackID IS NULL ",
-                        new { SpotifyPlaylistID = spotifyPlaylistId, YoutubePlaylistID = YTPlaylistID })
+                        new { SpotifyPlaylistID = spotifyPlaylistId, YoutubePlaylistID = youtubePlaylistId })
                         .ToList(), null);
                 }
                 catch (Exception ex)
