@@ -172,10 +172,11 @@ namespace Spotify_to_YTMusic.Components
             
         }
 
-        public async Task StoreYTPlaylistTracksToDB(string playlistId)
+        public async Task<List<string>> StoreYTPlaylistTracksToDB(string playlistId)
         {
             var nextPageToken = "";
-            while (nextPageToken != null)
+            List<string> trackIDs = new List<string>();
+            do
             {
                 var playlistItemsRequest = youtubeService.PlaylistItems.List("snippet");
                 playlistItemsRequest.PlaylistId = playlistId;
@@ -184,10 +185,15 @@ namespace Spotify_to_YTMusic.Components
                 var playlistItemsResponse = await playlistItemsRequest.ExecuteAsync();
                 foreach (var item in playlistItemsResponse.Items)
                 {
-                    await GetTrackTitleAndArtistNameAsync(playlistId, item.Snippet.ResourceId.VideoId, item.Id);    
+                    if (MusicDBApi.GetYouTubeTrack(item.Id).Track != null)
+                    {
+                        await GetTrackTitleAndArtistNameAsync(playlistId, item.Snippet.ResourceId.VideoId, item.Id);
+                    }
+                    trackIDs.Add(item.Id);
                 }
                 nextPageToken = playlistItemsResponse.NextPageToken;
-            }
+            } while (nextPageToken != null || nextPageToken != "");
+            return trackIDs;
         }
 
         private async Task GetTrackTitleAndArtistNameAsync(string playlistId, string videoId, string Id)

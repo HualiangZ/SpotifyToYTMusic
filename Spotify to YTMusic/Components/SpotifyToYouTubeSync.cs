@@ -19,10 +19,12 @@ namespace Spotify_to_YTMusic.Components
         static YoutubeApi youtubeApi;
         static SpotifyApi spotifyApi;
         HttpClient client = new HttpClient();
+        SemaphoreSlim semaphore;
         public SpotifyToYouTubeSync()
         {
             youtubeApi = new YoutubeApi();
             spotifyApi = new SpotifyApi(client);
+            semaphore = new SemaphoreSlim(1);  
         }
         
         public async Task Init()
@@ -33,60 +35,70 @@ namespace Spotify_to_YTMusic.Components
 
         public async Task<bool> SyncPlaylistAsyncWithSpotifyID(string spotifyPlaylistId)
         {
-            string playlistName = await spotifyApi.StorePlaylistToDB(spotifyPlaylistId);     
-            string youtubePlaylistId = MusicDBApi.GetSyncedPlaylistWithSpotify(spotifyPlaylistId).PlaylistId;
+            
+   
 
-            if (youtubePlaylistId == null)
-            {
+                string playlistName = await spotifyApi.StorePlaylistToDB(spotifyPlaylistId);
+                string youtubePlaylistId = MusicDBApi.GetSyncedPlaylistWithSpotify(spotifyPlaylistId).PlaylistId;
+                if (youtubePlaylistId == null)
+                {
                 
-                string playlistId = youtubePlaylistId;
-                string newYoutubePlaylistId = await youtubeApi.CreateNewPlaylist(playlistName);
-                PlaylistSync newPlaylistSync = new PlaylistSync();
-                newPlaylistSync.SpotifyPlaylistID = spotifyPlaylistId;
-                newPlaylistSync.YTPlaylistID = newYoutubePlaylistId;
-                MusicDBApi.PostPlaylistSync(newPlaylistSync);
-                return await SyncSpotifyTracksToYoutube(spotifyPlaylistId);
-            }
-            else
-            {
-                return await SyncSpotifyTracksToYoutube( spotifyPlaylistId);
-            }
+                    string playlistId = youtubePlaylistId;
+                    string newYoutubePlaylistId = await youtubeApi.CreateNewPlaylist(playlistName);
+                    PlaylistSync newPlaylistSync = new PlaylistSync();
+                    newPlaylistSync.SpotifyPlaylistID = spotifyPlaylistId;
+                    newPlaylistSync.YTPlaylistID = newYoutubePlaylistId;
+                    MusicDBApi.PostPlaylistSync(newPlaylistSync);
+                    return await SyncSpotifyTracksToYoutube(spotifyPlaylistId);
+                }
+                else
+                {
+                    return await SyncSpotifyTracksToYoutube( spotifyPlaylistId);
+                }
 
         }
 
         //spotify -> youtube
         public async Task<bool> SyncSpotifyTracksToYoutube(string spotifyPlaylistId)
         {
-            await spotifyApi.StorePlaylistInfoToDBAsync(spotifyPlaylistId);
-            var tracks = MusicDBApi.GetUnsyncedTrackToAddYouTube(spotifyPlaylistId);
-            var youtubePlaylistID = MusicDBApi.GetSyncedPlaylistWithSpotify(spotifyPlaylistId);
-            if (youtubePlaylistID.PlaylistId == null)
+            await semaphore.WaitAsync();
+            try
             {
-                return false;
-            }
-            if(tracks.Tracks.Count != 0)
-            {
-                var tracksToAdd = CheckVideoIdManually(tracks.Tracks);
-                if (tracksToAdd != null)
+                await spotifyApi.StorePlaylistInfoToDBAsync(spotifyPlaylistId);
+                var tracks = MusicDBApi.GetUnsyncedTrackToAddYouTube(spotifyPlaylistId);
+                var youtubePlaylistID = MusicDBApi.GetSyncedPlaylistWithSpotify(spotifyPlaylistId);
+                if (youtubePlaylistID.PlaylistId == null)
                 {
-                    Console.WriteLine("Adding songs to YouTube playlist please wait...");
-                    foreach (YouTubeTracks track in tracksToAdd)
+                    return false;
+                }
+                if (tracks.Tracks.Count != 0)
+                {
+                    var tracksToAdd = CheckVideoIdManually(tracks.Tracks);
+                    if (tracksToAdd != null)
                     {
-                        var itemId = await youtubeApi.AddTrackToPlaylist(youtubePlaylistID.PlaylistId, track.TrackID);
+                        Console.WriteLine("Adding songs to YouTube playlist please wait...");
+                        foreach (YouTubeTracks track in tracksToAdd)
+                        {
+                            var itemId = await youtubeApi.AddTrackToPlaylist(youtubePlaylistID.PlaylistId, track.TrackID);
+                        }
                     }
                 }
-            }
 
-            var tracksToBeRemoved = MusicDBApi.GetUnsyncedTracksToRemoveYouTube(youtubePlaylistID.PlaylistId);
-            if (tracksToBeRemoved.Tracks != null)
-            {
-                foreach (YouTubeTracks track in tracksToBeRemoved.Tracks)
+                var tracksToBeRemoved = MusicDBApi.GetUnsyncedTracksToRemoveYouTube(youtubePlaylistID.PlaylistId);
+                if (tracksToBeRemoved.Tracks != null)
                 {
-                    await youtubeApi.DeleteItemFromPlaylistAsync(youtubePlaylistID.PlaylistId, track.TrackID);
+                    foreach (YouTubeTracks track in tracksToBeRemoved.Tracks)
+                    {
+                        await youtubeApi.DeleteItemFromPlaylistAsync(youtubePlaylistID.PlaylistId, track.TrackID);
+                    }
                 }
+                return true;
             }
-            return true;
-
+            finally
+            {
+                semaphore.Release();
+            }
+            
         }
         private List<YouTubeTracks> CheckVideoIdManually(List<YouTubeTracks> tracks)
         {
@@ -185,7 +197,7 @@ namespace Spotify_to_YTMusic.Components
         //youtube -> spotify
         public async Task<bool> SyncYoutubeTracksToSpotify(string youtubePlaylistId)
         {
-            await youtubeApi.StoreYTPlaylistTracksToDB(youtubePlaylistId).ConfigureAwait(false);
+            List<string> youtubeTrackIDs = await youtubeApi.StoreYTPlaylistTracksToDB(youtubePlaylistId).ConfigureAwait(false);
             List<YouTubeTracks> missisngTrack = MusicDBApi.GetUnsyncedTrackToAddSpotify(youtubePlaylistId).Tracks;
             var spotifyId = MusicDBApi.GetSyncedPlaylistWithYouTube(youtubePlaylistId).PlaylistId;
             while (missisngTrack.Count != 0)
@@ -230,8 +242,7 @@ namespace Spotify_to_YTMusic.Components
         //update youtube playlist when spotify snapshot ID chagnes
         public async Task UpdateYTPlaylist()
         {
-            var semaphore = new SemaphoreSlim(1);
-            await semaphore.WaitAsync();
+
             var spotifyPlaylist = MusicDBApi.GetAllSportifyPlaylists();
             if(spotifyPlaylist.Playlists != null || spotifyPlaylist.Playlists.Count() > 0)
             {
@@ -243,7 +254,7 @@ namespace Spotify_to_YTMusic.Components
                     }
                 }
             }
-            semaphore.Release();
+
         }
     }
 }
