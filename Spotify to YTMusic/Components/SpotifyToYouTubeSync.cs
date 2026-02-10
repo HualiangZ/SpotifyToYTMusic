@@ -236,14 +236,11 @@ namespace Spotify_to_YTMusic.Components
             }
 
             var spotifyTrackToDelete = MusicDBApi.GetUnsyncedTrackToRemoveSpotify(youtubePlaylistId);
-            
-            Console.WriteLine(spotifyTrackToDelete.Err);
             List<string> spotifyTrackIdToDelete = new List<string>();
             foreach (var item in spotifyTrackToDelete.Tracks)
             {
                 spotifyTrackIdToDelete.Add(item.TrackID);
             }
-            Console.WriteLine(spotifyTrackIdToDelete.Count);
             await spotifyApi.DeleteTrackFromPlaylist(spotifyId, spotifyTrackIdToDelete.ToArray()).ConfigureAwait(false);
             return true;
         }

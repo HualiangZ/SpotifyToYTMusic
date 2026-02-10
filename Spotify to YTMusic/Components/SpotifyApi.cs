@@ -335,7 +335,7 @@ namespace Spotify_to_YTMusic.Components
                 //add new tracks to DB
                 foreach (var item in items)
                 {
-                    AddTracksToPlaylist
+                    AddTracksToSQLPlaylist
                         (
                         item["track"]["name"].ToString(), 
                         item["track"]["artists"][0]["name"].ToString(),
@@ -350,12 +350,12 @@ namespace Spotify_to_YTMusic.Components
             }//end of loop
 
             //delete tracks from DB
-            DeleteTracksFromPlaylist(spotifyPlaylistTracks.Tracks, IDs, playlistId);
+            DeleteTracksFromSQLPlaylist(spotifyPlaylistTracks.Tracks, IDs, playlistId);
 
             return true;
         }
 
-        private void AddTracksToPlaylist(string _trackName, string _artist, string _trackID, List<string> tracks, string playlistId)
+        private void AddTracksToSQLPlaylist(string _trackName, string _artist, string _trackID, List<string> tracks, string playlistId)
         {
             string trackName = _trackName;
             string artist = _artist;
@@ -369,7 +369,7 @@ namespace Spotify_to_YTMusic.Components
             }
         }
 
-        private void DeleteTracksFromPlaylist(List<string> oldTracks, List<string> newTracks, string playlistId)
+        private void DeleteTracksFromSQLPlaylist(List<string> oldTracks, List<string> newTracks, string playlistId)
         {
             foreach (var item in oldTracks)
             {
@@ -423,11 +423,16 @@ namespace Spotify_to_YTMusic.Components
             string json = await response.Content.ReadAsStringAsync();
             if (response.IsSuccessStatusCode)
             {
-
+                foreach(var id in trackIDs)
+                {
+                    SpotifyPlaylistTracks track = new SpotifyPlaylistTracks();
+                    track.PlaylistID = playlistId;
+                    track.TrackID = id;
+                    MusicDBApi.DeleteSpotifyTrackFromPlaylist(track);
+                    MusicDBApi.DeleteSpotifyTrack(id);
+                }
                 JObject data = JObject.Parse(json);
                 Console.WriteLine("Track removed successfully!");
-                SpotifyPlaylistTracks track = new SpotifyPlaylistTracks();
-                await StorePlaylistInfoToDBAsync(playlistId);
                 return data["snapshot_id"].ToString();
             }
             else

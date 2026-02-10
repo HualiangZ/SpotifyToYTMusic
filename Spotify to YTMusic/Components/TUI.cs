@@ -33,8 +33,6 @@ namespace Spotify_to_YTMusic.Components
             Console.WriteLine("Enter a number depending on what you want to do");
             Console.WriteLine("1. Sync Spotify playlist to YouTube Playlist");
             Console.WriteLine("2. Sync YouTube Playlist to Spotify Playlist");
-            Console.WriteLine("3. Update Youtube Playlist");
-            Console.WriteLine("4. Update Spotify Playlist");
             userResponce = Console.ReadLine();
             if(userResponce == "1")
             {
