@@ -291,6 +291,28 @@ namespace Spotify_to_YTMusic.Components
 
         }
 
+        public async Task<JToken> GetTracksInPlaylist(string url, int limit, int offset)
+        {
+            HttpResponseMessage responseMessage = await client.GetAsync(url);
+            if (!responseMessage.IsSuccessStatusCode)
+            {
+                await RefreshAccessToken();
+                responseMessage = await client.GetAsync(url);
+                if (!responseMessage.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("Unable to get Access Token");
+                    return null;
+                }
+            }
+
+            Console.WriteLine("Storing Song to Database please wait....");
+
+            string json = await responseMessage.Content.ReadAsStringAsync();
+            JObject data = JObject.Parse(json);
+            var items = data["items"];
+            return items;
+        }
+
         /*
          * This method does four thing:
          * 1. Store Spotify tracks to DB
