@@ -20,12 +20,11 @@ namespace Spotify_to_YTMusic.Components
     {
         static YoutubeApi youtubeApi;
         static SpotifyApi spotifyApi;
-        HttpClient client = new HttpClient();
         SemaphoreSlim semaphore;
-        public SpotifyToYouTubeSync()
+        public SpotifyToYouTubeSync(YoutubeApi _youtubeApi, SpotifyApi _spotifyApi)
         {
-            youtubeApi = new YoutubeApi();
-            spotifyApi = new SpotifyApi(client);
+            youtubeApi = _youtubeApi;
+            spotifyApi = _spotifyApi;
             semaphore = new SemaphoreSlim(1);  
         }
         

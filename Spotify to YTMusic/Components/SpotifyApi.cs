@@ -17,7 +17,7 @@ using static System.Net.WebRequestMethods;
 namespace Spotify_to_YTMusic.Components
 {
 
-    internal class SpotifyApi
+    public class SpotifyApi
     {
         public string AccessToken { get; set; }
         private readonly HttpClient client;

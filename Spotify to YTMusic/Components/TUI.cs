@@ -10,10 +10,16 @@ namespace Spotify_to_YTMusic.Components
 {
     public class TUI
     {
-        SpotifyToYouTubeSync playlistSync = new SpotifyToYouTubeSync();
+        static SpotifyApi spotifyApi;
+        static YoutubeApi youtubeApi;
+        SpotifyToYouTubeSync playlistSync;
+        HttpClient client = new HttpClient();
         private string userResponce;
         public TUI()
         {
+            spotifyApi = new SpotifyApi(client);
+            youtubeApi = new YoutubeApi();
+            playlistSync = new SpotifyToYouTubeSync(youtubeApi, spotifyApi);
             playlistSync.Init().GetAwaiter();
             Task keepRunning = new Task(() =>
             {
