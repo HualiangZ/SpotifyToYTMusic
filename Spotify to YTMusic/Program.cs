@@ -21,21 +21,10 @@ namespace Spotify_to_YTMusic
             TUI ui = new TUI();
             await ui.MenuAsync();
 
-            //Console.WriteLine(MusicDBApi.GetAllYTTracksfromPlaylist("PLbqjJZ3RMAtE6fz-1FpmwJIcv7KVnj0Iu").Tracks.Count);
-            //YouTubeTracks track = new YouTubeTracks();
-            //track.TrackID = "4y8Hxkzkhjs";
-            //track.ArtistName = "JENNIE";
-            //track.TrackName = "SOLO";
-            //MusicDBApi.PostYouTubeTrack(track);
+            //HttpClient client = new HttpClient();
+            //SpotifyApi spotifyApi = new SpotifyApi(client);
+            //await spotifyApi.GetAccessTokenAsync();
 
-            //Console.WriteLine(MusicDBApi.GetOneSportifyPlaylists("6GUQLB5L0MH15kLGIDmIAr").Playlist.SnapshotID);
-            //Console.WriteLine(MusicDBApi.GetSpotifySnapshotId("6GUQLB5L0MH15kLGIDmIAr").Err);
-            /*            string trackName = "别让爱凋落（Mylove - 请别让爱凋落）";
-                        string trackName2 = "SLUMP -Japanese ver.-";
-                        string artist = "卢润泽 ";
-                        string artist2 = "Stray Kids";
-                        string url = $"https://www.youtube.com/results?search_query=%22{HttpUtility.UrlEncode(trackName2.ToLower())}%22+by+%22{HttpUtility.UrlEncode(artist2.ToLower())}%22+%22Topic%22";
-                        Console.WriteLine(url);*/
 
         }
 

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit.Sdk;
@@ -39,6 +40,7 @@ namespace Spotify_to_YTMusic.Components
             Console.WriteLine("Enter a number depending on what you want to do");
             Console.WriteLine("1. Sync Spotify playlist to YouTube Playlist");
             Console.WriteLine("2. Sync YouTube Playlist to Spotify Playlist");
+            Console.WriteLine("3. Manual Sync Spotify and YouTube Music");
             userResponce = Console.ReadLine();
             if(userResponce == "1")
             {
@@ -48,6 +50,10 @@ namespace Spotify_to_YTMusic.Components
             {
                 await SyncYouTubeToSpotifyPlaylistAsync().ConfigureAwait(false);
             }
+            else if(userResponce == "3")
+            {
+                await ManualSync();
+            }
             else
             {
                 Console.WriteLine("Please enter a number between 1-2");
@@ -55,6 +61,20 @@ namespace Spotify_to_YTMusic.Components
             }
 
         }
+        private async Task ManualSync()
+        {
+            string spotifyPlaylistId = "";
+            string youTubePlaylistId = "";
+            Console.WriteLine("Enter your Spotify playlist ID");
+            spotifyPlaylistId = Console.ReadLine().Trim();
+            Console.WriteLine("Enter your YouTube Music playlist ID");
+            youTubePlaylistId = Console.ReadLine().Trim();
+            await spotifyApi.StorePlaylistToDB(spotifyPlaylistId);
+
+        }
+
+        
+
         private async Task SyncSpotifyToYouTubePlaylistAsync()
         {
             Console.WriteLine("Enter Spotify playlist ID");

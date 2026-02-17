@@ -291,8 +291,19 @@ namespace Spotify_to_YTMusic.Components
 
         }
 
-        public async Task<JToken> GetTracksInPlaylist(string url, int limit, int offset)
+        public async Task<JObject> GetTracksInPlaylist(string? url, string? playlistId, int limit = 100, int offset = 0)
         {
+            client.DefaultRequestHeaders.Clear();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
+            if(url == null)
+            {
+                url = $"https://api.spotify.com/v1/playlists/{playlistId}/tracks?limit={limit}&offsset={offset}";
+            }
+
+            if (url == null && playlistId == null)
+            {
+                return null;
+            }
             HttpResponseMessage responseMessage = await client.GetAsync(url);
             if (!responseMessage.IsSuccessStatusCode)
             {
@@ -309,8 +320,7 @@ namespace Spotify_to_YTMusic.Components
 
             string json = await responseMessage.Content.ReadAsStringAsync();
             JObject data = JObject.Parse(json);
-            var items = data["items"];
-            return items;
+            return data;
         }
 
         /*
