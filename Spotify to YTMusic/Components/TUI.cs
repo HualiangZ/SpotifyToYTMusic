@@ -1,8 +1,10 @@
-﻿using Spotify_to_YTMusic.Components.Sql.DataModel;
+﻿using Spotify_to_YTMusic.Components.Sql;
+using Spotify_to_YTMusic.Components.Sql.DataModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit.Sdk;
@@ -34,13 +36,14 @@ namespace Spotify_to_YTMusic.Components
             });
             keepRunning.Start();
         }
+
         public async Task MenuAsync()
         {
             
             Console.WriteLine("Enter a number depending on what you want to do");
             Console.WriteLine("1. Sync Spotify playlist to YouTube Playlist");
             Console.WriteLine("2. Sync YouTube Playlist to Spotify Playlist");
-            Console.WriteLine("3. Manual Sync Spotify and YouTube Music");
+            Console.WriteLine("3. Add Spotify Playlist to Database");
             userResponce = Console.ReadLine();
             if(userResponce == "1")
             {
@@ -52,27 +55,47 @@ namespace Spotify_to_YTMusic.Components
             }
             else if(userResponce == "3")
             {
-                await ManualSync();
+                await AddSpotifyPlaylistToDB();
             }
             else
             {
-                Console.WriteLine("Please enter a number between 1-2");
+                Console.WriteLine("Please enter a number between 1-3");
                 await MenuAsync();
             }
 
         }
-        private async Task ManualSync()
+        private async Task AddSpotifyPlaylistToDB()
         {
-            string spotifyPlaylistId = "";
-            string youTubePlaylistId = "";
-            Console.WriteLine("Enter your Spotify playlist ID");
-            spotifyPlaylistId = Console.ReadLine().Trim();
-            Console.WriteLine("Enter your YouTube Music playlist ID");
-            youTubePlaylistId = Console.ReadLine().Trim();
-            await spotifyApi.StorePlaylistToDB(spotifyPlaylistId);
+            Console.WriteLine("Enter Spotify Playlist ID");
+            string playlistId = Console.ReadLine().Trim();
+            string url = "";
+            var spotifyPlaylistTracks = MusicDBApi.GetAllSpotifyTrackInPlaylist(playlistId);
+            do
+            {
+                var data = await spotifyApi.GetTracksInPlaylist(url, playlistId);
+                var items = data["items"];
 
+                if (items == null || items.Count() == 0)
+                {
+                    Console.WriteLine("Playlist empty");
+                    break;
+                }
+                foreach (var item in items)
+                {
+                    spotifyApi.AddTracksToSQLPlaylist
+                        (
+                        item["track"]["name"].ToString(),
+                        item["track"]["artists"][0]["name"].ToString(),
+                        item["track"]["id"].ToString(),
+                        spotifyPlaylistTracks.Tracks,
+                        playlistId,
+                        false
+                        );
+                }
+                url = data["next"].ToString();
+            } while (url != "" || url != null);
+            await MenuAsync().ConfigureAwait(false);
         }
-
         
 
         private async Task SyncSpotifyToYouTubePlaylistAsync()

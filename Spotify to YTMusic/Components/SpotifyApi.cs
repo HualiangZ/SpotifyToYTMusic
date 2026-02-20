@@ -373,7 +373,8 @@ namespace Spotify_to_YTMusic.Components
                         item["track"]["artists"][0]["name"].ToString(),
                         item["track"]["id"].ToString(),
                         spotifyPlaylistTracks.Tracks, 
-                        playlistId
+                        playlistId,
+                        true
                         );
                     IDs.Add(item["track"]["id"].ToString());
 
@@ -387,7 +388,7 @@ namespace Spotify_to_YTMusic.Components
             return true;
         }
 
-        private void AddTracksToSQLPlaylist(string _trackName, string _artist, string _trackID, List<string> tracks, string playlistId)
+        public void AddTracksToSQLPlaylist(string _trackName, string _artist, string _trackID, List<string> tracks, string playlistId, bool addToYT)
         {
             string trackName = _trackName;
             string artist = _artist;
@@ -397,7 +398,10 @@ namespace Spotify_to_YTMusic.Components
             {
                 StoreTracksToDB(trackID, trackName, artist);
                 StoreTracksToSpotiftPlaylistDB(trackID, playlistId);
-                YoutubeApi.StoreTrackToYouTubeDB(trackName, artist);
+                if (addToYT)
+                {
+                    YoutubeApi.StoreTrackToYouTubeDB(trackName, artist);
+                }   
             }
         }
 
