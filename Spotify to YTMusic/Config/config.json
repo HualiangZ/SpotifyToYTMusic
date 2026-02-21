@@ -1,4 +1,4 @@
 ﻿{
-    "SpotifyClientID": "",
-    "SpotifyClientSecret": ""
+    "ClientID": "",
+    "ClientSecret": ""
 }

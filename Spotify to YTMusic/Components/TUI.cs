@@ -47,10 +47,12 @@ namespace Spotify_to_YTMusic.Components
             userResponce = Console.ReadLine();
             if(userResponce == "1")
             {
+                await youtubeApi.GetCredential();
                 await SyncSpotifyToYouTubePlaylistAsync().ConfigureAwait(false);
             }
             else if(userResponce == "2")
             {
+                await youtubeApi.GetCredential();
                 await SyncYouTubeToSpotifyPlaylistAsync().ConfigureAwait(false);
             }
             else if(userResponce == "3")
