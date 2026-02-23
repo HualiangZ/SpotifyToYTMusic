@@ -20,15 +20,14 @@ namespace Spotify_to_YTMusic.Components
     public class SpotifyApi
     {
         public string AccessToken { get; set; }
-        private readonly HttpClient client;
+        private readonly HttpClient client = new HttpClient();
         MyJsonReader jsonReader = new MyJsonReader();
         private string ClientId { get; set; }
         private string ClientSecret { get; set; }
         private string RedirectURL { get; set; }
         private string RefreshToken { get; set; }
-        public SpotifyApi(HttpClient client)
+        public SpotifyApi()
         {
-            this.client = client;
             jsonReader.File = "config.json";
             RedirectURL = "http://127.0.0.1:8888/callback";
 
@@ -84,7 +83,7 @@ namespace Spotify_to_YTMusic.Components
             }
         }
 
-        public virtual async Task GetAccessTokenAsync()
+        public async Task GetAccessTokenAsync()
         {
             await jsonReader.ReadJsonAsync();
             var form = new Dictionary<string, string>

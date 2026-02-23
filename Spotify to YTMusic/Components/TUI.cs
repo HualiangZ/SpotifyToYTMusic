@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Formats.Asn1;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -18,25 +19,28 @@ namespace Spotify_to_YTMusic.Components
         static SpotifyApi spotifyApi;
         static YoutubeApi youtubeApi;
         SpotifyToYouTubeSync playlistSync;
-        HttpClient client = new HttpClient();
         private string userResponce;
         public TUI()
         {
-            spotifyApi = new SpotifyApi(client);
+            spotifyApi = new SpotifyApi();
             youtubeApi = new YoutubeApi();
             playlistSync = new SpotifyToYouTubeSync(youtubeApi, spotifyApi);
-            playlistSync.Init().GetAwaiter();
-            Task keepRunning = new Task(() =>
+        }
+
+        public async Task Init()
+        {
+            await playlistSync.Init();
+            Task keepRunning = Task.Run(async () =>
             {
                 while (true)
                 {
                     //Console.WriteLine("sleeping");
-                    Thread.Sleep(300000); //5 min sleep
+                    await Task.Delay(TimeSpan.FromSeconds(300)); //5 min sleep
                     //Console.WriteLine("sleep finish");
-                    playlistSync.UpdateYTPlaylist().GetAwaiter();
+                    await playlistSync.UpdateYTPlaylist();
                 }
             });
-            keepRunning.Start();
+            await MenuAsync();
         }
 
         public async Task MenuAsync()
@@ -49,7 +53,16 @@ namespace Spotify_to_YTMusic.Components
             Console.WriteLine("4. Add new spotify playlist to database");
             Console.WriteLine("5. Add new Youtube Music playlist to database");
             userResponce = Console.ReadLine().Trim();
-            switch (Int64.Parse(userResponce)) 
+            int choice = 0;
+            try
+            {
+                choice = int.Parse(userResponce);
+            }
+            catch (Exception ex) 
+            {
+                
+            }
+            switch (choice) 
             {
                 case 1:
                     await SyncSpotifyToYouTubePlaylistAsync().ConfigureAwait(false);
