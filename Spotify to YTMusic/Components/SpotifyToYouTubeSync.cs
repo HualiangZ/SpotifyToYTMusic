@@ -95,6 +95,10 @@ namespace Spotify_to_YTMusic.Components
                 }
                 return true;
             }
+            catch
+            {
+                return false;
+            }
             finally
             {
                 semaphore.Release();

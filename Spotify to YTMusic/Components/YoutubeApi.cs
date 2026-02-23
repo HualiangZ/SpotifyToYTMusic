@@ -41,6 +41,29 @@ namespace Spotify_to_YTMusic.Components
                 HttpClientInitializer = credential,
                 ApplicationName = this.GetType().ToString()
             });
+            await GetChannelRequest();
+        }
+
+        public async Task GetChannelRequest()
+        {
+            int retry = 1;
+            while (retry != 0)
+            {
+                try
+                {
+                    var channelRequest = youtubeService.Channels.List("contentDetails");
+                    channelRequest.Mine = true;
+                    var channelResponse = await channelRequest.ExecuteAsync();
+                }
+                catch (Exception ex) 
+                {
+                    await GetCredential();
+                    retry--;
+                }
+
+            }
+
+
         }
 
         public async Task<string> CreateNewPlaylist(string playlistName)
