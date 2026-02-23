@@ -62,8 +62,6 @@ namespace Spotify_to_YTMusic.Components
                 }
 
             }
-
-
         }
 
         public async Task<string> CreateNewPlaylist(string playlistName)

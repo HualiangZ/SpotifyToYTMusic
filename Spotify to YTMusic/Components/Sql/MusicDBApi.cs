@@ -412,13 +412,16 @@ namespace Spotify_to_YTMusic.Components.Sql
             }
         }
 
-        public static (bool Sucess, string Err) PostPlaylistSync(PlaylistSync playlistsync)
+        public static (bool Sucess, string Err) PostPlaylistSync(string youtubePlaylistID, string spotifyPlaylistId)
         {
+            PlaylistSync playlistSync = new PlaylistSync();
+            playlistSync.YTPlaylistID = youtubePlaylistID;
+            playlistSync.SpotifyPlaylistID = spotifyPlaylistId;
             using (IDbConnection cnn = new SQLiteConnection(cnnString))
             {
                 try
                 {
-                    cnn.Execute("insert into PlaylistSync (YTPlaylistID, SpotifyPlaylistID) values (@YTPlaylistID, @SpotifyPlaylistID)", playlistsync);
+                    cnn.Execute("insert into PlaylistSync (YTPlaylistID, SpotifyPlaylistID) values (@YTPlaylistID, @SpotifyPlaylistID)", playlistSync);
                     return (true, null);
                 }
                 catch (Exception ex)
