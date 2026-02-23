@@ -20,7 +20,8 @@ namespace Spotify_to_YTMusic
         static async Task Main(string[] args)
         {
             TUI ui = new TUI();
-            await ui.MenuAsync();
+            await ui.Init();
+            
 
             //HttpClient client = new HttpClient();
             //SpotifyApi spotifyApi = new SpotifyApi(client);

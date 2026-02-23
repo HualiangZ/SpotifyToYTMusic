@@ -44,7 +44,7 @@ namespace Spotify_to_YTMusic.Components
             await GetChannelRequest();
         }
 
-        public async Task GetChannelRequest()
+        public async Task<bool> GetChannelRequest()
         {
             int retry = 1;
             while (retry != 0)
@@ -54,6 +54,7 @@ namespace Spotify_to_YTMusic.Components
                     var channelRequest = youtubeService.Channels.List("contentDetails");
                     channelRequest.Mine = true;
                     var channelResponse = await channelRequest.ExecuteAsync();
+                    return true;
                 }
                 catch (Exception ex) 
                 {
@@ -62,6 +63,7 @@ namespace Spotify_to_YTMusic.Components
                 }
 
             }
+            return false;
         }
 
         public async Task<string> CreateNewPlaylist(string playlistName)
