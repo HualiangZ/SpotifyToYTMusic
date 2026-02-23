@@ -46,8 +46,8 @@ namespace Spotify_to_YTMusic.Components
             Console.WriteLine("1. Sync Spotify playlist to YouTube Playlist");
             Console.WriteLine("2. Sync YouTube Playlist to Spotify Playlist");
             Console.WriteLine("3. Manual sync Playlist");
-            Console.WriteLine("4. Update Spotify playlist back up");
-            Console.WriteLine("5. Update YouTube Music playlist back up");
+            Console.WriteLine("4. Add new spotify playlist to database");
+            Console.WriteLine("5. Add new Youtube Music playlist to database");
             userResponce = Console.ReadLine().Trim();
             switch (Int64.Parse(userResponce)) 
             {
