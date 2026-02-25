@@ -291,13 +291,11 @@ namespace Spotify_to_YTMusic.Components
 
             if (storedSnapshotId == newSnapshotId)
             {
-                //Console.WriteLine("No changes in playlist");
                 return false;
             }
 
             if (storedSnapshotId != newSnapshotId)
             {
-                //might need changing down the line no sure yet
                 MusicDBApi.UpdateSpotifyPlaylistSnapshotID(playlistId, newSnapshotId);
                 return true;
             }
@@ -381,7 +379,7 @@ namespace Spotify_to_YTMusic.Components
                 //add new tracks to DB
                 foreach (var item in items)
                 {
-                    AddTracksToSQLPlaylist
+                    await AddTracksToSQLPlaylist
                         (
                         item["track"]["name"].ToString(), 
                         item["track"]["artists"][0]["name"].ToString(),
@@ -402,7 +400,7 @@ namespace Spotify_to_YTMusic.Components
             return true;
         }
 
-        public void AddTracksToSQLPlaylist(string _trackName, string _artist, string _trackID, List<string> tracks, string playlistId, bool addToYT)
+        public async Task AddTracksToSQLPlaylist(string _trackName, string _artist, string _trackID, List<string> tracks, string playlistId, bool addToYT)
         {
             string trackName = _trackName;
             string artist = _artist;
@@ -414,7 +412,7 @@ namespace Spotify_to_YTMusic.Components
                 StoreTracksToSpotiftPlaylistDB(trackID, playlistId);
                 if (addToYT)
                 {
-                    YoutubeApi.StoreTrackToYouTubeDB(trackName, artist);
+                    await YoutubeApi.StoreTrackToYouTubeDB(trackName, artist);
                 }   
             }
         }

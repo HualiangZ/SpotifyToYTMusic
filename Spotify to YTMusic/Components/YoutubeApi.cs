@@ -265,13 +265,13 @@ namespace Spotify_to_YTMusic.Components
             MusicDBApi.PostYouTubePlaylists(playlist);
         }
 
-        public static void StoreTrackToYouTubeDB(string trackName, string artist)
+        public static async Task StoreTrackToYouTubeDB(string trackName, string artist)
         {
             string url = $"https://www.youtube.com/results?search_query=%22{HttpUtility.UrlEncode(trackName.ToLower())}%22+by+%22{HttpUtility.UrlEncode(artist.ToLower())}%22+%22Topic%22";
             YouTubeTracks tracks = new YouTubeTracks();
             tracks.TrackName = trackName;
             tracks.ArtistName = artist;
-            tracks.TrackID = YoutubeVideoIDFinder.GetVideoId(url);
+            tracks.TrackID = await YoutubeVideoIDFinder.GetVideoId(url);
             MusicDBApi.PostYouTubeTrack(tracks);
         }
     }

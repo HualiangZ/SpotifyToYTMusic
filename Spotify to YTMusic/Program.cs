@@ -21,11 +21,6 @@ namespace Spotify_to_YTMusic
         {
             TUI ui = new TUI();
             await ui.Init();
-            
-
-            //HttpClient client = new HttpClient();
-            //SpotifyApi spotifyApi = new SpotifyApi(client);
-            //await spotifyApi.GetAccessTokenAsync();
 
 
         }
