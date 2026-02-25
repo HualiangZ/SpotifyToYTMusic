@@ -23,6 +23,23 @@ namespace Spotify_to_YTMusic.Components
         UserCredential credential;
         YouTubeService youtubeService;
 
+        private static YoutubeApi _instance;
+        private static readonly object padlock = new object();
+
+        private YoutubeApi() { }
+
+        public static YoutubeApi Instance()
+        {
+            if(_instance == null)
+            {
+                lock (padlock)
+                {
+                    _instance = new YoutubeApi();
+                }
+            }
+            return _instance;
+        }
+
         public async Task GetCredential()
         {
             using(var stream = new FileStream("YT_client_secret.json", FileMode.Open, FileAccess.Read))

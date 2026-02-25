@@ -16,14 +16,14 @@ namespace Spotify_to_YTMusic.Components
 {
     public class TUI
     {
-        static SpotifyApi spotifyApi;
-        static YoutubeApi youtubeApi;
+        SpotifyApi spotifyApi;
+        YoutubeApi youtubeApi;
         SpotifyToYouTubeSync playlistSync;
         private string userResponce;
         public TUI()
         {
-            spotifyApi = new SpotifyApi();
-            youtubeApi = new YoutubeApi();
+            spotifyApi = SpotifyApi.Instance();
+            youtubeApi = YoutubeApi.Instance();
             playlistSync = new SpotifyToYouTubeSync(youtubeApi, spotifyApi);
         }
 
