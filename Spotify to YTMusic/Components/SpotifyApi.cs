@@ -26,12 +26,27 @@ namespace Spotify_to_YTMusic.Components
         private string ClientSecret { get; set; }
         private string RedirectURL { get; set; }
         private string RefreshToken { get; set; }
-        public SpotifyApi()
+        private static SpotifyApi _instance;
+        private static readonly object padLock = new object();
+        private SpotifyApi()
         {
             jsonReader.File = "config.json";
             RedirectURL = "http://127.0.0.1:8888/callback";
 
         }
+
+        public static SpotifyApi Instance()
+        {
+            if (_instance == null)
+            {
+                lock (padLock)
+                {
+                    _instance = new SpotifyApi();
+                }
+            }
+            return _instance;
+        }
+
 
         public async Task<string> GetAuthCodeAsync()
         {
