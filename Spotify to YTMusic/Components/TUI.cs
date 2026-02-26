@@ -135,7 +135,7 @@ namespace Spotify_to_YTMusic.Components
                 }
                 foreach (var item in items)
                 {
-                    spotifyApi.AddTracksToSQLPlaylist
+                    await spotifyApi.AddTracksToSQLPlaylist
                         (
                         item["track"]["name"].ToString(),
                         item["track"]["artists"][0]["name"].ToString(),

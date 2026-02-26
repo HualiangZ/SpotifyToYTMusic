@@ -11,16 +11,16 @@ namespace Spotify_to_YTMusic.Components
 
     internal class YoutubeVideoIDFinder
     {
-
-        public static string GetVideoId(string url)
+        private static readonly HttpClient client = new HttpClient();
+        public static async Task<string> GetVideoId(string url)
         {
             try
             {
-                var awaiter = CallURL(url);
-                if (awaiter.Result != "")
+                var awaiter = await CallURL(url);
+                if (awaiter != "")
                 {
                     string pattern = "\"videoId\":\"([a-zA-Z0-9_-]{11})\"";
-                    Match match = Regex.Match(awaiter.Result, pattern);
+                    Match match = Regex.Match(awaiter, pattern);
 
                     if (match.Success)
                     {
@@ -41,11 +41,9 @@ namespace Spotify_to_YTMusic.Components
 
         private static async Task<string> CallURL(string url)
         {
-            HttpClient client = new HttpClient();
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
-            client.DefaultRequestHeaders.Accept.Clear();
-            var response = client.GetStringAsync(url);
-            return await response;
+            var response = await client.GetStringAsync(url);
+            return response;
         }
     }
 }
