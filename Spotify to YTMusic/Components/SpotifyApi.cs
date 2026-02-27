@@ -219,7 +219,7 @@ namespace Spotify_to_YTMusic.Components
             playlist.Name = name;
             playlist.SnapshotID = data["snapshot_id"].ToString();
             playlist.PlaylistID = data["id"].ToString();
-            MusicDBApi.PostSpotifyPlaylist(playlist);
+            await MusicDBApi.PostSpotifyPlaylist(playlist);
             return playlist;
         }
 
@@ -246,7 +246,7 @@ namespace Spotify_to_YTMusic.Components
             sportifyPlaylist.PlaylistID = playlistId;
             sportifyPlaylist.Name = data["name"].ToString();
             sportifyPlaylist.SnapshotID = await GetPlaylistSnapshotIdAsync(playlistId);
-            MusicDBApi.PostSpotifyPlaylist(sportifyPlaylist);
+            await MusicDBApi.PostSpotifyPlaylist(sportifyPlaylist);
             return sportifyPlaylist.Name;
         }
 
@@ -276,7 +276,8 @@ namespace Spotify_to_YTMusic.Components
         public async Task<bool> CheckSnapshotIdChangeAsync(string playlistId)
         {
             string newSnapshotId = await GetPlaylistSnapshotIdAsync(playlistId);
-            string storedSnapshotId = MusicDBApi.GetOneSportifyPlaylists(playlistId).Playlist.SnapshotID;
+            var result = await MusicDBApi.GetOneSportifyPlaylists(playlistId);
+            string storedSnapshotId = result.Playlist.SnapshotID;
             if (storedSnapshotId == null)
             {
                 Console.WriteLine("No Spotify SnapshotID is stored");
@@ -296,23 +297,18 @@ namespace Spotify_to_YTMusic.Components
 
             if (storedSnapshotId != newSnapshotId)
             {
-                MusicDBApi.UpdateSpotifyPlaylistSnapshotID(playlistId, newSnapshotId);
+                await MusicDBApi.UpdateSpotifyPlaylistSnapshotID(playlistId, newSnapshotId);
                 return true;
             }
             return false;
 
         }
 
-        public async Task<JObject> GetTracksInPlaylist(string? url, string? playlistId, int limit = 100, int offset = 0)
+        public async Task<JObject> GetTracksInPlaylist(string url)
         {
             client.DefaultRequestHeaders.Clear();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
             if(url == null)
-            {
-                url = $"https://api.spotify.com/v1/playlists/{playlistId}/tracks?limit={limit}&offsset={offset}";
-            }
-
-            if (url == null && playlistId == null)
             {
                 return null;
             }
@@ -349,7 +345,7 @@ namespace Spotify_to_YTMusic.Components
             int limit = 100;
             int offset = 0;
             string url = $"https://api.spotify.com/v1/playlists/{playlistId}/tracks?limit={limit}&offsset={offset}";
-            var spotifyPlaylistTracks = MusicDBApi.GetAllSpotifyTrackInPlaylist(playlistId);
+            var spotifyPlaylistTracks = await MusicDBApi.GetAllSpotifyTrackInPlaylist(playlistId);
             List<string> IDs = new List<string>();
             while (url != "")
             {
@@ -395,7 +391,7 @@ namespace Spotify_to_YTMusic.Components
             }//end of loop
 
             //delete tracks from DB
-            DeleteTracksFromSQLPlaylist(spotifyPlaylistTracks.Tracks, IDs, playlistId);
+            await DeleteTracksFromSQLPlaylist(spotifyPlaylistTracks.Tracks, IDs, playlistId);
 
             return true;
         }
@@ -408,8 +404,8 @@ namespace Spotify_to_YTMusic.Components
             
             if (!tracks.Contains(trackID))
             {
-                StoreTracksToDB(trackID, trackName, artist);
-                StoreTracksToSpotiftPlaylistDB(trackID, playlistId);
+                await StoreTracksToDB(trackID, trackName, artist);
+                await StoreTracksToSpotiftPlaylistDB(trackID, playlistId);
                 if (addToYT)
                 {
                     await YoutubeApi.StoreTrackToYouTubeDB(trackName, artist);
@@ -417,7 +413,7 @@ namespace Spotify_to_YTMusic.Components
             }
         }
 
-        private void DeleteTracksFromSQLPlaylist(List<string> oldTracks, List<string> newTracks, string playlistId)
+        private async Task DeleteTracksFromSQLPlaylist(List<string> oldTracks, List<string> newTracks, string playlistId)
         {
             foreach (var item in oldTracks)
             {
@@ -426,8 +422,8 @@ namespace Spotify_to_YTMusic.Components
                     SpotifyPlaylistTracks toBeDeleted = new SpotifyPlaylistTracks();
                     toBeDeleted.PlaylistID = playlistId;
                     toBeDeleted.TrackID = item;
-                    MusicDBApi.DeleteSpotifyTrackFromPlaylist(toBeDeleted);
-                    MusicDBApi.DeleteSpotifyTrack(item);
+                    await MusicDBApi.DeleteSpotifyTrackFromPlaylist(toBeDeleted);
+                    await MusicDBApi.DeleteSpotifyTrack(item);
                 }
             }
         }
@@ -476,8 +472,8 @@ namespace Spotify_to_YTMusic.Components
                     SpotifyPlaylistTracks track = new SpotifyPlaylistTracks();
                     track.PlaylistID = playlistId;
                     track.TrackID = id;
-                    MusicDBApi.DeleteSpotifyTrackFromPlaylist(track);
-                    MusicDBApi.DeleteSpotifyTrack(id);
+                    await MusicDBApi.DeleteSpotifyTrackFromPlaylist(track);
+                    await MusicDBApi.DeleteSpotifyTrack(id);
                 }
                 JObject data = JObject.Parse(json);
                 Console.WriteLine("Track removed successfully!");
@@ -528,7 +524,7 @@ namespace Spotify_to_YTMusic.Components
                     SpotifyPlaylistTracks track = new SpotifyPlaylistTracks();
                     track.PlaylistID = playlistId;
                     track.TrackID = id;
-                    MusicDBApi.PostSpotifyTrackToPlaylist(track);
+                    await MusicDBApi.PostSpotifyTrackToPlaylist(track);
                 }
                 return data["snapshot_id"].ToString();
             }
@@ -539,21 +535,21 @@ namespace Spotify_to_YTMusic.Components
             }
         }
 
-        private void StoreTracksToDB(string trackID, string trackName, string artist)
+        private async Task StoreTracksToDB(string trackID, string trackName, string artist)
         {
             SpotifyTracks tracks = new SpotifyTracks();
             tracks.TrackID = trackID;
             tracks.TrackName = trackName;
             tracks.ArtistName = artist;
-            MusicDBApi.PostSpotifyTrack(tracks);
+            await MusicDBApi.PostSpotifyTrack(tracks);
         }
 
-        private void StoreTracksToSpotiftPlaylistDB(string trackID, string playlistId)
+        private async Task StoreTracksToSpotiftPlaylistDB(string trackID, string playlistId)
         {
             SpotifyPlaylistTracks PlaylistTracks = new SpotifyPlaylistTracks();
             PlaylistTracks.TrackID = trackID;
             PlaylistTracks.PlaylistID = playlistId;
-            MusicDBApi.PostSpotifyTrackToPlaylist(PlaylistTracks);
+            await MusicDBApi.PostSpotifyTrackToPlaylist(PlaylistTracks);
         }
 
         public async Task<SpotifyTracks> SearchForTracks(string _trackName, string artistName)
@@ -583,7 +579,7 @@ namespace Spotify_to_YTMusic.Components
             spotifyTracks.TrackID = trackID;
             spotifyTracks.ArtistName = artistName;
             spotifyTracks.TrackName = trackName;
-            MusicDBApi.PostSpotifyTrack(spotifyTracks);
+            await MusicDBApi.PostSpotifyTrack(spotifyTracks);
             return spotifyTracks;
         }
 
