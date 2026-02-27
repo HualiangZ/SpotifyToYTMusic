@@ -75,7 +75,6 @@ namespace Spotify_to_YTMusic.Components
                 }
                 catch
                 {
-                    await GetCredential();
                     retry--;
                 }
 

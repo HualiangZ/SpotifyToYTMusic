@@ -14,17 +14,8 @@ namespace Spotify_to_YTMusic.Components.Sql
 {
     public class MusicDBApi
     {
-        static string cnnString = "Data Source=./MusicDB.db;foreign keys=true;busy_timeout=5000";
+        static string cnnString = "Data Source=./MusicDB.db;foreign keys=true;Journal Mode=WAL;Synchronous=Normal;busy_timeout=5000";
         private static SQLiteConnection CreateConnection() => new SQLiteConnection(cnnString);
-        public static async Task InitDatabase()
-        {
-            using var connection = new SQLiteConnection(cnnString);
-            await connection.OpenAsync();
-            await connection.ExecuteAsync("PRAGMA journal_mode=WAL;");
-            await connection.ExecuteAsync("PRAGMA Dsynchronous=NORMAL;");
-
-        }
-
         public static async Task<(SpotifyTracks Track, string Err)> GetSpotifyTrack(string trackID)
         {
             try
