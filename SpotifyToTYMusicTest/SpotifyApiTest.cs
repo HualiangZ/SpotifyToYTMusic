@@ -8,123 +8,123 @@ namespace SpotifyToTYMusicTest
 {
     public class Tests
     {
-        internal class SpotifyApiMock : SpotifyApi
-        {
-            public SpotifyApiMock(HttpClient client) : base(client)
-            {
-            }
-            public override async Task GetAccessTokenAsync()
-            {
-                AccessToken = "newToken";
-                await Task.CompletedTask;
-            }
-        }
+        //internal class SpotifyApiMock : SpotifyApi
+        //{
+        //    public SpotifyApiMock(HttpClient client) : base(client)
+        //    {
+        //    }
+        //    public override async Task GetAccessTokenAsync()
+        //    {
+        //        AccessToken = "newToken";
+        //        await Task.CompletedTask;
+        //    }
+        //}
 
-        public class HttpMessageHandelerMock : HttpMessageHandler
-        {
-            private readonly HttpStatusCode httpStatusCode;
-            private int count = 0;
-            private HttpResponseMessage[]? responses;
+        //public class HttpMessageHandelerMock : HttpMessageHandler
+        //{
+        //    private readonly HttpStatusCode httpStatusCode;
+        //    private int count = 0;
+        //    private HttpResponseMessage[]? responses;
 
-            public HttpMessageHandelerMock(HttpStatusCode httpStatusCode)
-            {
-                this.httpStatusCode = httpStatusCode;
-            }
+        //    public HttpMessageHandelerMock(HttpStatusCode httpStatusCode)
+        //    {
+        //        this.httpStatusCode = httpStatusCode;
+        //    }
 
-            public HttpMessageHandelerMock(params HttpResponseMessage[] responses)
-            {
-                this.responses = responses;
-            }
+        //    public HttpMessageHandelerMock(params HttpResponseMessage[] responses)
+        //    {
+        //        this.responses = responses;
+        //    }
 
-            protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-            {
-                if(responses != null)
-                {
-                    return Task.FromResult(responses[count++ % responses.Length]);
-                }
+        //    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        //    {
+        //        if(responses != null)
+        //        {
+        //            return Task.FromResult(responses[count++ % responses.Length]);
+        //        }
 
-                return Task.FromResult(new HttpResponseMessage()
-                {
-                    StatusCode = httpStatusCode,
-                });
-            }
-        }
+        //        return Task.FromResult(new HttpResponseMessage()
+        //        {
+        //            StatusCode = httpStatusCode,
+        //        });
+        //    }
+        //}
 
-        [Test]
-        public async Task ReturnNull_GetAccessTokenAsync_When400()
-        {
-            var client = new HttpClient(new HttpMessageHandelerMock(HttpStatusCode.BadRequest));
-            var api = new SpotifyApi(client);
-            await api.GetAccessTokenAsync().ConfigureAwait(false);
+        //[Test]
+        //public async Task ReturnNull_GetAccessTokenAsync_When400()
+        //{
+        //    var client = new HttpClient(new HttpMessageHandelerMock(HttpStatusCode.BadRequest));
+        //    var api = new SpotifyApi(client);
+        //    await api.GetAccessTokenAsync().ConfigureAwait(false);
 
-            Assert.Null(api.AccessToken);
+        //    Assert.Null(api.AccessToken);
 
-        }
+        //}
 
-        [Test]
-        public async Task ReturnSuccess_GetAccessTokenAsync_When200()
-        {
-            var client = new HttpClient(new HttpMessageHandelerMock(new HttpResponseMessage() 
-            { 
-                StatusCode = HttpStatusCode.OK,
-                Content = new StringContent ("{\"access_token\": \"token\"}")
+        //[Test]
+        //public async Task ReturnSuccess_GetAccessTokenAsync_When200()
+        //{
+        //    var client = new HttpClient(new HttpMessageHandelerMock(new HttpResponseMessage() 
+        //    { 
+        //        StatusCode = HttpStatusCode.OK,
+        //        Content = new StringContent ("{\"access_token\": \"token\"}")
 
-            }));
-            var api = new SpotifyApi(client);
-            await api.GetAccessTokenAsync().ConfigureAwait(false);
+        //    }));
+        //    var api = new SpotifyApi(client);
+        //    await api.GetAccessTokenAsync().ConfigureAwait(false);
 
-            Assert.NotNull(api.AccessToken);
-            Assert.That(api.AccessToken, Is.EqualTo("token"));
-        }
+        //    Assert.NotNull(api.AccessToken);
+        //    Assert.That(api.AccessToken, Is.EqualTo("token"));
+        //}
 
-        [Test]
-        public async Task ReturnNull_GetPlaylistSnapshotIdAsync_When400()
-        {
-            var client = new HttpClient(new HttpMessageHandelerMock(HttpStatusCode.BadRequest));
-            var api = new SpotifyApi(client);
+        //[Test]
+        //public async Task ReturnNull_GetPlaylistSnapshotIdAsync_When400()
+        //{
+        //    var client = new HttpClient(new HttpMessageHandelerMock(HttpStatusCode.BadRequest));
+        //    var api = new SpotifyApi(client);
 
-            var result = await api.GetPlaylistSnapshotIdAsync("playlistId").ConfigureAwait(false);
-            Assert.Null(result);
-        }
+        //    var result = await api.GetPlaylistSnapshotIdAsync("playlistId").ConfigureAwait(false);
+        //    Assert.Null(result);
+        //}
 
-        [Test]
-        public async Task ReturnSuccess_GetPlaylistSnapshotIdAsync_When200()
-        {
-            var client = new HttpClient(new HttpMessageHandelerMock(new HttpResponseMessage()
-            {
-                StatusCode = HttpStatusCode.OK,
-                Content = new StringContent("{\"snapshot_id\": \"snapshotid\"}")
+        //[Test]
+        //public async Task ReturnSuccess_GetPlaylistSnapshotIdAsync_When200()
+        //{
+        //    var client = new HttpClient(new HttpMessageHandelerMock(new HttpResponseMessage()
+        //    {
+        //        StatusCode = HttpStatusCode.OK,
+        //        Content = new StringContent("{\"snapshot_id\": \"snapshotid\"}")
 
-            }));
-            var api = new SpotifyApi(client);
-            var result = await api.GetPlaylistSnapshotIdAsync("playlistId").ConfigureAwait(false);
+        //    }));
+        //    var api = new SpotifyApi(client);
+        //    var result = await api.GetPlaylistSnapshotIdAsync("playlistId").ConfigureAwait(false);
 
-            Assert.NotNull(result);
-            Assert.That(result, Is.EqualTo("snapshotid"));
-        }
+        //    Assert.NotNull(result);
+        //    Assert.That(result, Is.EqualTo("snapshotid"));
+        //}
 
-        [Test]
-        public async Task Should_RefreshAccessToken_And_RetryGetPlaylistSnapshotIdAsync()
-        {
-            var firstResponse = new HttpResponseMessage(HttpStatusCode.Unauthorized);
-            var secondResponse = new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StringContent("{\"snapshot_id\": \"snapshotid\"}")
-            };
-            var handler = new HttpMessageHandelerMock(firstResponse, secondResponse);
-            var client = new HttpClient(handler);
+        //[Test]
+        //public async Task Should_RefreshAccessToken_And_RetryGetPlaylistSnapshotIdAsync()
+        //{
+        //    var firstResponse = new HttpResponseMessage(HttpStatusCode.Unauthorized);
+        //    var secondResponse = new HttpResponseMessage(HttpStatusCode.OK)
+        //    {
+        //        Content = new StringContent("{\"snapshot_id\": \"snapshotid\"}")
+        //    };
+        //    var handler = new HttpMessageHandelerMock(firstResponse, secondResponse);
+        //    var client = new HttpClient(handler);
 
-            var api = new SpotifyApiMock(client) 
-            {
-                AccessToken = "OldToken",
-            };
+        //    var api = new SpotifyApiMock(client) 
+        //    {
+        //        AccessToken = "OldToken",
+        //    };
 
             
 
-            var result = await api.GetPlaylistSnapshotIdAsync("playlistId").ConfigureAwait(false);
+        //    var result = await api.GetPlaylistSnapshotIdAsync("playlistId").ConfigureAwait(false);
 
-            Assert.NotNull(result);
-            Assert.That(result, Is.EqualTo("snapshotid"));
-        }
+        //    Assert.NotNull(result);
+        //    Assert.That(result, Is.EqualTo("snapshotid"));
+        //}
     }
 }

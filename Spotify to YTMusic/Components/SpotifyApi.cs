@@ -402,14 +402,15 @@ namespace Spotify_to_YTMusic.Components
             string artist = _artist;
             string trackID = _trackID;
             
-            if (!tracks.Contains(trackID))
+
+            if (tracks == null || !tracks.Contains(trackID))
             {
                 await StoreTracksToDB(trackID, trackName, artist);
                 await StoreTracksToSpotiftPlaylistDB(trackID, playlistId);
                 if (addToYT)
                 {
                     await YoutubeApi.StoreTrackToYouTubeDB(trackName, artist);
-                }   
+                }
             }
         }
 

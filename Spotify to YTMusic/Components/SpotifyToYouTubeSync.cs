@@ -83,6 +83,10 @@ namespace Spotify_to_YTMusic.Components
                         foreach (YouTubeTracks track in tracksToAdd)
                         {
                             var itemId = await youtubeApi.AddTrackToPlaylist(youtubePlaylistID.PlaylistId, track.TrackID);
+                            if(itemId == null)
+                            {
+                                break;
+                            }
                         }
                     }
                 }
