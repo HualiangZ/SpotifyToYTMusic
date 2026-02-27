@@ -30,6 +30,7 @@ namespace Spotify_to_YTMusic.Components
         public async Task Init()
         {
             await playlistSync.Init();
+            await MusicDBApi.InitDatabase();
             Task keepRunning = Task.Run(async () =>
             {
                 while (true)
