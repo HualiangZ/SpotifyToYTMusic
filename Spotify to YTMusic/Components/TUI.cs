@@ -58,7 +58,7 @@ namespace Spotify_to_YTMusic.Components
             {
                 choice = int.Parse(userResponce);
             }
-            catch (Exception ex) 
+            catch
             {
                 
             }
@@ -99,7 +99,7 @@ namespace Spotify_to_YTMusic.Components
 
             await AddSpotifyPlaylistToDB(spotifyPlaylistId);
             await AddYTPlaylistToDB(youtubePlaylistId);
-            MusicDBApi.PostPlaylistSync(youtubePlaylistId, spotifyPlaylistId);
+            await MusicDBApi.PostPlaylistSync(youtubePlaylistId, spotifyPlaylistId);
         }
 
         private async Task AddYTPlaylistToDB(string? playlistId)
@@ -121,11 +121,13 @@ namespace Spotify_to_YTMusic.Components
                 Console.WriteLine("Enter Spotify Playlist ID");
                 playlistId = Console.ReadLine().Trim();
             }
-            string url = "";
-            var spotifyPlaylistTracks = MusicDBApi.GetAllSpotifyTrackInPlaylist(playlistId);
-            do
+            int limit = 100;
+            int offset = 0;
+            string url = $"https://api.spotify.com/v1/playlists/{playlistId}/tracks?limit={limit}&offsset={offset}";
+            var spotifyPlaylistTracks = await MusicDBApi.GetAllSpotifyTrackInPlaylist(playlistId);
+            while (url != "")
             {
-                var data = await spotifyApi.GetTracksInPlaylist(url, playlistId);
+                var data = await spotifyApi.GetTracksInPlaylist(url);
                 var items = data["items"];
 
                 if (items == null || items.Count() == 0)
@@ -146,7 +148,7 @@ namespace Spotify_to_YTMusic.Components
                         );
                 }
                 url = data["next"].ToString();
-            } while (url != "" || url != null);
+            }
             await MenuAsync().ConfigureAwait(false);
         }
         

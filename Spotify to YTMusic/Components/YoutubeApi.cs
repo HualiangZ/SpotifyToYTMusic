@@ -73,7 +73,7 @@ namespace Spotify_to_YTMusic.Components
                     var channelResponse = await channelRequest.ExecuteAsync();
                     return true;
                 }
-                catch (Exception ex) 
+                catch
                 {
                     await GetCredential();
                     retry--;
@@ -98,10 +98,10 @@ namespace Spotify_to_YTMusic.Components
                 {
                     var playlistResponse = await youtubeService.Playlists.Insert(newPlaylist, "snippet,status").ExecuteAsync();
                     Console.WriteLine($"{playlistResponse.Id}");
-                    StorePlaylistToDB(playlistName, playlistResponse.Id);
+                    await StorePlaylistToDB(playlistName, playlistResponse.Id);
                     return playlistResponse.Id;
                 }
-                catch (Exception ex)
+                catch
                 {
                     await GetCredential();
                     retry--;
@@ -145,10 +145,10 @@ namespace Spotify_to_YTMusic.Components
                     youTubeTracks.PlaylistID = playlistId;
                     youTubeTracks.TrackID = videoId;
                     youTubeTracks.ID = item.Id;
-                    MusicDBApi.PostYTTrackToPlaylist(youTubeTracks);
+                    await MusicDBApi.PostYTTrackToPlaylist(youTubeTracks);
                     return item.Id;
                 }
-                catch (Exception ex)
+                catch 
                 {
                     await GetCredential();
                     retry--;
@@ -179,10 +179,10 @@ namespace Spotify_to_YTMusic.Components
             {
                 try
                 {
-                    var track = MusicDBApi.GetTrackFromTYPlaylist(playlistId, videoId);
+                    var track = await MusicDBApi.GetTrackFromTYPlaylist(playlistId, videoId);
                     await youtubeService.PlaylistItems.Delete(track.Track.ID).ExecuteAsync();
-                    MusicDBApi.DeleteYTTrackFromPlaylist(track.Track);
-                    MusicDBApi.DeleteYouTubeTrack(videoId);
+                    await MusicDBApi.DeleteYTTrackFromPlaylist(track.Track);
+                    await MusicDBApi.DeleteYouTubeTrack(videoId);
                     return;
                 }
                 catch (Exception ex)
@@ -205,7 +205,7 @@ namespace Spotify_to_YTMusic.Components
             var playlistResponse = await playlistRequest.ExecuteAsync();
             if (playlistResponse != null)
             {
-                StorePlaylistToDB(playlistResponse.Items.FirstOrDefault().Snippet.Title, playlistId);
+                await StorePlaylistToDB(playlistResponse.Items.FirstOrDefault().Snippet.Title, playlistId);
                 playlistName = playlistResponse.Items.FirstOrDefault().Snippet.Title;
             }   
             return playlistName;
@@ -247,22 +247,22 @@ namespace Spotify_to_YTMusic.Components
                 tracks.TrackName = snippet.Title;
                 tracks.ArtistName = snippet.ChannelTitle.Replace(" - Topic", "");
                 tracks.TrackID = videoId;
-                MusicDBApi.PostYouTubeTrack(tracks);
+                await MusicDBApi.PostYouTubeTrack(tracks);
 
                 YouTubePlaylistTracks youTubePlaylistTracks = new YouTubePlaylistTracks();
                 youTubePlaylistTracks.TrackID = videoId;
                 youTubePlaylistTracks.PlaylistID = playlistId;
                 youTubePlaylistTracks.ID = Id;
-                MusicDBApi.PostYTTrackToPlaylist(youTubePlaylistTracks);
+                await MusicDBApi.PostYTTrackToPlaylist(youTubePlaylistTracks);
             }
         }
 
-        public void StorePlaylistToDB(string playlistName, string playlistId)
+        public async Task StorePlaylistToDB(string playlistName, string playlistId)
         {
             YoutubePlaylistsModel playlist = new YoutubePlaylistsModel();
             playlist.Name = playlistName;
             playlist.PlaylistID = playlistId;
-            MusicDBApi.PostYouTubePlaylists(playlist);
+            await MusicDBApi.PostYouTubePlaylists(playlist);
         }
 
         public static async Task StoreTrackToYouTubeDB(string trackName, string artist)
@@ -272,7 +272,7 @@ namespace Spotify_to_YTMusic.Components
             tracks.TrackName = trackName;
             tracks.ArtistName = artist;
             tracks.TrackID = await YoutubeVideoIDFinder.GetVideoId(url);
-            MusicDBApi.PostYouTubeTrack(tracks);
+            await MusicDBApi.PostYouTubeTrack(tracks);
         }
     }
 }

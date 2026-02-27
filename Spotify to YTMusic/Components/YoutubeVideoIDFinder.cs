@@ -33,7 +33,7 @@ namespace Spotify_to_YTMusic.Components
                 }
                 return "URL link error";
             }
-            catch (Exception ex) 
+            catch
             {
                 return "URL link error";
             }
