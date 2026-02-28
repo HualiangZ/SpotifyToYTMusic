@@ -2,8 +2,10 @@
 
 Download and open the program in Visual Basic
 
-Follow the Spotify guide to get your clientID and client secret ([Link](https://developer.spotify.com/documentation/web-api/tutorials/getting-started)) make sure Redirect link has "http://127.0.0.1:8888/callback". Copy the information to config.json
-Follow the YouTube API guide to get the YouTube clientID and client secret ([Link](https://developers.google.com/youtube/reporting/guides/registering_an_application)) Using OAuth 2.0. Copy information to YT_client_secret.json
+Follow the Spotify guide to get your clientID and client secret ([Link](https://developer.spotify.com/documentation/web-api/tutorials/getting-started)) make sure Redirect link has "http://127.0.0.1:8888/callback". Copy the information to config.json</br>
+Follow the YouTube API guide to get the YouTube clientID and client secret ([Link](https://developers.google.com/youtube/reporting/guides/registering_an_application)) Using OAuth 2.0. Copy information to YT_client_secret.json</br>
+Redirect URI for YouTube</br>
+<Img src="https://github.com/HualiangZ/SpotifyToYTMusic/blob/a73f82c3c624acfc3f6ce81cbf327ff63ed9d942/Image/Screenshot%202026-02-28%20133146.png"></br>
 
 Check if both files are on Copy if newer, on Copy to Output Directory.</br>
 OR Build and Run the solution, then copy both files to SpotifyToYTMusic > Spotify to YTMusic > bin> Debug >net8.0
