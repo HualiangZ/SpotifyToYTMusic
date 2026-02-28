@@ -11,7 +11,7 @@ OR Build and Run the solution, then copy both files to SpotifyToYTMusic > Spotif
 #Spotify -> YouTube</br>
 <img src="https://github.com/HualiangZ/SpotifyToYTMusic/blob/ae8aff94e02509081e10bc388210247ba4a6e752/Image/Screenshot%202026-02-28%20114923.png"></br>
 <img src="https://github.com/HualiangZ/SpotifyToYTMusic/blob/9072f7737bebf921a0cde6df2587a883112079b1/Image/SpotifyPlaylistID.png"></br>
-Type "1" then Enter and paste in your Spotify Playlist ID
+Type "1" then Enter and paste in your Spotify Playlist ID</br>
 <img src="https://github.com/HualiangZ/SpotifyToYTMusic/blob/9072f7737bebf921a0cde6df2587a883112079b1/Image/Screenshot%202026-02-28%20114938.png"></br>
 It will then store all tracks from your playlist to a file and get the YouTube Music ID for each track.</br>
 It will prompt you to check whether the songs are correct and to confirm whether you want to change the IDs—type "n" to add songs.</br>
