@@ -18,5 +18,5 @@ It will prompt you to check whether the songs are correct and to confirm whether
 <img src="https://github.com/HualiangZ/SpotifyToYTMusic/blob/9072f7737bebf921a0cde6df2587a883112079b1/Image/Screenshot%202026-02-28%20114959.png"></br>
 If you typed "y" it will ask you which one you want to change, and then enter the trackID of the song you want to change it to. You can get the track ID from YouTube Url (https://www.youtube.com/watch?v=2etMn0rJpIA) trackID = 2etMn0rJpIA</br>
 It will then create a Playlist on YouTube Music and add the tracks to it.</br>
-<img src="https://github.com/HualiangZ/SpotifyToYTMusic/blob/3574e3d27ca2b550387da2f9c2099b67df488b94/Image/Screenshot%202026-02-28%20120427.png" width="1100"></br>
+<img src="https://github.com/HualiangZ/SpotifyToYTMusic/blob/74116a4f78593384b124c0a1354300b7f17f4f2c/Image/SpotifyPlaylistID.png" width="1100"></br>
 
