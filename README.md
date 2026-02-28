@@ -2,7 +2,7 @@
 
 Download and open the program in Visual Basic
 
-Follow the Spotify guide to get your clientID and client secret ([Link](https://developer.spotify.com/documentation/web-api/tutorials/getting-started)). Copy the information to config.json
+Follow the Spotify guide to get your clientID and client secret ([Link](https://developer.spotify.com/documentation/web-api/tutorials/getting-started)) make sure Redirect link has "http://127.0.0.1:8888/callback". Copy the information to config.json
 Follow the YouTube API guide to get the YouTube clientID and client secret (Link). Copy information to YT_client_secret.json
 
 Check if both files are on Copy if newer, on Copy to Output Directory.</br>
