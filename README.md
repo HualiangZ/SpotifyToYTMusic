@@ -8,7 +8,7 @@ Follow the YouTube API guide to get the YouTube clientID and client secret (Link
 Check if both files are on Copy if newer, on Copy to Output Directory.</br>
 OR Build and Run the solution, then copy both files to SpotifyToYTMusic > Spotify to YTMusic > bin> Debug >net8.0
 
-#Spotify -> YouTube</br>
+# Spotify -> YouTube</br>
 <img src="https://github.com/HualiangZ/SpotifyToYTMusic/blob/ae8aff94e02509081e10bc388210247ba4a6e752/Image/Screenshot%202026-02-28%20114923.png"></br>
 <img src="https://github.com/HualiangZ/SpotifyToYTMusic/blob/9072f7737bebf921a0cde6df2587a883112079b1/Image/SpotifyPlaylistID.png"></br>
 Type "1" then Enter and paste in your Spotify Playlist ID</br>
