@@ -8,7 +8,7 @@ Redirect URI for YouTube</br>
 <Img src="https://github.com/HualiangZ/SpotifyToYTMusic/blob/a73f82c3c624acfc3f6ce81cbf327ff63ed9d942/Image/Screenshot%202026-02-28%20133146.png"></br>
 
 Check if both files are on Copy if newer, on Copy to Output Directory.</br>
-OR Build and Run the solution, then copy both files to SpotifyToYTMusic > Spotify to YTMusic > bin> Debug >net8.0</br>
+OR Build the solution, then copy both files to SpotifyToYTMusic > Spotify to YTMusic > bin> Debug >net8.0</br>
 
 Due to YouTube API 10,000 Quota limit per day, the most this can add is ~200 songs per day, progress will be saved so you can try adding remaining songs the next day by repeating the steps below</br>
 
