@@ -11,7 +11,7 @@ Check if both files are on Copy if newer, on Copy to Output Directory.</br>
 OR Build and Run the solution, then copy both files to SpotifyToYTMusic > Spotify to YTMusic > bin> Debug >net8.0</br>
 
 Due to YouTube API 10,000 Quota limit per day, the most this can add is ~200 songs per day, progress will be saved so you can try adding remaining songs the next day by repeating the steps below</br>
-
+Steps below works both ways, type "2" for YouTube -> Spotify</br>
 # Spotify -> YouTube</br>
 <img src="https://github.com/HualiangZ/SpotifyToYTMusic/blob/ae8aff94e02509081e10bc388210247ba4a6e752/Image/Screenshot%202026-02-28%20114923.png"></br>
 <img src="https://github.com/HualiangZ/SpotifyToYTMusic/blob/74116a4f78593384b124c0a1354300b7f17f4f2c/Image/SpotifyPlaylistID.png"></br>
