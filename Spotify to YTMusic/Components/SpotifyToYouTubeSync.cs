@@ -25,9 +25,9 @@ namespace Spotify_to_YTMusic.Components
         {
             youtubeApi = _youtubeApi;
             spotifyApi = _spotifyApi;
-            semaphore = new SemaphoreSlim(1);  
+            semaphore = new SemaphoreSlim(1);
         }
-        
+
         public async Task Init()
         {
             await spotifyApi.GetAccessTokenAsync();
@@ -36,19 +36,19 @@ namespace Spotify_to_YTMusic.Components
 
         public async Task<bool> SyncPlaylistAsyncWithSpotifyID(string spotifyPlaylistId)
         {
-                string playlistName = await spotifyApi.StorePlaylistToDB(spotifyPlaylistId);
+            string playlistName = await spotifyApi.StorePlaylistToDB(spotifyPlaylistId);
             var result = await MusicDBApi.GetSyncedPlaylistWithSpotify(spotifyPlaylistId);
-                string youtubePlaylistId = result.PlaylistId;
-                if (youtubePlaylistId == null)
-                {
-                    string newYoutubePlaylistId = await youtubeApi.CreateNewPlaylist(playlistName);
-                    await MusicDBApi.PostPlaylistSync(newYoutubePlaylistId, spotifyPlaylistId);
-                    return await SyncSpotifyTracksToYoutube(spotifyPlaylistId);
-                }
-                else
-                {
-                    return await SyncSpotifyTracksToYoutube(spotifyPlaylistId);
-                }
+            string youtubePlaylistId = result.PlaylistId;
+            if (youtubePlaylistId == null)
+            {
+                string newYoutubePlaylistId = await youtubeApi.CreateNewPlaylist(playlistName);
+                await MusicDBApi.PostPlaylistSync(newYoutubePlaylistId, spotifyPlaylistId);
+                return await SyncSpotifyTracksToYoutube(spotifyPlaylistId);
+            }
+            else
+            {
+                return await SyncSpotifyTracksToYoutube(spotifyPlaylistId);
+            }
 
         }
 
@@ -83,7 +83,7 @@ namespace Spotify_to_YTMusic.Components
                         foreach (YouTubeTracks track in tracksToAdd)
                         {
                             var itemId = await youtubeApi.AddTrackToPlaylist(youtubePlaylistID.PlaylistId, track.TrackID);
-                            if(itemId == null)
+                            if (itemId == null)
                             {
                                 break;
                             }
@@ -109,23 +109,23 @@ namespace Spotify_to_YTMusic.Components
             {
                 semaphore.Release();
             }
-            
+
         }
         private async Task<List<YouTubeTracks>> ChangeVideoId(List<YouTubeTracks> tracks)
         {
             int count = 1;
-            foreach(YouTubeTracks track in tracks)
+            foreach (YouTubeTracks track in tracks)
             {
                 Console.WriteLine($"{count}: https://music.youtube.com/watch?v={track.TrackID}, {track.TrackName}");
                 count++;
             }
             Console.WriteLine($"Do you want to change the Video Id, the video ID may not be the same as the track name" +
                 $" check on youtube to see if it's the same (Y/N) ");
-            
-            
+
+
 
             string response = Console.ReadLine();
-            if(response.ToUpper() == "Y" || response.ToUpper() == "YES")
+            if (response.ToUpper() == "Y" || response.ToUpper() == "YES")
             {
                 bool change = true;
                 while (change)
@@ -155,7 +155,7 @@ namespace Spotify_to_YTMusic.Components
                         }
                     }
                     Console.WriteLine("Do you want to change another track? (Y/N)");
-                    if(Console.ReadLine().ToUpper() == "N")
+                    if (Console.ReadLine().ToUpper() == "N")
                     {
                         change = false;
                         break;
@@ -172,19 +172,19 @@ namespace Spotify_to_YTMusic.Components
             string newVideoId = Console.ReadLine();
             YouTubeTracks newTrack = new YouTubeTracks();
             newTrack.TrackID = newVideoId;
-            newTrack.TrackName = tracks[index-1].TrackName;
-            newTrack.ArtistName = tracks[index-1].ArtistName;
+            newTrack.TrackName = tracks[index - 1].TrackName;
+            newTrack.ArtistName = tracks[index - 1].ArtistName;
 
             await MusicDBApi.PostYouTubeTrack(newTrack);
             await MusicDBApi.DeleteYouTubeTrack(tracks[index - 1].TrackID);
-            
+
             tracks[index - 1] = newTrack;
             return tracks;
         }
 
         public async Task<bool> SyncPlaylistAsyncWithYTID(string youtubePlaylistID)
         {
-            
+
             var spotifyPlaylistId = await MusicDBApi.GetSyncedPlaylistWithYouTube(youtubePlaylistID);
             if (spotifyPlaylistId.PlaylistId == null)
             {
@@ -210,7 +210,7 @@ namespace Spotify_to_YTMusic.Components
             var spotifyId = result.PlaylistId;
 
             bool isAddSuccess = await AddSyncYoutubeTrackToSpotify(youtubePlaylistId, spotifyId);
-            if (!isAddSuccess) 
+            if (!isAddSuccess)
             {
                 return false;
             }
@@ -220,7 +220,7 @@ namespace Spotify_to_YTMusic.Components
             {
                 return false;
             }
-            return true;   
+            return true;
 
         }
 
@@ -288,7 +288,7 @@ namespace Spotify_to_YTMusic.Components
         {
 
             var spotifyPlaylist = await MusicDBApi.GetAllSportifyPlaylists();
-            if(spotifyPlaylist.Playlists != null || spotifyPlaylist.Playlists.Count() > 0)
+            if (spotifyPlaylist.Playlists != null || spotifyPlaylist.Playlists.Count() > 0)
             {
                 foreach (var playlist in spotifyPlaylist.Playlists)
                 {

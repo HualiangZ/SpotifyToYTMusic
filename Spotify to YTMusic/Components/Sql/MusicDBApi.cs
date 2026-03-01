@@ -62,9 +62,23 @@ namespace Spotify_to_YTMusic.Components.Sql
             {
                 return (false, ex.Message);
             }
-
-
         }
+
+        public static async Task<(bool Success, string Err)> PostSpotifyTrack(List<SpotifyTracks> spotifyTrack)
+        {
+            try
+            {
+                using var cnn = CreateConnection();
+                await cnn.OpenAsync();
+                await cnn.ExecuteAsync("insert into SpotifyTracks (TrackID, TrackName, ArtistName) values (@TrackID, @TrackName, @ArtistName)", spotifyTrack);
+                return (true, null);
+            }
+            catch (Exception ex)
+            {
+                return (false, ex.Message);
+            }
+        }
+
         public static async Task<(bool Success, string Err)> DeleteSpotifyTrack(string trackId)
         {
             try
@@ -112,7 +126,21 @@ namespace Spotify_to_YTMusic.Components.Sql
             {
                 return (false, ex.Message);
             }
+        }
 
+        public static async Task<(bool Success, string Err)> PostSpotifyTrackToPlaylist(List<SpotifyPlaylistTracks> playlistTrack)
+        {
+            try
+            {
+                using var cnn = CreateConnection();
+                await cnn.OpenAsync();
+                await cnn.ExecuteAsync("insert into SpotifyPlaylistTracks (PlaylistID, TrackID) values (@PlaylistID, @TrackID)", playlistTrack);
+                return (true, null);
+            }
+            catch (Exception ex)
+            {
+                return (false, ex.Message);
+            }
         }
 
         public static async Task<(bool Success, string Err)> DeleteSpotifyTrackFromPlaylist(SpotifyPlaylistTracks playlistTrack)

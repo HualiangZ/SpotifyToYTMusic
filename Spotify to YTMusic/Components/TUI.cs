@@ -119,12 +119,15 @@ namespace Spotify_to_YTMusic.Components
             if (playlistId == null)
             {
                 Console.WriteLine("Enter Spotify Playlist ID");
-                playlistId = Console.ReadLine().Trim();
+                playlistId = Console.ReadLine();
             }
             int limit = 100;
             int offset = 0;
             string url = $"https://api.spotify.com/v1/playlists/{playlistId}/tracks?limit={limit}&offsset={offset}";
+            await spotifyApi.StorePlaylistToDB(playlistId);
             var spotifyPlaylistTracks = await MusicDBApi.GetAllSpotifyTrackInPlaylist(playlistId);
+            List<SpotifyPlaylistTracks> playlistTracksToAdd = new List<SpotifyPlaylistTracks>();
+            List<SpotifyTracks> spotifyTracksToAdd = new List<SpotifyTracks>();
             while (url != "")
             {
                 var data = await spotifyApi.GetTracksInPlaylist(url);
@@ -137,7 +140,7 @@ namespace Spotify_to_YTMusic.Components
                 }
                 foreach (var item in items)
                 {
-                    await spotifyApi.AddTracksToSQLPlaylist
+                    var tracksToAdd = await spotifyApi.AddTracksToSQLPlaylist
                         (
                         item["track"]["name"].ToString(),
                         item["track"]["artists"][0]["name"].ToString(),
@@ -146,9 +149,21 @@ namespace Spotify_to_YTMusic.Components
                         playlistId,
                         false
                         );
+
+                    if (tracksToAdd.spotifyTracks != null)
+                    {
+                        spotifyTracksToAdd.Add(tracksToAdd.spotifyTracks);
+                    }
+
+                    if (tracksToAdd.playlistTracks != null)
+                    {
+                        playlistTracksToAdd.Add(tracksToAdd.playlistTracks);
+                    }
                 }
                 url = data["next"].ToString();
             }
+            await MusicDBApi.PostSpotifyTrack(spotifyTracksToAdd);
+            await MusicDBApi.PostSpotifyTrackToPlaylist(playlistTracksToAdd);
             await MenuAsync().ConfigureAwait(false);
         }
         
