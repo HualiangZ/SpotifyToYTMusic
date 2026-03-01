@@ -119,8 +119,8 @@ namespace Spotify_to_YTMusic.Components
                 Console.WriteLine($"{count}: https://music.youtube.com/watch?v={track.TrackID}, {track.TrackName}");
                 count++;
             }
-            Console.WriteLine($"Do you want to change the Video Id, the video ID may not be the same as the track name" +
-                $" check on youtube to see if it's the same (Y/N) ");
+            Console.WriteLine($"Do you want to change the Video Id, the video ID may not be the same as the track name." +
+                $" Check on youtube to see if it's the same (Y/N) ");
 
 
 
