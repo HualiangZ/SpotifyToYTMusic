@@ -275,9 +275,24 @@ namespace Spotify_to_YTMusic.Components.Sql
             {
                 return (false, ex.Message);
             }
-
-
         }
+
+        public static async Task<(bool Success, string Err)> PostYouTubeTrack(List<YouTubeTracks> youtubeTrack)
+        {
+
+            try
+            {
+                using var cnn = CreateConnection();
+                await cnn.OpenAsync();
+                await cnn.ExecuteAsync("insert into YouTubeTracks (TrackID, TrackName, ArtistName) values (@TrackID, @TrackName, @ArtistName)", youtubeTrack);
+                return (true, null);
+            }
+            catch (Exception ex)
+            {
+                return (false, ex.Message);
+            }
+        }
+
         public static async Task<(bool Success, string Err)> DeleteYouTubeTrack(string videoId)
         {
 
@@ -396,6 +411,22 @@ namespace Spotify_to_YTMusic.Components.Sql
                 using var cnn = CreateConnection();
                 await cnn.OpenAsync();
                 await cnn.ExecuteAsync("insert into YouTubePlaylistTracks (PlaylistID, TrackID, ID) values (@PlaylistID, @TrackID, @ID)", playlistTrack);
+                return (true, null);
+            }
+            catch (Exception ex)
+            {
+                return (false, ex.Message);
+            }
+        }
+
+        public static async Task<(bool success, string Err)> PostYTTrackToPlaylist(List<YouTubePlaylistTracks> playlistTracks)
+        {
+
+            try
+            {
+                using var cnn = CreateConnection();
+                await cnn.OpenAsync();
+                await cnn.ExecuteAsync("insert into YouTubePlaylistTracks (PlaylistID, TrackID, ID) values (@PlaylistID, @TrackID, @ID)", playlistTracks);
                 return (true, null);
             }
             catch (Exception ex)
