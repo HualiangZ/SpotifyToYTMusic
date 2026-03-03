@@ -338,7 +338,7 @@ namespace Spotify_to_YTMusic.Components
          * 3. Store Spotify playlist informantion to DB
          * 4. Store what tracks are in Spotify playlist to DB
         */
-        public async Task<bool> StorePlaylistInfoToDBAsync(string playlistId)
+        public async Task<List<SpotifyTracks>> StorePlaylistInfoToDBAsync(string playlistId)
         {
             client.DefaultRequestHeaders.Clear();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
@@ -392,7 +392,7 @@ namespace Spotify_to_YTMusic.Components
             //delete tracks from DB
             await DeleteTracksFromSQLPlaylist(spotifyPlaylistTracks.Tracks, newTrackIDs, playlistId);
 
-            return true;
+            return spotifyTracksToAdd;
         }
 
         public async Task<(SpotifyTracks spotifyTracks, SpotifyPlaylistTracks playlistTracks)> AddTracksToSQLPlaylist(string _trackName, string _artist, string _trackID, List<string> spotifyPlaylistTracks, string playlistId, bool addToYT)
@@ -413,10 +413,10 @@ namespace Spotify_to_YTMusic.Components
                 playlistTracks.TrackID = trackID;
                 playlistTracks.PlaylistID = playlistId;
 
-                if (addToYT)
-                {
-                    await YoutubeApi.StoreTrackToYouTubeDB(trackName, artist);
-                }
+                //if (addToYT)
+                //{
+                //    await YoutubeApi.StoreTrackToYouTubeDB(trackName, artist);
+                //}
                 return (spotifyTracks, playlistTracks);
             }
             return (null, null);
@@ -543,23 +543,6 @@ namespace Spotify_to_YTMusic.Components
                 return null;
             }
         }
-
-        //private async Task StoreTracksToDB(string trackID, string trackName, string artist)
-        //{
-        //    SpotifyTracks tracks = new SpotifyTracks();
-        //    tracks.TrackID = trackID;
-        //    tracks.TrackName = trackName;
-        //    tracks.ArtistName = artist;
-        //    await MusicDBApi.PostSpotifyTrack(tracks);
-        //}
-
-        //private async Task StoreTracksToSpotiftPlaylistDB(string trackID, string playlistId)
-        //{
-        //    SpotifyPlaylistTracks PlaylistTracks = new SpotifyPlaylistTracks();
-        //    PlaylistTracks.TrackID = trackID;
-        //    PlaylistTracks.PlaylistID = playlistId;
-        //    await MusicDBApi.PostSpotifyTrackToPlaylist(PlaylistTracks);
-        //}
 
         public async Task<SpotifyTracks> SearchForTracks(string _trackName, string artistName)
         {

@@ -58,7 +58,13 @@ namespace Spotify_to_YTMusic.Components
             await semaphore.WaitAsync();
             try
             {
-                await spotifyApi.StorePlaylistInfoToDBAsync(spotifyPlaylistId);
+                List<SpotifyTracks> spotifyTracks = await spotifyApi.StorePlaylistInfoToDBAsync(spotifyPlaylistId);
+                List<Task> tasks = new List<Task>();
+                foreach (SpotifyTracks track in spotifyTracks)
+                {
+                    tasks.Add(YoutubeApi.StoreTrackToYouTubeDB(track.TrackName, track.ArtistName));
+                }
+                await Task.WhenAll(tasks);
                 var tracks = await MusicDBApi.GetUnsyncedTrackToAddYouTube(spotifyPlaylistId);
                 var youtubePlaylistID = await MusicDBApi.GetSyncedPlaylistWithSpotify(spotifyPlaylistId);
                 if (youtubePlaylistID.PlaylistId == null)
