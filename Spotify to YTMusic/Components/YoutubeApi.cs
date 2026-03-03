@@ -226,12 +226,14 @@ namespace Spotify_to_YTMusic.Components
                 var playlistItemsResponse = await playlistItemsRequest.ExecuteAsync();
                 foreach (var item in playlistItemsResponse.Items)
                 {
-                    var result = await GetTrackTitleAndArtistNameAsync(playlistId, item.Snippet.ResourceId.VideoId, item.Id);
-                    if (result.youtubeTrack != null && result.playlistTrack != null)
+                    var tracToAdd = await GetTrackTitleAndArtistNameAsync(playlistId, item.Snippet.ResourceId.VideoId, item.Id);
+                    if (tracToAdd.youtubeTrack != null)
                     {
-                        youTubeTracks.Add(result.youtubeTrack);
-                        playlistTracks.Add(result.playlistTrack);
-
+                        youTubeTracks.Add(tracToAdd.youtubeTrack);
+                    }
+                    if(tracToAdd.playlistTrack != null)
+                    {
+                        playlistTracks.Add(tracToAdd.playlistTrack);
                     }
                     trackIDs.Add(item.Snippet.ResourceId.VideoId);
                 }
