@@ -498,6 +498,18 @@ namespace Spotify_to_YTMusic.Components
 
         public async Task<string> AddTrackToPlaylist(string playlistId, string[] trackIDs)
         {
+            var chunks = trackIDs.Chunk(100);
+            string? snapshotId = null;
+            foreach(var chunk in chunks)
+            {
+                snapshotId = await AddTrackToPlaylistchunk(playlistId, chunk);
+            }
+            return snapshotId;
+        }
+
+        //need a way to handle more than 100 track to be added
+        public async Task<string> AddTrackToPlaylistchunk(string playlistId, string[] trackIDs)
+        {
             if (trackIDs.Length > 100)
             {
                 Console.WriteLine("List of track ID can't be more than 100 items");

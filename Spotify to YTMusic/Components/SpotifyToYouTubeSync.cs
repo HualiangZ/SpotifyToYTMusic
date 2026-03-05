@@ -214,7 +214,6 @@ namespace Spotify_to_YTMusic.Components
             List<string> youtubeTrackIDs = await youtubeApi.StoreYTPlaylistTracksToDB(youtubePlaylistId).ConfigureAwait(false);
             var result = await MusicDBApi.GetSyncedPlaylistWithYouTube(youtubePlaylistId);
             var spotifyId = result.PlaylistId;
-
             bool isAddSuccess = await AddSyncYoutubeTrackToSpotify(youtubePlaylistId, spotifyId);
             if (!isAddSuccess)
             {
@@ -259,7 +258,7 @@ namespace Spotify_to_YTMusic.Components
 
         private async Task<bool> AddSyncYoutubeTrackToSpotify(string youtubePlaylistId, string spotifyId)
         {
-            List<YouTubeTracks> missisngTrack = (await MusicDBApi.GetUnsyncedTrackToAddSpotify(youtubePlaylistId)).Tracks;
+            var missisngTrack = (await MusicDBApi.GetUnsyncedTrackToAddSpotify(youtubePlaylistId)).Tracks;
             while (missisngTrack.Count != 0)
             {
                 List<SpotifyTracks> spotifyTracks = new List<SpotifyTracks>();
