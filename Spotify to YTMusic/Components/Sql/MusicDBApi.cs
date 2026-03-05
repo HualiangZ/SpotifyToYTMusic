@@ -631,7 +631,7 @@ namespace Spotify_to_YTMusic.Components.Sql
                     "AND spt.TrackID = st.TrackID " +
                     "WHERE ypt.PlaylistID = @YoutubePlaylistID " +
                     "AND spt.TrackID IS NULL",
-                    new { SpotifyPlaylistID = spotifyPlaylistID, YoutubePlaylistID = youtubePlaylistID })
+                    new { SpotifyPlaylistID = id, YoutubePlaylistID = youtubePlaylistID })
                     ).ToList();
                 return (tracks, null);
             }
@@ -665,7 +665,7 @@ namespace Spotify_to_YTMusic.Components.Sql
                         "AND ypt.TrackID = yt.TrackID " +
                         "WHERE spt.PlaylistID = @SpotifyPlaylistID " +
                         "AND ypt.TrackID IS NULL ",
-                        new { SpotifyPlaylistID = spotifyPlaylistId, YoutubePlaylistID = youtubePlaylistId })
+                        new { SpotifyPlaylistID = id, YoutubePlaylistID = youtubePlaylistId })
                         ).ToList();
                 return (tracks, null);
             }
