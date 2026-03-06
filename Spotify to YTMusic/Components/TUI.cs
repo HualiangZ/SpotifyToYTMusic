@@ -146,8 +146,7 @@ namespace Spotify_to_YTMusic.Components
                         item["track"]["artists"][0]["name"].ToString(),
                         item["track"]["id"].ToString(),
                         spotifyPlaylistTracks.Tracks,
-                        playlistId,
-                        false
+                        playlistId
                         );
 
                     if (tracksToAdd.spotifyTracks != null)
