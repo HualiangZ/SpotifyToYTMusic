@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using static System.Net.WebRequestMethods;
 
@@ -368,8 +369,7 @@ namespace Spotify_to_YTMusic.Components
                         item["track"]["artists"][0]["name"].ToString(),
                         item["track"]["id"].ToString(),
                         spotifyPlaylistTracks.Tracks, 
-                        playlistId,
-                        true
+                        playlistId
                         );
                     newTrackIDs.Add(item["track"]["id"].ToString());
 
@@ -395,7 +395,7 @@ namespace Spotify_to_YTMusic.Components
             return spotifyTracksToAdd;
         }
 
-        public async Task<(SpotifyTracks spotifyTracks, SpotifyPlaylistTracks playlistTracks)> AddTracksToSQLPlaylist(string _trackName, string _artist, string _trackID, List<string> spotifyPlaylistTracks, string playlistId, bool addToYT)
+        public async Task<(SpotifyTracks spotifyTracks, SpotifyPlaylistTracks playlistTracks)> AddTracksToSQLPlaylist(string _trackName, string _artist, string _trackID, List<string> spotifyPlaylistTracks, string playlistId)
         {
             string trackName = _trackName;
             string artist = _artist;
@@ -412,11 +412,6 @@ namespace Spotify_to_YTMusic.Components
                 SpotifyPlaylistTracks playlistTracks = new SpotifyPlaylistTracks();
                 playlistTracks.TrackID = trackID;
                 playlistTracks.PlaylistID = playlistId;
-
-                //if (addToYT)
-                //{
-                //    await YoutubeApi.StoreTrackToYouTubeDB(trackName, artist);
-                //}
                 return (spotifyTracks, playlistTracks);
             }
             return (null, null);
@@ -499,12 +494,13 @@ namespace Spotify_to_YTMusic.Components
         public async Task<string> AddTrackToPlaylist(string playlistId, string[] trackIDs)
         {
             var chunks = trackIDs.Chunk(100);
-            string? snapshotId = null;
-            foreach(var chunk in chunks)
+            List<Task> tasks = new List<Task>();
+            foreach (var chunk in chunks)
             {
-                snapshotId = await AddTrackToPlaylistchunk(playlistId, chunk);
+               tasks.Add(AddTrackToPlaylistchunk(playlistId, chunk));
             }
-            return snapshotId;
+            await Task.WhenAll(tasks);  
+            return await GetPlaylistSnapshotIdAsync(playlistId);
         }
 
         //need a way to handle more than 100 track to be added
@@ -535,6 +531,7 @@ namespace Spotify_to_YTMusic.Components
 
             var response = await client.PostAsync($"https://api.spotify.com/v1/playlists/{playlistId}/tracks", content);
             string json = await response.Content.ReadAsStringAsync();
+            List<SpotifyPlaylistTracks> tracks = new List<SpotifyPlaylistTracks>();
             if (response.IsSuccessStatusCode)
             {
                 JObject data = JObject.Parse(json);
@@ -545,8 +542,9 @@ namespace Spotify_to_YTMusic.Components
                     SpotifyPlaylistTracks track = new SpotifyPlaylistTracks();
                     track.PlaylistID = playlistId;
                     track.TrackID = id;
-                    await MusicDBApi.PostSpotifyTrackToPlaylist(track);
+                    tracks.Add(track);
                 }
+                await MusicDBApi.PostSpotifyTrackToPlaylist(tracks);
                 return data["snapshot_id"].ToString();
             }
             else
