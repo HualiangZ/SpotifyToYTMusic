@@ -118,11 +118,13 @@ namespace Spotify_to_YTMusic.Components
         {
             if (tracksToBeRemoved != null)
             {
-                foreach (YouTubeTracks track in tracksToBeRemoved)
+                var tasks = tracksToBeRemoved.Select(async track =>
                 {
                     await youtubeApi.DeleteItemFromPlaylistAsync(youtubePlaylistID, track.TrackID);
-                }
+                });
+                await Task.WhenAll(tasks);
             }
+            
         }
 
         private async Task ScrapeYouTubeVideoId(List<SpotifyTracks> spotifyTracks )
