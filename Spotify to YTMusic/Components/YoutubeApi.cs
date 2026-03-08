@@ -25,7 +25,8 @@ namespace Spotify_to_YTMusic.Components
 
         private static YoutubeApi _instance;
         private static readonly object padlock = new object();
-
+        private static readonly SemaphoreSlim removeFromPlaylistSemaphore = new SemaphoreSlim(1);
+        private static readonly SemaphoreSlim addToPlaylistSemaphore = new SemaphoreSlim(1);
         private YoutubeApi() { }
 
         public static YoutubeApi Instance()
@@ -132,28 +133,38 @@ namespace Spotify_to_YTMusic.Components
             playlistItem.Snippet.ResourceId = new ResourceId();
             playlistItem.Snippet.ResourceId.Kind = "youtube#video";
             playlistItem.Snippet.ResourceId.VideoId = videoId;
-            while (retry != 0)
+
+            await addToPlaylistSemaphore.WaitAsync();
+            try
             {
-                try
+                while (retry != 0)
                 {
-                    var item = await youtubeService.PlaylistItems.Insert(playlistItem, "snippet").ExecuteAsync();
-                    var request = youtubeService.Playlists.List("snippet");
-                    request.Id = playlistId;
-                    var response = await request.ExecuteAsync();
-                    YouTubePlaylistTracks youTubeTracks = new YouTubePlaylistTracks();
-                    youTubeTracks.PlaylistID = playlistId;
-                    youTubeTracks.TrackID = videoId;
-                    youTubeTracks.ID = item.Id;
-                    await MusicDBApi.PostYTTrackToPlaylist(youTubeTracks);
-                    return item.Id;
-                }
-                catch 
-                {
-                    await GetCredential();
-                    retry--;
-                    Console.WriteLine(retry);
+                    try
+                    {
+                        var item = await youtubeService.PlaylistItems.Insert(playlistItem, "snippet").ExecuteAsync();
+                        var request = youtubeService.Playlists.List("snippet");
+                        request.Id = playlistId;
+                        var response = await request.ExecuteAsync();
+                        YouTubePlaylistTracks youTubeTracks = new YouTubePlaylistTracks();
+                        youTubeTracks.PlaylistID = playlistId;
+                        youTubeTracks.TrackID = videoId;
+                        youTubeTracks.ID = item.Id;
+                        await MusicDBApi.PostYTTrackToPlaylist(youTubeTracks);
+                        return item.Id;
+                    }
+                    catch
+                    {
+                        await GetCredential();
+                        retry--;
+                        Console.WriteLine(retry);
+                    }
                 }
             }
+            finally 
+            {
+                addToPlaylistSemaphore.Release();   
+            }
+
 
             Console.WriteLine("Invalid Video ID or Playlist ID or out of Quotas");
             return null;
@@ -170,27 +181,33 @@ namespace Spotify_to_YTMusic.Components
             {
                 Console.WriteLine("Video ID is empty");
             }
-
             int retry = 1;
-            
-
-            while (retry != 0)
+            await removeFromPlaylistSemaphore.WaitAsync();
+            try
             {
-                try
+                while (retry != 0)
                 {
-                    var track = await MusicDBApi.GetTrackFromTYPlaylist(playlistId, videoId);
-                    await youtubeService.PlaylistItems.Delete(track.Track.ID).ExecuteAsync();
-                    await MusicDBApi.DeleteYTTrackFromPlaylist(track.Track);
-                    await MusicDBApi.DeleteYouTubeTrack(videoId);
-                    return;
-                }
-                catch (Exception ex)
-                {
-                    await GetCredential();
-                    retry--;
-                    Console.WriteLine(ex);
+                    try
+                    {
+                        var track = await MusicDBApi.GetTrackFromTYPlaylist(playlistId, videoId);
+                        await youtubeService.PlaylistItems.Delete(track.Track.ID).ExecuteAsync();
+                        await MusicDBApi.DeleteYTTrackFromPlaylist(track.Track);
+                        await MusicDBApi.DeleteYouTubeTrack(videoId);
+                        return;
+                    }
+                    catch (Exception ex)
+                    {
+                        await GetCredential();
+                        retry--;
+                        Console.WriteLine(ex);
+                    }
                 }
             }
+            finally 
+            {
+                removeFromPlaylistSemaphore.Release();
+            }
+
         }
 
         //stores youtube platlist to database with its tracks
