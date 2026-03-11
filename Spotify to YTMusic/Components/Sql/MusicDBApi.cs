@@ -505,18 +505,19 @@ namespace Spotify_to_YTMusic.Components.Sql
 
         }
 
-        public static async Task<(bool Sucess, string Err)> PostPlaylistSync(string youtubePlaylistID, string spotifyPlaylistId)
+        public static async Task<(bool Sucess, string Err)> PostPlaylistSync(string youtubePlaylistID, string spotifyPlaylistId, Direction Direction, Sync Sync)
         {
 
             PlaylistSync playlistSync = new PlaylistSync();
             playlistSync.YTPlaylistID = youtubePlaylistID;
             playlistSync.SpotifyPlaylistID = spotifyPlaylistId;
-
+            playlistSync.Direction = Direction;
+            playlistSync.Sync = Sync;   
             try
             {
                 using var cnn = CreateConnection();
                 await cnn.OpenAsync();
-                await cnn.ExecuteAsync("insert into PlaylistSync (YTPlaylistID, SpotifyPlaylistID) values (@YTPlaylistID, @SpotifyPlaylistID)", playlistSync);
+                await cnn.ExecuteAsync("insert into PlaylistSync (YTPlaylistID, SpotifyPlaylistID, Direction, Sync) values (@YTPlaylistID, @SpotifyPlaylistID, @Direction, @Sync)", playlistSync);
                 return (true, null);
             }
             catch (Exception ex)
