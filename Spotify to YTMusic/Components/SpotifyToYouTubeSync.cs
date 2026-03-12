@@ -294,10 +294,6 @@ namespace Spotify_to_YTMusic.Components
                     var toBeAdded = await spotifyApi.SearchForTracks(track.TrackName, track.ArtistName);
                     spotifyTracks.Add(toBeAdded);
                     missisngTrack.Remove(track);
-                    if (spotifyTracks.Count == 100)
-                    {
-                        break;
-                    }
                 }
                 List<string> spotifyTrackId = new List<string>();
                 if (spotifyId == null)
