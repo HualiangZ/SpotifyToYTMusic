@@ -315,6 +315,18 @@ namespace Spotify_to_YTMusic.Components
             return true;
         }
 
+        public async Task UpdateSpotifyPlaylist()
+        {
+            var ytPlaylist = await MusicDBApi.GetAllPlaylistSync(Direction.YouTube);
+            if(ytPlaylist.PlaylistSync != null || ytPlaylist.PlaylistSync.Count() > 0)
+            {
+                foreach(var playlist in ytPlaylist.PlaylistSync)
+                {
+                    await SyncYoutubeTracksToSpotify(playlist.YTPlaylistID);
+                }
+            }
+        }
+
         //update youtube playlist when spotify snapshot ID chagnes
         public async Task UpdateYTPlaylist()
         {

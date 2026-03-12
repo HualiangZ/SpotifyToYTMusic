@@ -39,6 +39,7 @@ namespace Spotify_to_YTMusic.Components
                     await Task.Delay(TimeSpan.FromSeconds(300)); //5 min sleep
                     //Console.WriteLine("sleep finish");
                     await playlistSync.UpdateYTPlaylist();
+                    await playlistSync.UpdateSpotifyPlaylist();
                 }
             });
             await MenuAsync();
