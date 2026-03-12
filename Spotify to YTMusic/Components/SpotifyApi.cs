@@ -493,7 +493,7 @@ namespace Spotify_to_YTMusic.Components
 
         public async Task<string> AddTrackToPlaylist(string playlistId, string[] trackIDs)
         {
-            var chunks = trackIDs.Chunk(2);
+            var chunks = trackIDs.Chunk(100);
             List<Task> tasks = new List<Task>();
             foreach (var chunk in chunks)
             {
