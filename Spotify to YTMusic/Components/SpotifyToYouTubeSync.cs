@@ -319,14 +319,14 @@ namespace Spotify_to_YTMusic.Components
         public async Task UpdateYTPlaylist()
         {
 
-            var spotifyPlaylist = await MusicDBApi.GetAllSportifyPlaylists();
-            if (spotifyPlaylist.Playlists != null || spotifyPlaylist.Playlists.Count() > 0)
+            var spotifyPlaylist = await MusicDBApi.GetAllPlaylistSync(Direction.Spotify);
+            if (spotifyPlaylist.PlaylistSync != null || spotifyPlaylist.PlaylistSync.Count() > 0)
             {
-                foreach (var playlist in spotifyPlaylist.Playlists)
+                foreach (var playlist in spotifyPlaylist.PlaylistSync)
                 {
-                    if (spotifyApi.CheckSnapshotIdChangeAsync(playlist.PlaylistID).Result)
+                    if (spotifyApi.CheckSnapshotIdChangeAsync(playlist.SpotifyPlaylistID).Result)
                     {
-                        await SyncSpotifyTracksToYoutube(playlist.PlaylistID, false);
+                        await SyncSpotifyTracksToYoutube(playlist.SpotifyPlaylistID, false);
                     }
                 }
             }

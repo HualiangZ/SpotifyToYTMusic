@@ -454,6 +454,23 @@ namespace Spotify_to_YTMusic.Components.Sql
             }
 
         }
+
+        public static async Task<(List<PlaylistSync> PlaylistSync, string Err)>GetAllPlaylistSync(Direction direction)
+        {
+            try
+            {
+                using var cnn = CreateConnection();
+                await cnn.OpenAsync();
+                List<PlaylistSync> playlistSync = (await cnn.QueryAsync<PlaylistSync>("select * from PlaylistSync where Direction = @Direction", new { Direction = direction })).ToList();
+                return (playlistSync, null);
+            }
+            catch (Exception ex) 
+            {
+                return (null, ex.Message);
+            }
+
+        }
+
         public static async Task<(List<PlaylistSync> PlaylistSync, string Err)> GetAllSyncedPlaylists()
         {
 
