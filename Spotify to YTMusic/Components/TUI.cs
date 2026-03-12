@@ -3,6 +3,7 @@ using Spotify_to_YTMusic.Components.Sql;
 using Spotify_to_YTMusic.Components.Sql.DataModel;
 using System;
 using System.Collections.Generic;
+using System.Data.SQLite;
 using System.Formats.Asn1;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
@@ -38,6 +39,7 @@ namespace Spotify_to_YTMusic.Components
                     await Task.Delay(TimeSpan.FromSeconds(300)); //5 min sleep
                     //Console.WriteLine("sleep finish");
                     await playlistSync.UpdateYTPlaylist();
+                    await playlistSync.UpdateSpotifyPlaylist();
                 }
             });
             await MenuAsync();
@@ -99,7 +101,19 @@ namespace Spotify_to_YTMusic.Components
 
             await AddSpotifyPlaylistToDB(spotifyPlaylistId);
             await AddYTPlaylistToDB(youtubePlaylistId);
-            await MusicDBApi.PostPlaylistSync(youtubePlaylistId, spotifyPlaylistId);
+
+
+            Console.WriteLine("Type \"Spotify\" if you want from Spotift -> YouTube \nOR\nType \"Youtube\" if you want YouTube to Spotify");
+            string input = Console.ReadLine().Trim();
+            if (input.ToLower() == "spotify")
+            {
+                await MusicDBApi.PostPlaylistSync(youtubePlaylistId, spotifyPlaylistId, Direction.Spotify, Sync.On);
+            } 
+            else if(input.ToLower() == "youtube")
+            {
+                await MusicDBApi.PostPlaylistSync(youtubePlaylistId, spotifyPlaylistId, Direction.YouTube, Sync.On);
+            }
+
         }
 
         private async Task AddYTPlaylistToDB(string? playlistId)
