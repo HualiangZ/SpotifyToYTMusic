@@ -47,46 +47,46 @@ namespace Spotify_to_YTMusic.Components
 
         public async Task MenuAsync()
         {
-            
-            Console.WriteLine("Enter a number depending on what you want to do");
-            Console.WriteLine("1. Sync Spotify playlist to YouTube Playlist");
-            Console.WriteLine("2. Sync YouTube Playlist to Spotify Playlist");
-            Console.WriteLine("3. Manual sync Playlist");
-            Console.WriteLine("4. Add new spotify playlist to database");
-            Console.WriteLine("5. Add new Youtube Music playlist to database");
-            userResponce = Console.ReadLine().Trim();
-            int choice = 0;
-            try
+            while (true)
             {
-                choice = int.Parse(userResponce);
-            }
-            catch
-            {
-                
-            }
-            switch (choice) 
-            {
-                case 1:
-                    await SyncSpotifyToYouTubePlaylistAsync().ConfigureAwait(false);
-                    break;
-                case 2:
-                    await SyncYouTubeToSpotifyPlaylistAsync().ConfigureAwait(false);
-                    break;
-                case 3:
-                    await ManualSyncPlaylist();
-                    break;
-                case 4:
-                    await AddSpotifyPlaylistToDB(null);
-                    break;
-                case 5:
-                    await AddYTPlaylistToDB(null);
-                    break;
-                default:
-                    Console.WriteLine("Please enter a number between 1-5");
-                    await MenuAsync();
-                    break;
-            }
+                Console.WriteLine("Enter a number depending on what you want to do");
+                Console.WriteLine("1. Sync Spotify playlist to YouTube Playlist");
+                Console.WriteLine("2. Sync YouTube Playlist to Spotify Playlist");
+                Console.WriteLine("3. Manual sync Playlist");
+                Console.WriteLine("4. Add new spotify playlist to database");
+                Console.WriteLine("5. Add new Youtube Music playlist to database");
+                userResponce = Console.ReadLine().Trim();
+                int choice = 0;
+                try
+                {
+                    choice = int.Parse(userResponce);
+                }
+                catch
+                {
 
+                }
+                switch (choice)
+                {
+                    case 1:
+                        await SyncSpotifyToYouTubePlaylistAsync().ConfigureAwait(false);
+                        break;
+                    case 2:
+                        await SyncYouTubeToSpotifyPlaylistAsync().ConfigureAwait(false);
+                        break;
+                    case 3:
+                        await ManualSyncPlaylist();
+                        break;
+                    case 4:
+                        await AddSpotifyPlaylistToDB(null);
+                        break;
+                    case 5:
+                        await AddYTPlaylistToDB(null);
+                        break;
+                    default:
+                        Console.WriteLine("Please enter a number between 1-5");
+                        break;
+                }
+            }
 
         }
 
@@ -98,8 +98,7 @@ namespace Spotify_to_YTMusic.Components
             spotifyPlaylistId = Console.ReadLine().Trim();
             Console.WriteLine("Enter YouTube Music Playlist ID");
             youtubePlaylistId = Console.ReadLine().Trim();
-
-            await AddSpotifyPlaylistToDB(spotifyPlaylistId);
+            await spotifyApi.StorePlaylistInfoToDBAsync(spotifyPlaylistId);
             await AddYTPlaylistToDB(youtubePlaylistId);
 
 
@@ -125,7 +124,6 @@ namespace Spotify_to_YTMusic.Components
             }
             await youtubeApi.StoreYouTubePlaylistToSQL(playlistId);
             await youtubeApi.StoreYTPlaylistTracksToDB(playlistId);
-            await MenuAsync();
         }
 
         private async Task AddSpotifyPlaylistToDB(string? playlistId)
@@ -177,7 +175,6 @@ namespace Spotify_to_YTMusic.Components
             }
             await MusicDBApi.PostSpotifyTrack(spotifyTracksToAdd);
             await MusicDBApi.PostSpotifyTrackToPlaylist(playlistTracksToAdd);
-            await MenuAsync().ConfigureAwait(false);
         }
         
 
@@ -194,7 +191,6 @@ namespace Spotify_to_YTMusic.Components
                 Console.WriteLine($"Unable to sync {spotifyPlaylistId}");
             }
 
-            await MenuAsync().ConfigureAwait(false);
         }
 
         private async Task SyncYouTubeToSpotifyPlaylistAsync()
@@ -210,7 +206,6 @@ namespace Spotify_to_YTMusic.Components
             {
                 Console.WriteLine($"Unable to sync {YTPlaylistId}");
             }
-            await MenuAsync().ConfigureAwait(false);
 
         }
 

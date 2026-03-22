@@ -333,9 +333,8 @@ namespace Spotify_to_YTMusic.Components
         }
 
         /*
-         * This method does four thing:
+         * This method does three thing:
          * 1. Store Spotify tracks to DB
-         * 2. store Youtube tracks to DB
          * 3. Store Spotify playlist informantion to DB
          * 4. Store what tracks are in Spotify playlist to DB
         */
@@ -419,6 +418,11 @@ namespace Spotify_to_YTMusic.Components
 
         private async Task DeleteTracksFromSQLPlaylist(List<string> oldTracks, List<string> newTracks, string playlistId)
         {
+            if(oldTracks.Count == 0 || newTracks.Count == 0)
+            {
+                return;
+            }
+
             foreach (var item in oldTracks)
             {
                 if (!newTracks.Contains(item))
