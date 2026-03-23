@@ -347,7 +347,7 @@ namespace Spotify_to_YTMusic.Components
             string url = $"https://api.spotify.com/v1/playlists/{playlistId}/tracks?limit={limit}&offsset={offset}";
             var spotifyPlaylistTracks = await MusicDBApi.GetAllSpotifyTrackInPlaylist(playlistId);
             List<string> newTrackIDs = new List<string>();
-            List<SpotifyPlaylistTracks> playlistTracksToAdd = new List<SpotifyPlaylistTracks>();  
+            List<SpotifyPlaylistTracks> playlistTracksToAdd = new List<SpotifyPlaylistTracks>();  //bulk insert not working for some reason
             List<SpotifyTracks> spotifyTracksToAdd = new List<SpotifyTracks>();
             while (url != "")
             {
@@ -374,19 +374,21 @@ namespace Spotify_to_YTMusic.Components
 
                     if(tracksToAdd.spotifyTracks != null)
                     {
+                        await MusicDBApi.PostSpotifyTrack(tracksToAdd.spotifyTracks);
                         spotifyTracksToAdd.Add(tracksToAdd.spotifyTracks);
                     }
                         
                     if(tracksToAdd.playlistTracks != null)
                     {
+                        await MusicDBApi.PostSpotifyTrackToPlaylist(tracksToAdd.playlistTracks);
                         playlistTracksToAdd.Add(tracksToAdd.playlistTracks);
                     }
                     
                 }
                 url = data["next"].ToString();
             }//end of loop
-            await MusicDBApi.PostSpotifyTrack(spotifyTracksToAdd);
-            await MusicDBApi.PostSpotifyTrackToPlaylist(playlistTracksToAdd);
+            //await MusicDBApi.PostSpotifyTracks(spotifyTracksToAdd);
+            //await MusicDBApi.PostSpotifyTracksToPlaylist(playlistTracksToAdd);
 
             //delete tracks from DB
             await DeleteTracksFromSQLPlaylist(spotifyPlaylistTracks.Tracks, newTrackIDs, playlistId);
@@ -548,7 +550,7 @@ namespace Spotify_to_YTMusic.Components
                     track.TrackID = id;
                     tracks.Add(track);
                 }
-                await MusicDBApi.PostSpotifyTrackToPlaylist(tracks);
+                await MusicDBApi.PostSpotifyTracksToPlaylist(tracks);
                 return data["snapshot_id"].ToString();
             }
             else

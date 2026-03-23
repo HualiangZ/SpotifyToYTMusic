@@ -136,11 +136,11 @@ namespace Spotify_to_YTMusic.Components
                 {
                     await YoutubeApi.StoreTrackToYouTubeDB(track.TrackName, track.ArtistName);
                 }
-                finally 
-                { 
+                finally
+                {
                     throttle.Release();
                 }
-            });
+            }).ToList();
             await Task.WhenAll(tasks);
         }
         private async Task<List<YouTubeTracks>> ChangeVideoId(List<YouTubeTracks> tracks)

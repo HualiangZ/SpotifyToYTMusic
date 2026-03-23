@@ -173,8 +173,8 @@ namespace Spotify_to_YTMusic.Components
                 }
                 url = data["next"].ToString();
             }
-            await MusicDBApi.PostSpotifyTrack(spotifyTracksToAdd);
-            await MusicDBApi.PostSpotifyTrackToPlaylist(playlistTracksToAdd);
+            await MusicDBApi.PostSpotifyTracks(spotifyTracksToAdd);
+            await MusicDBApi.PostSpotifyTracksToPlaylist(playlistTracksToAdd);
         }
         
 

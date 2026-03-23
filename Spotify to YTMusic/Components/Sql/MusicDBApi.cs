@@ -64,7 +64,7 @@ namespace Spotify_to_YTMusic.Components.Sql
             }
         }
 
-        public static async Task<(bool Success, string Err)> PostSpotifyTrack(List<SpotifyTracks> spotifyTrack)
+        public static async Task<(bool Success, string Err)> PostSpotifyTracks(List<SpotifyTracks> spotifyTrack)
         {
             try
             {
@@ -128,7 +128,7 @@ namespace Spotify_to_YTMusic.Components.Sql
             }
         }
 
-        public static async Task<(bool Success, string Err)> PostSpotifyTrackToPlaylist(List<SpotifyPlaylistTracks> playlistTrack)
+        public static async Task<(bool Success, string Err)> PostSpotifyTracksToPlaylist(List<SpotifyPlaylistTracks> playlistTrack)
         {
             try
             {
