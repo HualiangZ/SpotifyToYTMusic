@@ -320,7 +320,7 @@ namespace Spotify_to_YTMusic.Components
                 responseMessage = await client.GetAsync(url);
                 if (!responseMessage.IsSuccessStatusCode)
                 {
-                    Console.WriteLine("Unable to get Access Token");
+                    Console.WriteLine(await responseMessage.Content.ReadAsStringAsync());
                     return null;
                 }
             }
@@ -351,7 +351,8 @@ namespace Spotify_to_YTMusic.Components
             List<SpotifyTracks> spotifyTracksToAdd = new List<SpotifyTracks>();
             while (url != "")
             {
-                JObject data = await GetTracksInPlaylist(url);
+                JObject data = await GetTracksInPlaylist(url) ?? throw new Exception("Failed to get tracks from playlist");
+
                 var items = data["items"];
                 
                 if (items == null || items.Count() == 0)
