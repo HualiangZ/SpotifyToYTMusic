@@ -332,67 +332,64 @@ namespace Spotify_to_YTMusic.Components
             return data;
         }
 
-        /*
-         * This method does three thing:
-         * 1. Store Spotify tracks to DB
-         * 3. Store Spotify playlist informantion to DB
-         * 4. Store what tracks are in Spotify playlist to DB
-        */
         public async Task<List<SpotifyTracks>> StorePlaylistInfoToDBAsync(string playlistId)
         {
-            client.DefaultRequestHeaders.Clear();
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
-            int limit = 100;
-            int offset = 0;
-            string url = $"https://api.spotify.com/v1/playlists/{playlistId}/tracks?limit={limit}&offsset={offset}";
-            var spotifyPlaylistTracks = await MusicDBApi.GetAllSpotifyTrackInPlaylist(playlistId);
+            string url = $"https://api.spotify.com/v1/playlists/{playlistId}/tracks?limit=100&offset=0";
+            var existingTracksResult = await MusicDBApi.GetAllSpotifyTrackInPlaylist(playlistId);
+            var existingTrackIDs = existingTracksResult.Tracks ?? new List<string>();
             List<string> newTrackIDs = new List<string>();
-            List<SpotifyPlaylistTracks> playlistTracksToAdd = new List<SpotifyPlaylistTracks>();  //bulk insert not working for some reason
             List<SpotifyTracks> spotifyTracksToAdd = new List<SpotifyTracks>();
-            while (url != "")
+            List<SpotifyPlaylistTracks> playlistTracksToAdd = new List<SpotifyPlaylistTracks>();
+
+            while (!string.IsNullOrEmpty(url))
             {
                 JObject data = await GetTracksInPlaylist(url) ?? throw new Exception("Failed to get tracks from playlist");
-
                 var items = data["items"];
-                
-                if (items == null || items.Count() == 0)
+
+                if (items == null || !items.Any())
                 {
                     Console.WriteLine("Playlist empty");
                     break;
                 }
-                //add new tracks to DB
+
                 foreach (var item in items)
                 {
-                    var tracksToAdd = await AddTracksToSQLPlaylist
-                        (
-                        item["track"]["name"].ToString(), 
-                        item["track"]["artists"][0]["name"].ToString(),
-                        item["track"]["id"].ToString(),
-                        spotifyPlaylistTracks.Tracks, 
-                        playlistId
-                        );
-                    newTrackIDs.Add(item["track"]["id"].ToString());
+                    string trackId = item["track"]["id"]?.ToString();
+                    if (string.IsNullOrEmpty(trackId))
+                    {
+                        Console.WriteLine("Skipping item: no valid track ID (local track / podcast episode)");
+                        continue;
+                    }
 
-                    if(tracksToAdd.spotifyTracks != null)
+                    newTrackIDs.Add(trackId);
+
+                    if (existingTrackIDs.Contains(trackId))
+                        continue;
+
+                    spotifyTracksToAdd.Add(new SpotifyTracks
                     {
-                        await MusicDBApi.PostSpotifyTrack(tracksToAdd.spotifyTracks);
-                        spotifyTracksToAdd.Add(tracksToAdd.spotifyTracks);
-                    }
-                        
-                    if(tracksToAdd.playlistTracks != null)
+                        TrackID = trackId,
+                        TrackName = item["track"]["name"]?.ToString(),
+                        ArtistName = item["track"]["artists"]?[0]?["name"]?.ToString()
+                    });
+
+                    playlistTracksToAdd.Add(new SpotifyPlaylistTracks
                     {
-                        await MusicDBApi.PostSpotifyTrackToPlaylist(tracksToAdd.playlistTracks);
-                        playlistTracksToAdd.Add(tracksToAdd.playlistTracks);
-                    }
-                    
+                        TrackID = trackId,
+                        PlaylistID = playlistId
+                    });
                 }
-                url = data["next"].ToString();
-            }//end of loop
-            //await MusicDBApi.PostSpotifyTracks(spotifyTracksToAdd);
-            //await MusicDBApi.PostSpotifyTracksToPlaylist(playlistTracksToAdd);
 
-            //delete tracks from DB
-            await DeleteTracksFromSQLPlaylist(spotifyPlaylistTracks.Tracks, newTrackIDs, playlistId);
+                url = data["next"]?.ToString();
+            }
+
+            if (spotifyTracksToAdd.Count > 0)
+                await MusicDBApi.PostSpotifyTracks(spotifyTracksToAdd);
+
+            if (playlistTracksToAdd.Count > 0)
+                await MusicDBApi.PostSpotifyTracksToPlaylist(playlistTracksToAdd);
+
+            await DeleteTracksFromSQLPlaylist(existingTrackIDs, newTrackIDs, playlistId);
 
             return spotifyTracksToAdd;
         }
@@ -421,19 +418,18 @@ namespace Spotify_to_YTMusic.Components
 
         private async Task DeleteTracksFromSQLPlaylist(List<string> oldTracks, List<string> newTracks, string playlistId)
         {
-            if(oldTracks.Count == 0 || newTracks.Count == 0)
-            {
+            if (oldTracks == null || oldTracks.Count == 0)
                 return;
-            }
 
             foreach (var item in oldTracks)
             {
-                if (!newTracks.Contains(item))
+                if (newTracks == null || !newTracks.Contains(item))
                 {
-                    SpotifyPlaylistTracks toBeDeleted = new SpotifyPlaylistTracks();
-                    toBeDeleted.PlaylistID = playlistId;
-                    toBeDeleted.TrackID = item;
-                    await MusicDBApi.DeleteSpotifyTrackFromPlaylist(toBeDeleted);
+                    await MusicDBApi.DeleteSpotifyTrackFromPlaylist(new SpotifyPlaylistTracks
+                    {
+                        PlaylistID = playlistId,
+                        TrackID = item
+                    });
                     await MusicDBApi.DeleteSpotifyTrack(item);
                 }
             }
