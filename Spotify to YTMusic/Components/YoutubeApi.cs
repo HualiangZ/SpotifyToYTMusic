@@ -2,6 +2,7 @@
 using Google.Apis.Services;
 using Google.Apis.Util.Store;
 using Google.Apis.YouTube.v3;
+using Google.Apis.YouTube.v3.Data;
 using Spotify_to_YTMusic.Components.Sql;
 using Spotify_to_YTMusic.Components.Sql.DataModel;
 using Spotify_to_YTMusic.Interfaces;
