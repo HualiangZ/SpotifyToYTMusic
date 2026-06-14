@@ -25,7 +25,7 @@ namespace Spotify_to_YTMusic.Components
         private static readonly Regex VideoIdRegex =
             new(@"""videoId"":""([a-zA-Z0-9_-]{11})""", RegexOptions.Compiled);
 
-        private static readonly HttpClient _http = new()
+        internal static HttpClient _http = new()
         {
             DefaultRequestHeaders =
         {

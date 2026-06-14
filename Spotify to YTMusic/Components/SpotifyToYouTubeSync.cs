@@ -1,28 +1,17 @@
-﻿using Google.Apis.YouTube.v3.Data;
-using Spotify_to_YTMusic.Components.Sql;
+﻿using Spotify_to_YTMusic.Components.Sql;
 using Spotify_to_YTMusic.Components.Sql.DataModel;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Data.SQLite;
-using System.Diagnostics;
-using System.Diagnostics.Metrics;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using Xunit.Abstractions;
+using Spotify_to_YTMusic.Interfaces;
 
 
 namespace Spotify_to_YTMusic.Components
 {
-    public class SpotifyToYouTubeSync
+    public class SpotifyToYouTubeSync : ISpotifyToYouTubeSync
     {
-        YoutubeApi youtubeApi;
-        SpotifyApi spotifyApi;
+        IYoutubeApi youtubeApi;
+        ISpotifyApi spotifyApi;
         private static readonly SemaphoreSlim semaphore = new SemaphoreSlim(1);
         private static readonly SemaphoreSlim throttle = new SemaphoreSlim(20);
-        public SpotifyToYouTubeSync(YoutubeApi _youtubeApi, SpotifyApi _spotifyApi)
+        public SpotifyToYouTubeSync(IYoutubeApi _youtubeApi, ISpotifyApi _spotifyApi)
         {
             youtubeApi = _youtubeApi;
             spotifyApi = _spotifyApi;
@@ -136,7 +125,7 @@ namespace Spotify_to_YTMusic.Components
                 await throttle.WaitAsync();
                 try
                 {
-                    await YoutubeApi.StoreTrackToYouTubeDB(track.TrackName, track.ArtistName);
+                    await youtubeApi.StoreTrackToYouTubeDB(track.TrackName, track.ArtistName);
                 }
                 finally
                 {

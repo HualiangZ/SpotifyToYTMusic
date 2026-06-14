@@ -1,25 +1,14 @@
-﻿using Google.Apis.YouTube.v3;
-using Spotify_to_YTMusic.Components.Sql;
+﻿using Spotify_to_YTMusic.Components.Sql;
 using Spotify_to_YTMusic.Components.Sql.DataModel;
-using System;
-using System.Collections.Generic;
-using System.Data.SQLite;
-using System.Formats.Asn1;
-using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
-using Xunit.Sdk;
+using Spotify_to_YTMusic.Interfaces;
 
 namespace Spotify_to_YTMusic.Components
 {
-    public class TUI
+    public class TUI : ITUI
     {
-        SpotifyApi spotifyApi;
-        YoutubeApi youtubeApi;
-        SpotifyToYouTubeSync playlistSync;
+        ISpotifyApi spotifyApi;
+        IYoutubeApi youtubeApi;
+        ISpotifyToYouTubeSync playlistSync;
         private string userResponce;
         public TUI()
         {

@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Spotify_to_YTMusic.Components;
+using Spotify_to_YTMusic.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,17 +13,16 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 [assembly: InternalsVisibleTo("JsonReaderTest")]
 namespace Spotify_to_YTMusic.Config
 {
-    internal class MyJsonReader
+    internal class MyJsonReader : IMyJsonReader
     {
         public string ClientID { get; set; }
         public string ClientSecret { get; set; }
         public string File {  get; set; }
         public virtual async Task<JsonStruck> JsonStreamReader()
         {
-            StreamReader reader = new StreamReader(File);
+            using StreamReader reader = new StreamReader(File);
             string json = await reader.ReadToEndAsync().ConfigureAwait(false);
             JsonStruck data = JsonConvert.DeserializeObject<JsonStruck>(json);
-            reader.Close();
             return data;
         }
 

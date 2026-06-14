@@ -38,7 +38,7 @@ namespace Spotify_to_YTMusic.Components.Sql
             {
                 using var cnn = CreateConnection();
                 await cnn.OpenAsync();
-                SpotifyTracks track = await cnn.QueryFirstAsync<SpotifyTracks>("select * from SpotifyTracks where TrackName = @TrackName AND ArtistName = ArtistName",
+                SpotifyTracks track = await cnn.QueryFirstAsync<SpotifyTracks>("select * from SpotifyTracks where TrackName = @TrackName AND ArtistName = @ArtistName",
                     new { TrackName = trackName, ArtistName = artistName });
                 return (track, null);
             }

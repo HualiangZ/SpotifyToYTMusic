@@ -1,24 +1,20 @@
-﻿using Google.Apis.Auth.OAuth2.Requests;
-using Google.Apis.YouTube.v3.Data;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Spotify_to_YTMusic.Components.Sql;
 using Spotify_to_YTMusic.Components.Sql.DataModel;
 using Spotify_to_YTMusic.Config;
+using Spotify_to_YTMusic.Interfaces;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Text;
-using static System.Net.WebRequestMethods;
 
 [assembly: InternalsVisibleTo("SpotifyToTYMusicTest")]
 
 namespace Spotify_to_YTMusic.Components
 {
-
-    public class SpotifyApi
+    public class SpotifyApi : ISpotifyApi
     {
         public string AccessToken { get; set; }
         private readonly HttpClient client = new HttpClient();
@@ -282,6 +278,11 @@ namespace Spotify_to_YTMusic.Components
         {
             string newSnapshotId = await GetPlaylistSnapshotIdAsync(playlistId);
             var result = await MusicDBApi.GetOneSportifyPlaylists(playlistId);
+            if (result.Playlist == null)
+            {
+                Console.WriteLine("No Spotify playlist is stored");
+                return false;
+            }
             string storedSnapshotId = result.Playlist.SnapshotID;
             if (storedSnapshotId == null)
             {
