@@ -92,7 +92,7 @@ namespace Spotify_to_YTMusic.Components
             newPlaylist.Status = new PlaylistStatus();
             newPlaylist.Status.PrivacyStatus = "public";
             int retry = 1;
-            while (retry != 0) 
+            while (retry != 0)
             {
                 try
                 {
@@ -115,12 +115,12 @@ namespace Spotify_to_YTMusic.Components
 
         public async Task<string> AddTrackToPlaylist(string playlistId, string videoId)
         {
-            if(playlistId == "")
+            if (playlistId == "")
             {
                 Console.WriteLine("Playlist ID is empty");
                 return null;
             }
-            if(videoId == "")
+            if (videoId == "")
             {
                 Console.WriteLine("Video ID is empty");
             }
@@ -152,21 +152,19 @@ namespace Spotify_to_YTMusic.Components
                         await MusicDBApi.PostYTTrackToPlaylist(youTubeTracks);
                         return item.Id;
                     }
-                    catch
+                    catch (Exception ex)
                     {
                         await GetCredential();
                         retry--;
-                        Console.WriteLine(retry);
+                        Console.WriteLine($"{retry}: {ex.Message}");
                     }
                 }
             }
-            finally 
+            finally
             {
-                addToPlaylistSemaphore.Release();   
+                addToPlaylistSemaphore.Release();
             }
 
-
-            Console.WriteLine("Invalid Video ID or Playlist ID or out of Quotas");
             return null;
         }
 
@@ -232,7 +230,7 @@ namespace Spotify_to_YTMusic.Components
         {
             var nextPageToken = "";
             List<string> trackIDs = new List<string>();
-            List<YouTubeTracks> youTubeTracks = new List<YouTubeTracks>(); //bulk insert not working for some reason
+            List<YouTubeTracks> youTubeTracks = new List<YouTubeTracks>();
             List<YouTubePlaylistTracks> playlistTracks = new List<YouTubePlaylistTracks>();
             while (nextPageToken != null)
             {
@@ -246,13 +244,13 @@ namespace Spotify_to_YTMusic.Components
                     var tracToAdd = await GetTrackTitleAndArtistNameAsync(playlistId, item.Snippet.ResourceId.VideoId, item.Id);
                     if (tracToAdd.youtubeTrack != null)
                     {
-                        await MusicDBApi.PostYouTubeTrack(tracToAdd.youtubeTrack);
+                        //await MusicDBApi.PostYouTubeTrack(tracToAdd.youtubeTrack);
 
                         youTubeTracks.Add(tracToAdd.youtubeTrack);
                     }
                     if(tracToAdd.playlistTrack != null)
                     {
-                        await MusicDBApi.PostYTTrackToPlaylist(tracToAdd.playlistTrack);
+                        //await MusicDBApi.PostYTTrackToPlaylist(tracToAdd.playlistTrack);
 
                         playlistTracks.Add(tracToAdd.playlistTrack);
                     }
@@ -260,8 +258,8 @@ namespace Spotify_to_YTMusic.Components
                 }
                 nextPageToken = playlistItemsResponse.NextPageToken;
             }
-            //await MusicDBApi.PostYouTubeTrack(youTubeTracks);
-            //await MusicDBApi.PostYTTrackToPlaylist(playlistTracks);
+            await MusicDBApi.PostYouTubeTrack(youTubeTracks);
+            await MusicDBApi.PostYTTrackToPlaylist(playlistTracks);
             return trackIDs;
         }
 

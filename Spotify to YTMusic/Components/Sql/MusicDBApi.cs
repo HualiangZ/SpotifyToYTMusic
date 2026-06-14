@@ -268,7 +268,7 @@ namespace Spotify_to_YTMusic.Components.Sql
             {
                 using var cnn = CreateConnection();
                 await cnn.OpenAsync();
-                await cnn.ExecuteAsync("insert into YouTubeTracks (TrackID, TrackName, ArtistName) values (@TrackID, @TrackName, @ArtistName)", youtubeTrack);
+                await cnn.ExecuteAsync("insert or ignore into YouTubeTracks (TrackID, TrackName, ArtistName) values (@TrackID, @TrackName, @ArtistName)", youtubeTrack);
                 return (true, null);
             }
             catch (Exception ex)
@@ -284,7 +284,7 @@ namespace Spotify_to_YTMusic.Components.Sql
             {
                 using var cnn = CreateConnection();
                 await cnn.OpenAsync();
-                await cnn.ExecuteAsync("insert into YouTubeTracks (TrackID, TrackName, ArtistName) values (@TrackID, @TrackName, @ArtistName)", youtubeTrack);
+                await cnn.ExecuteAsync("insert or ignore into YouTubeTracks (TrackID, TrackName, ArtistName) values (@TrackID, @TrackName, @ArtistName)", youtubeTrack);
                 return (true, null);
             }
             catch (Exception ex)
@@ -410,7 +410,7 @@ namespace Spotify_to_YTMusic.Components.Sql
             {
                 using var cnn = CreateConnection();
                 await cnn.OpenAsync();
-                await cnn.ExecuteAsync("insert into YouTubePlaylistTracks (PlaylistID, TrackID, ID) values (@PlaylistID, @TrackID, @ID)", playlistTrack);
+                await cnn.ExecuteAsync("insert or ignore into YouTubePlaylistTracks (PlaylistID, TrackID, ID) values (@PlaylistID, @TrackID, @ID)", playlistTrack);
                 return (true, null);
             }
             catch (Exception ex)
@@ -426,7 +426,7 @@ namespace Spotify_to_YTMusic.Components.Sql
             {
                 using var cnn = CreateConnection();
                 await cnn.OpenAsync();
-                await cnn.ExecuteAsync("insert into YouTubePlaylistTracks (PlaylistID, TrackID, ID) values (@PlaylistID, @TrackID, @ID)", playlistTracks);
+                await cnn.ExecuteAsync("insert or ignore into YouTubePlaylistTracks (PlaylistID, TrackID, ID) values (@PlaylistID, @TrackID, @ID)", playlistTracks);
                 return (true, null);
             }
             catch (Exception ex)

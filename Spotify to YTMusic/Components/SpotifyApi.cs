@@ -177,7 +177,8 @@ namespace Spotify_to_YTMusic.Components
                 response = await client.GetAsync(url).ConfigureAwait(false);
                 if (!response.IsSuccessStatusCode)
                 {
-                    Console.WriteLine("Unable to get Access Token");
+                    string errorBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                    Console.WriteLine($"Spotify API error: {(int)response.StatusCode} {response.ReasonPhrase} - {errorBody}");
                     return null;
                 }
             }
@@ -210,7 +211,8 @@ namespace Spotify_to_YTMusic.Components
                 response = await client.PostAsync(url, content).ConfigureAwait(false);
                 if (!response.IsSuccessStatusCode)
                 {
-                    Console.WriteLine($"Error: {response.StatusCode}");
+                    string errorBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                    Console.WriteLine($"Spotify API error: {(int)response.StatusCode} {response.ReasonPhrase} - {errorBody}");
                     return null;
                 }
             }
@@ -236,7 +238,8 @@ namespace Spotify_to_YTMusic.Components
                 responseMessage = await client.GetAsync(url);
                 if (!responseMessage.IsSuccessStatusCode)
                 {
-                    Console.WriteLine("Unable to get Access Token");
+                    string errorBody = await responseMessage.Content.ReadAsStringAsync();
+                    Console.WriteLine($"Spotify API error: {(int)responseMessage.StatusCode} {responseMessage.ReasonPhrase} - {errorBody}");
                     return null;
                 }
             }
@@ -263,7 +266,8 @@ namespace Spotify_to_YTMusic.Components
                 responseMessage = await client.GetAsync(url).ConfigureAwait(false);
                 if (!responseMessage.IsSuccessStatusCode)
                 {
-                    Console.WriteLine("Unable to get Access Token");
+                    string errorBody = await responseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
+                    Console.WriteLine($"Spotify API error: {(int)responseMessage.StatusCode} {responseMessage.ReasonPhrase} - {errorBody}");
                     return null;
                 }
             }
